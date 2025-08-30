@@ -1,15 +1,18 @@
+import { MOCK_REVIEWS } from "./mockReviews";
+import { MOCK_LISTS } from "./mockLists";
+
 export const mockUsers = [
   { 
     id: 1, 
     email: 'usuario@email.com', 
     password: '123456', 
     name: 'João Silva', 
-    bio: 'Apaixonado por filmes e séries.', // ← Bio deve estar aqui
+    bio: 'Apaixonado por filmes e séries.',
     avatar: '',
-    savedMedia: [],
-    favorites: [],
-    reviews: {},
-    lists: []
+    savedMedia: [1, 2, 3, 4, 5, 6],
+    favorites: [1, 3, 5],
+    reviews: MOCK_REVIEWS.filter(review => review.userId === 1),
+    lists: MOCK_LISTS.filter(review => review.userId === 1)
   },
   { 
     id: 2, 
@@ -18,9 +21,9 @@ export const mockUsers = [
     name: 'Maria Santos',
     bio: 'Amante de música e games.',
     avatar: '',
-    savedMedia: [],
-    favorites: [],
-    reviews: {},
-    lists: []
+    savedMedia: [7, 8, 9, 10, 11, 12],
+    favorites: [11, 18, 8],
+    reviews: MOCK_REVIEWS.filter(review => review.userId === 2),
+    lists: MOCK_LISTS.filter(review => review.userId === 2),
   }
 ];

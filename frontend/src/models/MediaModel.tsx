@@ -13,7 +13,7 @@ export interface Media {
     url: string;
   }[];  
   // Campos específicos por tipo de mídia
-  artists?: string[];
+  artists?: string[] | string; 
   directors?: string[];
   platforms?: string[];
   streaming?: string[];

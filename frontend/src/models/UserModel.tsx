@@ -1,4 +1,5 @@
 import  { UserList } from "./ListModel";
+import { Review } from "./ReviewModel";
 
 export interface User {
   id: number;
@@ -8,9 +9,16 @@ export interface User {
   avatar?: string;
   coverImage?: string;
   bio?: string;
-
+  //dados mais complexos
   savedMedia?: number[];
-  lists?: UserList[];
-  reviewIds?: number[];
   favorites?: number[];
+  lists?: UserList[];
+  reviews?: Review[];
+  privacy: {
+    profileVisibility: "public" | "private" ;
+    showActivity: boolean;
+    showSavedItems: boolean;
+    showReviews: boolean;
+    dataCollection: boolean;
+  };
 }

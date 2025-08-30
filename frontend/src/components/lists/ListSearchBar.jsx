@@ -1,24 +1,32 @@
+// components/SearchBar.jsx
 import { useState, useRef, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
 import { ALL_MEDIA } from "../../mockdata/mockMedia";
 
-export default function SearchBar() {
+export default function ListSearchBar({ onSearchResults, modalMode = false }) {
   const [query, setQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const searchRef = useRef(null);
-  const navigate = useNavigate();
   
   const filteredResults = ALL_MEDIA.filter((media) =>
     media.title.toLowerCase().includes(query.toLowerCase())
   );
+
+  // Notificar resultados quando em modal mode
+  useEffect(() => {
+    if (modalMode && onSearchResults) {
+      onSearchResults(filteredResults);
+    }
+  }, [query, modalMode, onSearchResults, filteredResults]);
 
   // Fechar ao clicar fora
   useEffect(() => {
     function handleClickOutside(event) {
       if (searchRef.current && !searchRef.current.contains(event.target)) {
         setIsOpen(false);
-        setIsExpanded(false);
+        if (!modalMode) {
+          setIsExpanded(false);
+        }
       }
     }
 
@@ -26,25 +34,7 @@ export default function SearchBar() {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, []);
-
-  const handleSearchIconClick = () => {
-    if (isExpanded && query.trim()) {
-      // Se já está expandido e tem query, vai para página de busca
-      navigate(`/search?q=${encodeURIComponent(query)}`);
-      setIsExpanded(false);
-      setIsOpen(false);
-      setQuery("");
-    } else {
-      // Se não está expandido, expande o input
-      setIsExpanded(true);
-      setTimeout(() => {
-        if (searchRef.current) {
-          searchRef.current.querySelector('input').focus();
-        }
-      }, 10);
-    }
-  };
+  }, [modalMode]);
 
   const handleInputFocus = () => {
     setIsOpen(true);
@@ -52,91 +42,70 @@ export default function SearchBar() {
 
   const handleKeyPress = (e) => {
     if (e.key === 'Enter' && query.trim()) {
-      navigate(`/search?q=${encodeURIComponent(query)}`);
-      setIsExpanded(false);
-      setIsOpen(false);
-      setQuery("");
+      e.preventDefault(); // Prevenir submit em forms
     }
   };
+
+  // No modal mode, o input está sempre visível e expandido
+  const showInput = modalMode || isExpanded;
+  
+  // NOVO: No modal mode, NÃO mostrar resultados próprios
+  const showResults = !modalMode && isOpen && query;
 
   return (
     <div className="relative" ref={searchRef}>
       {/* Container da busca */}
       <div className="flex items-center">
-        {/* Input de busca - aparece quando expandido */}
-        {isExpanded && (
+        {/* Input de busca - aparece quando expandido ou no modal */}
+        {showInput && (
           <div className="relative mr-2">
             <input
               type="text"
-              placeholder="Buscar..."
+              placeholder="Buscar filmes, séries, games, músicas..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onFocus={handleInputFocus}
               onKeyPress={handleKeyPress}
-              className="w-50 px-3 py-1 rounded-full border border-gray-600 bg-gray-700 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              className={`${
+                modalMode 
+                  ? "w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                  : "w-64 px-4 py-2 rounded-full border border-gray-600 bg-gray-700 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              }`}
             />
+            
+            {/* Ícone de pesquisa dentro do input no modal mode */}
+            {modalMode && (
+              <div className="absolute right-3 top-3">
+                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+            )}
           </div>
-        )}
-        
-        {/* Ícone de pesquisa - sempre visível */}
-        <button
-          onClick={handleSearchIconClick}
-          className="p-2 rounded-full hover:bg-gray-700 transition-colors cursor-pointer"
-          title="Buscar mídias"
-        >
-          <svg className="w-10 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-        </button>
-
-        {/* Botão de fechar - aparece quando expandido */}
-        {isExpanded && (
-          <button
-            onClick={() => {
-              setIsExpanded(false);
-              setIsOpen(false);
-              setQuery("");
-            }}
-            className="ml-2 p-2 rounded-full hover:bg-gray-700 transition-colors cursor-pointer"
-            title="Fechar busca"
-          >
-            <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
         )}
       </div>
 
-      {/* Resultados da busca rápida */}
-      {isOpen && query && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white shadow-xl rounded-xl p-4 text-left max-h-64 overflow-y-auto z-50">
+      {/* Resultados da busca - APENAS quando NÃO for modal mode */}
+      {showResults && (
+        <div className="absolute top-full left-0 right-0 mt-2 bg-white shadow-xl rounded-xl p-4 text-left max-h-80 overflow-y-auto z-50 border border-gray-200">
           <div className="flex justify-between items-center mb-3">
             <h2 className="font-bold text-gray-800 text-sm uppercase tracking-wide">
               Resultados da busca
             </h2>
-            <Link
-              to={`/search?q=${encodeURIComponent(query)}`}
-              onClick={() => {
-                setIsOpen(false);
-                setIsExpanded(false);
-                setQuery("");
-              }}
-              className="text-xs text-blue-600 hover:text-blue-800 font-medium"
-            >
-              Ver todos →
-            </Link>
           </div>
           
           {filteredResults.slice(0, 5).length > 0 ? (
             <ul className="space-y-2">
               {filteredResults.slice(0, 5).map((media) => (
                 <li key={media.id}>
-                  <Link
-                    to={`/media/${media.id}`}
-                    onClick={() => {
+                  <a
+                    href={`/media/${media.id}`}
+                    onClick={(e) => {
+                      e.preventDefault();
                       setQuery("");
                       setIsOpen(false);
                       setIsExpanded(false);
+                      window.location.href = `/media/${media.id}`;
                     }}
                     className="block p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer border border-gray-100"
                   >
@@ -162,7 +131,7 @@ export default function SearchBar() {
                         )}
                       </div>
                     </div>
-                  </Link>
+                  </a>
                 </li>
               ))}
             </ul>

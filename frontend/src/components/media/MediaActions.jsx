@@ -15,10 +15,8 @@ export default function MediaActions({ mediaItem }) {
   const [isFavorited, setIsFavorited] = useState(false);
   const [showAddToListModal, setShowAddToListModal] = useState(false);
 
-  // Verificar estado inicial dos botões por IDs
   useEffect(() => {
     if (user) {
-      // Agora verificamos por IDs em vez de objetos completos
       setIsSaved(user.savedMedia?.includes(mediaItem.id) || false);
       setIsFavorited(user.favorites?.includes(mediaItem.id) || false);
     }
@@ -60,15 +58,37 @@ export default function MediaActions({ mediaItem }) {
     setShowAddToListModal(true);
   };
 
-  const handleAddToListConfirm = (listId, listName = null) => {
-    const result = addMediaToList(mediaItem, listId, listName);
-    if (result.success) {
-      alert(`"${mediaItem.title}" adicionado à lista ${result.list.name} com sucesso!`);
+const handleAddToListConfirm = (listId, listName = null) => {
+  if (!isAuthenticated) {
+    alert("Você precisa estar logado para adicionar itens a listas!");
+    return;
+  }
+
+  console.log('📌 Tentando adicionar à lista:', { listId, listName });
+  console.log('📌 Mídia:', mediaItem);
+
+  // Verifique se mediaItem existe e tem ID
+  if (!mediaItem || !mediaItem.id) {
+    alert("Erro: Item de mídia inválido!");
+    return;
+  }
+
+  const result = addMediaToList(mediaItem, listId, listName);
+  
+  console.log('📌 Resultado:', result);
+  
+  if (result.success) {
+    alert(`"${mediaItem.title}" adicionado à lista ${result.list.name} com sucesso!`);
+    setShowAddToListModal(false);
+  } else {
+    // Mostra mensagem de erro específica
+    alert(result.error || "Erro ao adicionar à lista");
+    if (result.error?.includes('já está')) {
+      // Fecha o modal se for duplicata
       setShowAddToListModal(false);
-    } else {
-      alert(result.error);
     }
-  };
+  }
+};
 
   return (
     <>

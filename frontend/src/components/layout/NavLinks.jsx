@@ -27,7 +27,7 @@ export default function NavLinks({ mobile = false }) {
   }
 
   return (
-    <div className="flex items-center gap-4">
+    <div className="flex items-center gap-1">
       {navItems.map((item) => (
         <Link
           key={item.to}

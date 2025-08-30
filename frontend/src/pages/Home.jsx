@@ -1,5 +1,6 @@
 import RecommendationGrid from "../components/RecommendationGrid";
 import { useAuth } from "../hooks/useAuth";
+import TrendingSection from "../components/TrendingSection";
 
 export default function Home() {
   const { isAuthenticated } = useAuth();
@@ -15,7 +16,8 @@ export default function Home() {
       </p>
 
       <div className="p-4 w-full flex flex-col items-center">
-        {/* Barra de pesquisa sempre visível */}
+        {/* Trending Section */}
+        <TrendingSection />
 
         {/* Grid só aparece se logado */}
         {isAuthenticated && <RecommendationGrid />}

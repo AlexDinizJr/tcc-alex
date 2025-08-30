@@ -76,9 +76,15 @@ export default function AuthSection({ user, isAuthenticated, onLogout, mobile = 
           
           <Link
             to="/myprofile"
-            className="px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors text-sm"
+            className="px-2 py-2 rounded-lg hover:bg-gray-700 transition-colors text-sm"
           >
-            Perfil
+            Meu Perfil
+          </Link>
+
+          <Link 
+            to="/lists"
+            className="px-2 py-2 rounded-lg hover:bg-gray-700 transition-colors text-sm">
+            Minhas Listas
           </Link>
           
           <button

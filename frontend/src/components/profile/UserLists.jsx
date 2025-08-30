@@ -5,7 +5,7 @@ export default function UserLists({ userLists }) {
     <div className="bg-white rounded-2xl shadow-md p-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold text-gray-800">Minhas Listas</h2>
-        <Link to="/my-lists" className="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
+        <Link to="/lists" className="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
           Ver todas
         </Link>
       </div>
@@ -16,8 +16,8 @@ export default function UserLists({ userLists }) {
             <div key={list.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
               <div className="flex items-start justify-between">
                 <div>
-                  <h3 className="font-medium text-gray-800">{list.title}</h3>
-                  <p className="text-gray-500 text-sm mt-1">{list.itemCount} itens</p>
+                  <h3 className="font-medium text-gray-800">{list.name}</h3> {/* Mudado de title para name */}
+                  <p className="text-gray-500 text-sm mt-1">{list.items?.length || 0} itens</p> {/* Mudado de itemCount para items.length */}
                 </div>
                 <span className={`px-2 py-1 rounded-full text-xs ${list.isPublic ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}`}>
                   {list.isPublic ? 'Pública' : 'Privada'}
@@ -28,7 +28,7 @@ export default function UserLists({ userLists }) {
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
-                Criada em {list.createdAt}
+                Criada em {new Date(list.createdAt).toLocaleDateString('pt-BR')} {/* Formatando a data */}
               </div>
             </div>
           ))}

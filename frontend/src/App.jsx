@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import ProtectedRoute from "./routes/ProtectedRoute";
+import ScrollToTop from "./components/layout/ScrolltoTop";
 import Navbar from "./components/layout/Navbar";
 import Footer from "./components/layout/Footer";
 import Home from "./pages/Home";
@@ -15,11 +16,18 @@ import MyProfile from "./pages/MyProfile";
 import Preferences from "./pages/Preferences";
 import Search from "./pages/Search";
 import NotFound from "./pages/NotFound";
+import Settings from "./pages/Settings";
+import MyLists from "./pages/MyLists";
+import SavedItems from "./pages/MySavedMedia";
+import MyReviews from "./pages/MyReviews";
+import UserList from "./pages/UserList";
+import CreateList from "./pages/CreateList";
 
 function App() {
   return (
     <Router>
       <div className="min-h-screen flex flex-col bg-gray-50">
+        <ScrollToTop />
         <Navbar />
         <main className="flex-1 container mx-auto px-4 py-6 ">
           <Routes>
@@ -35,6 +43,12 @@ function App() {
             <Route path="/search" element={<Search />} />
             <Route path="/preferences" element={<ProtectedRoute><Preferences /></ProtectedRoute>} />
             <Route path="/myprofile" element={<ProtectedRoute><MyProfile /></ProtectedRoute>} />
+            <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+            <Route path="/lists" element={<ProtectedRoute><MyLists /></ProtectedRoute>} />
+            <Route path="/lists/create" element={<ProtectedRoute><CreateList /></ProtectedRoute>} />
+            <Route path="/lists/:id" element={<ProtectedRoute><UserList /></ProtectedRoute>} />
+            <Route path="/saved-items" element={<ProtectedRoute><SavedItems /></ProtectedRoute>} />
+            <Route path="/my-reviews" element={<ProtectedRoute><MyReviews /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>

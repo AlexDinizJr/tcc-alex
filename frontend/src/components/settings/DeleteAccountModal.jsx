@@ -1,0 +1,79 @@
+import { useState } from "react";
+import { useAuth } from "../../hooks/useAuth";
+import { useNavigate } from "react-router-dom";
+
+export default function DeleteAccountModal({ onClose }) {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+  const [confirmationText, setConfirmationText] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDeleteAccount = async () => {
+    if (confirmationText !== "EXCLUIR CONTA") {
+      alert("Por favor, digite 'EXCLUIR CONTA' para confirmar.");
+      return;
+    }
+
+    setIsDeleting(true);
+    
+    try {
+      // Simulando exclusão da conta
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Logout e redirecionamento
+      logout();
+      navigate("/");
+      alert("Sua conta foi excluída com sucesso.");
+    } catch (error) {
+      console.error("Erro ao excluir conta:", error);
+      alert("Erro ao excluir conta. Tente novamente.");
+    } finally {
+      setIsDeleting(false);
+      onClose();
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl p-6 w-full max-w-md">
+        <h2 className="text-xl font-bold text-red-800 mb-4">Excluir Conta</h2>
+        
+        <div className="space-y-4">
+          <p className="text-gray-600">
+            Esta ação não pode ser desfeita. Todos os seus dados serão permanentemente removidos.
+          </p>
+
+          <div className="bg-red-50 p-4 rounded-lg">
+            <p className="text-sm text-red-700 font-medium mb-2">
+              Para confirmar, digite <strong>EXCLUIR CONTA</strong> abaixo:
+            </p>
+            <input
+              type="text"
+              value={confirmationText}
+              onChange={(e) => setConfirmationText(e.target.value.toUpperCase())}
+              placeholder="EXCLUIR CONTA"
+              className="w-full px-3 py-2 border border-red-300 rounded focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            />
+          </div>
+
+          <div className="flex gap-3 pt-4">
+            <button
+              onClick={onClose}
+              disabled={isDeleting}
+              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={handleDeleteAccount}
+              disabled={isDeleting || confirmationText !== "EXCLUIR CONTA"}
+              className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
+            >
+              {isDeleting ? "Excluindo..." : "Excluir Conta"}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

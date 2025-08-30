@@ -1,7 +1,8 @@
 export interface Review {
   id: number;
+  mediaId: number;
   userId: number;
-  user: string;
+  user?: string;
   rating: number;
   comment: string;
   date: string;

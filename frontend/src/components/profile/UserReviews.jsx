@@ -1,6 +1,25 @@
 import { Link } from "react-router-dom";
+import { ALL_MEDIA } from "../../mockdata/mockMedia"; // Importe para pegar o título da mídia
 
 export default function UserReviews({ userReviews }) {
+  // Função para obter o título da mídia baseado no mediaId
+  const getMediaTitle = (mediaId) => {
+    const media = ALL_MEDIA.find(m => m.id === mediaId);
+    return media ? media.title : `Mídia #${mediaId}`;
+  };
+
+  // Função para formatar a data
+  const formatDate = (dateString) => {
+    if (!dateString) return 'Data não disponível';
+    
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('pt-BR');
+    } catch {
+      return dateString; // Retorna o original se não puder formatar
+    }
+  };
+
   return (
     <div className="bg-white rounded-2xl shadow-md p-6">
       <div className="flex justify-between items-center mb-6">
@@ -14,8 +33,10 @@ export default function UserReviews({ userReviews }) {
         <div className="space-y-4">
           {userReviews.slice(0, 3).map((review) => (
             <div key={review.id} className="border-b border-gray-100 pb-4 last:border-0 last:pb-0">
-              <div className="flex justify-between">
-                <h3 className="font-medium text-gray-800">{review.title}</h3>
+              <div className="flex justify-between items-start">
+                <h3 className="font-medium text-gray-800">
+                  {getMediaTitle(review.mediaId)} {/* Usando mediaId para pegar o título */}
+                </h3>
                 <div className="flex items-center">
                   {[...Array(5)].map((_, i) => (
                     <svg 
@@ -30,8 +51,8 @@ export default function UserReviews({ userReviews }) {
                   ))}
                 </div>
               </div>
-              <p className="text-gray-600 text-sm mt-1">{review.comment}</p>
-              <p className="text-gray-400 text-xs mt-2">{review.date}</p>
+              <p className="text-gray-600 text-sm mt-1">{review.comment || "Sem comentário"}</p>
+              <p className="text-gray-400 text-xs mt-2">{formatDate(review.date)}</p>
             </div>
           ))}
         </div>
