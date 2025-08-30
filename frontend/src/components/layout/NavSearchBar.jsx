@@ -1,0 +1,176 @@
+import { useState, useRef, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { ALL_MEDIA } from "../../mockdata/mockMedia";
+
+export default function SearchBar() {
+  const [query, setQuery] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const searchRef = useRef(null);
+  const navigate = useNavigate();
+  
+  const filteredResults = ALL_MEDIA.filter((media) =>
+    media.title.toLowerCase().includes(query.toLowerCase())
+  );
+
+  // Fechar ao clicar fora
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setIsOpen(false);
+        setIsExpanded(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const handleSearchIconClick = () => {
+    if (isExpanded && query.trim()) {
+      // Se já está expandido e tem query, vai para página de busca
+      navigate(`/search?q=${encodeURIComponent(query)}`);
+      setIsExpanded(false);
+      setIsOpen(false);
+      setQuery("");
+    } else {
+      // Se não está expandido, expande o input
+      setIsExpanded(true);
+      setTimeout(() => {
+        if (searchRef.current) {
+          searchRef.current.querySelector('input').focus();
+        }
+      }, 10);
+    }
+  };
+
+  const handleInputFocus = () => {
+    setIsOpen(true);
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter' && query.trim()) {
+      navigate(`/search?q=${encodeURIComponent(query)}`);
+      setIsExpanded(false);
+      setIsOpen(false);
+      setQuery("");
+    }
+  };
+
+  return (
+    <div className="relative" ref={searchRef}>
+      {/* Container da busca */}
+      <div className="flex items-center">
+        {/* Input de busca - aparece quando expandido */}
+        {isExpanded && (
+          <div className="relative mr-2">
+            <input
+              type="text"
+              placeholder="Buscar filmes, séries, games, músicas..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onFocus={handleInputFocus}
+              onKeyPress={handleKeyPress}
+              className="w-64 px-4 py-2 rounded-full border border-gray-600 bg-gray-700 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            />
+          </div>
+        )}
+        
+        {/* Ícone de pesquisa - sempre visível */}
+        <button
+          onClick={handleSearchIconClick}
+          className="p-2 rounded-full hover:bg-gray-700 transition-colors cursor-pointer"
+          title="Buscar mídias"
+        >
+          <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </button>
+
+        {/* Botão de fechar - aparece quando expandido */}
+        {isExpanded && (
+          <button
+            onClick={() => {
+              setIsExpanded(false);
+              setIsOpen(false);
+              setQuery("");
+            }}
+            className="ml-2 p-2 rounded-full hover:bg-gray-700 transition-colors cursor-pointer"
+            title="Fechar busca"
+          >
+            <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        )}
+      </div>
+
+      {/* Resultados da busca rápida */}
+      {isOpen && query && (
+        <div className="absolute top-full left-0 right-0 mt-2 bg-white shadow-xl rounded-xl p-4 text-left max-h-80 overflow-y-auto z-50">
+          <div className="flex justify-between items-center mb-3">
+            <h2 className="font-bold text-gray-800 text-sm uppercase tracking-wide">
+              Resultados da busca
+            </h2>
+            <Link
+              to={`/search?q=${encodeURIComponent(query)}`}
+              onClick={() => {
+                setIsOpen(false);
+                setIsExpanded(false);
+                setQuery("");
+              }}
+              className="text-xs text-blue-600 hover:text-blue-800 font-medium"
+            >
+              Ver todos →
+            </Link>
+          </div>
+          
+          {filteredResults.slice(0, 5).length > 0 ? (
+            <ul className="space-y-2">
+              {filteredResults.slice(0, 5).map((media) => (
+                <li key={media.id}>
+                  <Link
+                    to={`/media/${media.id}`}
+                    onClick={() => {
+                      setQuery("");
+                      setIsOpen(false);
+                      setIsExpanded(false);
+                    }}
+                    className="block p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer border border-gray-100"
+                  >
+                    <div className="flex items-center gap-3">
+                      <img 
+                        src={media.image} 
+                        alt={media.title}
+                        className="w-10 h-10 object-cover rounded"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between">
+                          <span className="text-gray-800 font-medium truncate">
+                            {media.title}
+                          </span>
+                          <span className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded-full whitespace-nowrap">
+                            {media.type}
+                          </span>
+                        </div>
+                        {media.year && (
+                          <p className="text-sm text-gray-500 mt-1">
+                            {media.year}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-gray-500 py-4 text-center">Nenhum resultado encontrado.</p>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
