@@ -5,7 +5,8 @@ const navItems = [
   { to: "/tvseries", label: "Séries", icon: "📺" },
   { to: "/games", label: "Games", icon: "🎮" },
   { to: "/musics", label: "Músicas", icon: "🎵" },
-  { to: "/books", label: "Livros", icon: "📚" }
+  { to: "/books", label: "Livros", icon: "📚" },
+  { to: "/users", label: "Usuários", icon: "👤" }
 ];
 
 export default function NavLinks({ mobile = false }) {

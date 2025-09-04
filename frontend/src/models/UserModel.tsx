@@ -18,6 +18,7 @@ export interface User {
     profileVisibility: "public" | "private" ;
     showActivity: boolean;
     showSavedItems: boolean;
+    showFavorites: boolean;
     showReviews: boolean;
     dataCollection: boolean;
   };

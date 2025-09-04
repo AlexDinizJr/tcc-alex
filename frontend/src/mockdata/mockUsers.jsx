@@ -12,7 +12,15 @@ export const mockUsers = [
     savedMedia: [1, 2, 3, 4, 5, 6],
     favorites: [1, 3, 5],
     reviews: MOCK_REVIEWS.filter(review => review.userId === 1),
-    lists: MOCK_LISTS.filter(review => review.userId === 1)
+    lists: MOCK_LISTS.filter(review => review.userId === 1),
+    privacy: {
+    profileVisibility: "public",
+    showActivity: true,
+    showSavedItems: true,
+    showFavorites: true,
+    showReviews: true,
+    dataCollection: true,
+  },
   },
   { 
     id: 2, 
@@ -25,5 +33,11 @@ export const mockUsers = [
     favorites: [11, 18, 8],
     reviews: MOCK_REVIEWS.filter(review => review.userId === 2),
     lists: MOCK_LISTS.filter(review => review.userId === 2),
+    profileVisibility: "private",
+    showActivity: false,
+    showSavedItems: false,
+    showFavorites: false,
+    showReviews: false,
+    dataCollection: false,
   }
 ];

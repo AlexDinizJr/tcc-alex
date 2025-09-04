@@ -1,4 +1,3 @@
-// components/MediaCardWithActions.jsx
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import DeleteItemModal from "./lists/DeleteItemModal";

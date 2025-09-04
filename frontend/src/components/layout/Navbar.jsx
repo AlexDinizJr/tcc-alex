@@ -34,7 +34,7 @@ export default function Navbar() {
         <div className="flex items-center gap-4">
           <Link to="/" className="text-xl font-bold hover:text-blue-400 transition-colors flex items-center gap-1">
             <span className="bg-blue-600 p-1 rounded">🎬</span>
-            RecommendationHub
+            MediaHub
           </Link>
 
           <SearchBar />

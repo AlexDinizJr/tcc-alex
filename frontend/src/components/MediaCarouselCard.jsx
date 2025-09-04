@@ -21,7 +21,7 @@ export default function MediaCarouselCard({ media }) {
   return (
     <Link
       to={`/media/${media.id}`}
-      className="block bg-white shadow-md rounded-2xl hover:shadow-xl transition relative w-[180px] flex-shrink-0 h-[260px]"
+      className="block bg-white shadow-md hover:shadow-xl transition relative w-[180px] flex-shrink-0 h-[260px] rounded-2xl" // Added rounded-2xl here
     >
       {/* Botão de salvar */}
       <button
@@ -48,8 +48,8 @@ export default function MediaCarouselCard({ media }) {
         </svg>
       </button>
 
-      {/* Imagem */}
-      <div className="w-full h-[150px] overflow-hidden">
+      {/* Imagem - arredondada apenas no topo */}
+      <div className="w-full h-[150px] overflow-hidden rounded-t-2xl"> {/* Added rounded-t-2xl */}
         <img
           src={media.image}
           alt={media.title}

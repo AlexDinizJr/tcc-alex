@@ -29,6 +29,7 @@ export default function Footer() {
               <li><Link to="/musics" className="text-gray-300 hover:text-blue-400 transition-colors">Musicas</Link></li>
               <li><Link to="/games" className="text-gray-300 hover:text-blue-400 transition-colors">Jogos</Link></li>
               <li><Link to="/books" className="text-gray-300 hover:text-blue-400 transition-colors">Livros</Link></li>
+              <li><Link to="/users" className="text-gray-300 hover:text-blue-400 transition-colors">Usuários</Link></li>
             </ul>
           </div>
 
@@ -67,7 +68,7 @@ export default function Footer() {
         <div className="border-t border-gray-700 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-400 text-sm mb-4 md:mb-0">
-              © 2025 RecommendationHub. Todos os direitos reservados.
+              © 2025 MediaHub. Todos os direitos reservados.
             </p>
             <div className="flex space-x-6">
               <a href="#" className="text-gray-400 hover:text-blue-400 text-sm transition-colors">

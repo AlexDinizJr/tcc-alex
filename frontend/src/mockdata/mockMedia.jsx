@@ -1,4 +1,5 @@
 import { MediaType } from "../models/MediaType";
+import { MediaGenre } from "../models/GenreModel";
 
 export const ALL_MEDIA = [
   // Jogos
@@ -10,6 +11,7 @@ export const ALL_MEDIA = [
     type: MediaType.GAME,
     year: 2020,
     platforms: ["PlayStation 4", "PlayStation 5"],
+    genres: [MediaGenre.ACTION, MediaGenre.ADVENTURE, MediaGenre.SURVIVAL, MediaGenre.HORROR],
     description: "The Last of Us Part II é uma aventura épica de ação e sobrevivência que se passa cinco anos após os eventos do primeiro jogo. Joel e Ellie estabelecem uma vida em Jackson, mas quando um evento violento interrompe a paz, Ellie embarca em uma jornada implacável para fazer justiça e encontrar uma solução.",
     streamingLinks: [
       {
@@ -26,6 +28,7 @@ export const ALL_MEDIA = [
     type: MediaType.GAME,
     year: 2022,
     platforms: ["PlayStation 4", "PlayStation 5", "Xbox One", "Xbox Series X/S", "PC"],
+    genres: [MediaGenre.RPG, MediaGenre.ACTION, MediaGenre.ADVENTURE, MediaGenre.FANTASY, MediaGenre.OPEN_WORLD],
     description: "Elden Ring é um RPG de ação em mundo aberto desenvolvido pela FromSoftware. Situado nas Terras Intermédias, os jogadores exploram um vasto mundo cheio de mistérios, perigos e segredos enquanto buscam se tornar o Lorde Anelar.",
     streamingLinks: [
       {
@@ -50,6 +53,7 @@ export const ALL_MEDIA = [
     type: MediaType.GAME,
     year: 2015,
     platforms: ["PlayStation 4", "Xbox One", "PC", "Nintendo Switch"],
+    genres: [MediaGenre.RPG, MediaGenre.ACTION, MediaGenre.ADVENTURE, MediaGenre.FANTASY, MediaGenre.OPEN_WORLD],
     description: "The Witcher 3: Wild Hunt é um RPG de mundo aberto onde você controla Geralt de Rívia, um caçador de monstros em busca de sua filha adotiva. Com um mundo vasto, missões complexas e escolhas morais impactantes.",
     streamingLinks: [
       {
@@ -74,6 +78,7 @@ export const ALL_MEDIA = [
     type: MediaType.GAME,
     year: 2018,
     platforms: ["PlayStation 4", "PC"],
+    genres: [MediaGenre.ACTION, MediaGenre.ADVENTURE, MediaGenre.FANTASY, MediaGenre.RPG],
     description: "God of War reconta a mitologia nórdica através de Kratos e seu filho Atreus. Uma jornada emocional sobre paternidade, redenção e sobrevivência em um mundo repleto de deuses e monstros.",
     streamingLinks: [
       {
@@ -94,6 +99,7 @@ export const ALL_MEDIA = [
     type: MediaType.GAME,
     year: 2018,
     platforms: ["PlayStation 4", "Xbox One", "PC", "Google Stadia"],
+    genres: [MediaGenre.ACTION, MediaGenre.ADVENTURE, MediaGenre.WESTERN, MediaGenre.OPEN_WORLD],
     description: "Red Dead Redemption 2 é um épico western que segue a gangue Van der Linde em sua luta pela sobrevivência no final da era do Velho Oeste. Uma história sobre lealdade, honra e o preço da liberdade.",
     streamingLinks: [
       {
@@ -115,8 +121,9 @@ export const ALL_MEDIA = [
     image: "/images/movies/inception.jpg",
     type: MediaType.MOVIE,
     year: 2010,
-    director: "Christopher Nolan",
+    directors: ["Christopher Nolan"],
     duration: 148,
+    genres: [MediaGenre.SCI_FI, MediaGenre.ACTION, MediaGenre.THRILLER],
     description: "Inception é um thriller de ficção científica onde Dom Cobb é um ladrão especializado em roubar segredos do subconsciente durante o estado de sonho. Ele recebe a missão inversa: implantar uma ideia na mente de alguém.",
     streamingLinks: [
       {
@@ -133,10 +140,11 @@ export const ALL_MEDIA = [
     id: 4, 
     title: "The Matrix", 
     rating: 4.7, 
-    image: "/images/movies/matrix.jpg",
+    image: "https://www.baltana.com/files/wallpapers-32/The-Matrix-Resurrections-Desktop-HD-Wallpaper-125877.jpg",
     type: MediaType.MOVIE,
     year: 1999,
-    director: "Lana Wachowski, Lilly Wachowski",
+    directors: ["Lana Wachowski", "Lilly Wachowski"],
+    genres: [MediaGenre.SCI_FI, MediaGenre.ACTION, MediaGenre.THRILLER],
     description: "The Matrix apresenta um futuro distópico onde a humanidade está presa em uma realidade simulada por máquinas. Neo descobre a verdade e se junta à rebelião contra as máquinas.",
     streamingLinks: [
       {
@@ -156,8 +164,9 @@ export const ALL_MEDIA = [
     image: "/images/movies/pulpfiction.jpg",
     type: MediaType.MOVIE,
     year: 1994,
-    director: "Quentin Tarantino",
+    directors: ["Quentin Tarantino"],
     duration: 154,
+    genres: [MediaGenre.CRIME, MediaGenre.DRAMA, MediaGenre.THRILLER],
     description: "Pulp Fiction é um filme cult que entrelaça várias histórias de criminosos de Los Angeles. Com diálogos afiados e uma narrativa não linear, revolucionou o cinema independente.",
     streamingLinks: [
       {
@@ -177,8 +186,9 @@ export const ALL_MEDIA = [
     image: "/images/movies/darkknight.jpg",
     type: MediaType.MOVIE,
     year: 2008,
-    director: "Christopher Nolan",
+    directors: ["Christopher Nolan"],
     duration: 152,
+    genres: [MediaGenre.ACTION, MediaGenre.CRIME, MediaGenre.DRAMA, MediaGenre.SUPERHERO],
     description: "The Dark Knight apresenta Batman em um conflito épico contra o Coringa, que busca mergulhar Gotham City no caos. Um estudo profundo sobre heroísmo, moralidade e sacrifício.",
     streamingLinks: [
       {
@@ -198,8 +208,9 @@ export const ALL_MEDIA = [
     image: "/images/movies/parasite.jpg",
     type: MediaType.MOVIE,
     year: 2019,
-    director: "Bong Joon-ho",
+    directors: ["Bong Joon-ho"],
     duration: 132,
+    genres: [MediaGenre.DRAMA, MediaGenre.THRILLER, MediaGenre.COMEDY],
     description: "Parasite é uma sátira social sobre uma família pobre que infiltra-se na casa de uma família rica, desencadeando eventos inesperados. Um comentário afiado sobre desigualdade social.",
     streamingLinks: [
       {
@@ -222,6 +233,7 @@ export const ALL_MEDIA = [
     type: MediaType.SERIES,
     year: 2016,
     seasons: 4,
+    genres: [MediaGenre.SCI_FI, MediaGenre.HORROR, MediaGenre.ADVENTURE, MediaGenre.MYSTERY],
     description: "Stranger Things segue um grupo de crianças em Hawkins que enfrentam fenômenos sobrenaturais e experimentos secretos do governo. Uma homenagem aos filmes de ficção científica dos anos 80.",
     streamingLinks: [
       {
@@ -238,6 +250,7 @@ export const ALL_MEDIA = [
     type: MediaType.SERIES,
     year: 2008,
     seasons: 5,
+    genres: [MediaGenre.DRAMA, MediaGenre.CRIME, MediaGenre.THRILLER],
     description: "Breaking Bad acompanha Walter White, um professor de química que se torna um produtor de metanfetamina após ser diagnosticado com câncer. Uma transformação de homem comum a chefão do crime.",
     streamingLinks: [
       {
@@ -254,6 +267,7 @@ export const ALL_MEDIA = [
     type: MediaType.SERIES,
     year: 2011,
     seasons: 8,
+    genres: [MediaGenre.FANTASY, MediaGenre.DRAMA, MediaGenre.ACTION, MediaGenre.HISTORICAL],
     description: "Game of Thrones é um épico de fantasia que segue as famílias nobres em sua luta pelo Trono de Ferro de Westeros. Intrigas políticas, batalhas épicas e dragões em um mundo complexo.",
     streamingLinks: [
       {
@@ -270,6 +284,7 @@ export const ALL_MEDIA = [
     type: MediaType.SERIES,
     year: 2019,
     seasons: 3,
+    genres: [MediaGenre.ACTION, MediaGenre.ADVENTURE, MediaGenre.SCI_FI, MediaGenre.SPACE],
     description: "The Mandalorian segue um caçador de recompensas solitário no período pós-Império em uma galáxia distante. Sua missão de proteger a Criança (Grogu) torna-se uma jornada inesperada.",
     streamingLinks: [
       {
@@ -286,6 +301,7 @@ export const ALL_MEDIA = [
     type: MediaType.SERIES,
     year: 2005,
     seasons: 9,
+    genres: [MediaGenre.COMEDY, MediaGenre.MOCKUMENTARY, MediaGenre.SITCOM],
     description: "The Office é uma comédia mockumentary que retrata o cotidiano dos funcionários do escritório da Dunder Mifflin. Humor ácido e personagens memoráveis em situações absurdas.",
     streamingLinks: [
       {
@@ -307,8 +323,9 @@ export const ALL_MEDIA = [
     image: "/images/books/lotr.jpg",
     type: MediaType.BOOK,
     year: 1954,
-    author: "J.R.R. Tolkien",
+    authors: ["J.R.R. Tolkien"],
     pages: 1178,
+    genres: [MediaGenre.FANTASY, MediaGenre.ADVENTURE, MediaGenre.EPIC],
     description: "O Senhor dos Anéis é uma épica trilogia de fantasia que segue a jornada do humilde hobbit Frodo Bolseiro para destruir o Um Anel e salvar a Terra Média das trevas de Sauron.",
     streamingLinks: [
       {
@@ -328,8 +345,9 @@ export const ALL_MEDIA = [
     image: "/images/books/1984.jpg",
     type: MediaType.BOOK,
     year: 1949,
-    author: "George Orwell",
+    authors: ["George Orwell"],
     pages: 328,
+    genres: [MediaGenre.DYSTOPIAN, MediaGenre.SCI_FI, MediaGenre.POLITICAL, MediaGenre.DRAMA],
     description: "1984 é um romance distópico sobre um regime totalitário que controla todos os aspectos da vida através de vigilância constante e manipulação da verdade. Um alerta atemporal.",
     streamingLinks: [
       {
@@ -349,8 +367,9 @@ export const ALL_MEDIA = [
     image: "/images/books/harrypotter.jpg",
     type: MediaType.BOOK,
     year: 1997,
-    author: "J.K. Rowling",
+    authors: ["J.K. Rowling"],
     pages: 223,
+    genres: [MediaGenre.FANTASY, MediaGenre.ADVENTURE, MediaGenre.YOUNG_ADULT],
     description: "Harry Potter e a Pedra Filosofal introduz o mundo mágico onde Harry descobre ser um bruxo e embarca em sua jornada em Hogwarts. Amizade, coragem e a luta contra o mal.",
     streamingLinks: [
       {
@@ -370,8 +389,9 @@ export const ALL_MEDIA = [
     image: "/images/books/cemanos.jpg",
     type: MediaType.BOOK,
     year: 1967,
-    author: "Gabriel García Márquez",
+    authors: ["Gabriel García Márquez"],
     pages: 417,
+    genres: [MediaGenre.MAGICAL_REALISM, MediaGenre.DRAMA, MediaGenre.HISTORICAL_FICTION],
     description: "Cem Anos de Solidão conta a saga da família Buendía na mítica Macondo. Realismo mágico que explora amor, solidão, guerra e o ciclo inevitável da história.",
     streamingLinks: [
       {
@@ -391,8 +411,9 @@ export const ALL_MEDIA = [
     image: "/images/books/pequenoprincipe.jpg",
     type: MediaType.BOOK,
     year: 1943,
-    author: "Antoine de Saint-Exupéry",
+    authors: ["Antoine de Saint-Exupéry"],
     pages: 96,
+    genres: [MediaGenre.CHILDREN, MediaGenre.FANTASY, MediaGenre.PHILOSOPHICAL],
     description: "O Pequeno Príncipe é uma fábula poética sobre um principezinho que viaja por planetas aprendendo sobre amor, amizade e a essência da vida. Lições atemporais para todas as idades.",
     streamingLinks: [
       {
@@ -407,7 +428,7 @@ export const ALL_MEDIA = [
   },
   
   // Músicas
-    { 
+  { 
     id: 22, 
     title: "Thriller", 
     rating: 4.95, 
@@ -415,6 +436,7 @@ export const ALL_MEDIA = [
     type: MediaType.MUSIC,
     year: 1982,
     artists: "Michael Jackson",
+    genres: [MediaGenre.POP, MediaGenre.RNB, MediaGenre.DANCE],
     description: "Thriller é o álbum mais vendido de todos os tempos, revolucionando a música pop com hits como 'Beat It', 'Billie Jean' e a icônica faixa-título. Michael Jackson no auge de sua criatividade.",
     streamingLinks: [
       {
@@ -424,34 +446,69 @@ export const ALL_MEDIA = [
       {
         service: "APPLE_MUSIC",
         url: "https://music.apple.com/br/album/thriller/159292355"
-      },
-      {
-        service: "DEEZER",
-        url: "https://www.deezer.com/br/album/1003831"
       }
     ]
   },
   { 
     id: 23, 
-    title: "The Dark Side of the Moon", 
-    rating: 4.9, 
-    image: "/images/music/darkside.jpg",
+    title: "Back in Black", 
+    rating: 4.85, 
+    image: "/images/music/backinblack.jpg",
     type: MediaType.MUSIC,
-    year: 1973,
-    artists: "Pink Floyd",
-    description: "The Dark Side of the Moon é um marco do rock progressivo, explorando temas como tempo, dinheiro, loucura e morte. Uma jornada sonora que permanece relevante décadas depois.",
+    year: 1980,
+    artists: "AC/DC",
+    genres: [MediaGenre.ROCK, MediaGenre.HARD_ROCK],
+    description: "Back in Black é o sétimo álbum de estúdio do AC/DC e um dos mais vendidos mundialmente. Homenageia o falecido Bon Scott e apresenta clássicos do rock.",
     streamingLinks: [
       {
         service: "SPOTIFY",
-        url: "https://open.spotify.com/album/4LH4d3cOWNNsVw41Gqt2kv"
+        url: "https://open.spotify.com/album/6mUdeDZCsExyJLMdAfDuwh"
       },
       {
         service: "APPLE_MUSIC",
-        url: "https://music.apple.com/br/album/the-dark-side-of-the-moon/1065977164"
+        url: "https://music.apple.com/br/album/back-in-black/574376"
+      }
+    ]
+  },
+  { 
+    id: 24, 
+    title: "Abbey Road", 
+    rating: 4.9, 
+    image: "/images/music/abbeyroad.jpg",
+    type: MediaType.MUSIC,
+    year: 1969,
+    artists: "The Beatles",
+    genres: [MediaGenre.ROCK, MediaGenre.HARD_ROCK],
+    description: "Abbey Road é o décimo primeiro álbum de estúdio dos Beatles, famoso pelo icônico cover na faixa de pedestres e por clássicos como 'Come Together' e 'Here Comes the Sun'.",
+    streamingLinks: [
+      {
+        service: "SPOTIFY",
+        url: "https://open.spotify.com/album/0ETFjACtuP2ADo6LFhL6HN"
       },
       {
-        service: "YOUTUBE_MUSIC",
-        url: "https://music.youtube.com/playlist?list=OLAK5uy_nClQlQoYv5vq-6esP_6N9uLN2h2JtYgYw"
+        service: "APPLE_MUSIC",
+        url: "https://music.apple.com/br/album/abbey-road/1441164426"
+      }
+    ]
+  },
+  { 
+    id: 25, 
+    title: "Hotel California", 
+    rating: 4.8, 
+    image: "/images/music/hotelcalifornia.jpg",
+    type: MediaType.MUSIC,
+    year: 1976,
+    artists: "Eagles",
+    genres: [MediaGenre.ROCK, MediaGenre.POP, MediaGenre.CLASSIC_ROCK],
+    description: "Hotel California é o quinto álbum de estúdio dos Eagles, incluindo a famosa faixa-título. Uma obra-prima do rock clássico com letras enigmáticas e solos memoráveis.",
+    streamingLinks: [
+      {
+        service: "SPOTIFY",
+        url: "https://open.spotify.com/album/4T2J7cJ0yN18dUDKlpq5A3"
+      },
+      {
+        service: "APPLE_MUSIC",
+        url: "https://music.apple.com/br/album/hotel-california/574376"
       }
     ]
   }

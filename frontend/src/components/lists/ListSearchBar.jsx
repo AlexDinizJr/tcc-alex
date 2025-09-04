@@ -1,4 +1,3 @@
-// components/SearchBar.jsx
 import { useState, useRef, useEffect } from "react";
 import { ALL_MEDIA } from "../../mockdata/mockMedia";
 

@@ -18,6 +18,14 @@ export default function MediaDetails({ mediaItem }) {
 
   return (
     <div className="mb-6">
+      {/* Gêneros - nova linha adicionada */}
+      {mediaItem.genres && mediaItem.genres.length > 0 && (
+        <p className="text-gray-700">
+          <span className="font-semibold">Gêneros:</span>{" "}
+          {mediaItem.genres.join(", ")}
+        </p>
+      )}
+      
       {renderMediaField(mediaItem.directors, "Diretor(es)")}
       {renderMediaField(mediaItem.authors, "Autor(es)")}
       {renderMediaField(mediaItem.artists, "Artista(s)")}

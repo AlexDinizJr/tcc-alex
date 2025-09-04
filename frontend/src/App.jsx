@@ -19,9 +19,13 @@ import NotFound from "./pages/NotFound";
 import Settings from "./pages/Settings";
 import MyLists from "./pages/MyLists";
 import SavedItems from "./pages/MySavedMedia";
+import MyFavorites from "./pages/MyFavorites";
+import Users from "./pages/Users"
+import UserPage from "./pages/UserPage"
 import MyReviews from "./pages/MyReviews";
 import UserList from "./pages/UserList";
 import CreateList from "./pages/CreateList";
+import CustomRecommendations from "./pages/CustomRecommendations";
 
 function App() {
   return (
@@ -37,6 +41,8 @@ function App() {
             <Route path="/musics" element={<Musics />} />
             <Route path="/tvseries" element={<TVSeries />} />
             <Route path="/books" element={<Books />} />
+            <Route path="/users" element={<Users />} />
+            <Route path="/users/:id" element={<UserPage />} />
             <Route path="/media/:id" element={<Media />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
@@ -48,7 +54,9 @@ function App() {
             <Route path="/lists/create" element={<ProtectedRoute><CreateList /></ProtectedRoute>} />
             <Route path="/lists/:id" element={<ProtectedRoute><UserList /></ProtectedRoute>} />
             <Route path="/saved-items" element={<ProtectedRoute><SavedItems /></ProtectedRoute>} />
+            <Route path="/favorites" element={<ProtectedRoute><MyFavorites /></ProtectedRoute>} />
             <Route path="/my-reviews" element={<ProtectedRoute><MyReviews /></ProtectedRoute>} />
+            <Route path="/custom-recommendations" element={<ProtectedRoute><CustomRecommendations /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>

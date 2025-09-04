@@ -1,8 +1,8 @@
 import { useAuth } from "../hooks/useAuth";
-import { MOCK_STATS } from "../mockdata/mockStats";
 import ProfileHeader from "../components/profile/ProfileHeader";
 import UserLists from "../components/profile/UserLists";
 import SavedItems from "../components/profile/SavedItems";
+import UserFavorites from "../components/profile/UserFavorites";
 import UserReviews from "../components/profile/UserReviews";
 import UserStats from "../components/profile/UserStats";
 import { 
@@ -26,13 +26,13 @@ export default function MyProfile() {
   }
 
   const savedMediaItems = convertMediaIdsToObjects(user.savedMedia);
+  const userFavoritesItems = convertMediaIdsToObjects(user.favorites);
   const userReviews = ensureArray(user.reviews).length > 0 
     ? ensureArray(user.reviews) 
     : getReviewsByUserId(user.id);
   const userLists = ensureArray(user.lists).length > 0 
     ? ensureArray(user.lists) 
     : getListsByUserId(user.id);
-
 
   return (
     <div className="min-h-screen bg-gray-100 py-8">
@@ -41,9 +41,10 @@ export default function MyProfile() {
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <SavedItems savedItems={savedMediaItems} />
+          <UserFavorites userFavorites={userFavoritesItems} />
           <UserReviews userReviews={userReviews} />
           <UserLists userLists={userLists} />
-          <UserStats stats={MOCK_STATS} />
+          <UserStats user={user} />
         </div>
       </div>
     </div>
