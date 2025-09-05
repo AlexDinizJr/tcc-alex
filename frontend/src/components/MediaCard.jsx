@@ -1,8 +1,7 @@
 import { Link } from "react-router-dom";
 
 export default function MediaCard({ media }) {
-    const handleClick = () => {
-    // Scroll suave para o topo da página
+  const handleClick = () => {
     window.scrollTo({
       top: 0,
       behavior: 'smooth'
@@ -25,19 +24,29 @@ export default function MediaCard({ media }) {
       </div>
 
       {/* Conteúdo */}
-      <div className="p-4">
-        {/* Título */}
-        <h3 className="font-bold text-lg mb-2 text-gray-800 line-clamp-2">
-          {media.title}
-        </h3>
+      <div className="p-4 flex flex-col">
+        {/* Linha do título + ano + nota */}
+        <div className="flex justify-between items-start">
+          <div className="flex flex-col">
+            {/* Título */}
+            <h3 className="font-bold text-lg text-gray-800 line-clamp-2">
+              {media.title}
+            </h3>
 
-        {/* Avaliação */}
-        {media.rating && (
-          <div className="flex items-center">
-            <span className="text-yellow-500 mr-1">⭐</span>
-            <span className="text-sm text-gray-700">{media.rating}</span>
+            {/* Ano de lançamento */}
+            {media.year && (
+              <span className="text-sm text-gray-500">{media.year}</span>
+            )}
           </div>
-        )}
+
+          {/* Avaliação */}
+          {media.rating && (
+            <div className="flex items-center ml-2">
+              <span className="text-yellow-500 mr-1">⭐</span>
+              <span className="text-sm text-gray-700">{media.rating}</span>
+            </div>
+          )}
+        </div>
       </div>
     </Link>
   );

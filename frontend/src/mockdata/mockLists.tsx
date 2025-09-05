@@ -21,7 +21,6 @@ export const MOCK_LISTS: UserList[] = [
     userId: 1,
     name: "Melhores Filmes de Ficção Científica", 
     items: scifiMovies,
-    isDefault: false,
     isPublic: true, 
     createdAt: "2023-09-12T10:30:00Z",
     description: "Uma coleção dos melhores filmes de ficção científica de todos os tempos"
@@ -31,7 +30,6 @@ export const MOCK_LISTS: UserList[] = [
     userId: 2,
     name: "Séries para Maratonar", 
     items: seriesToBinge,
-    isDefault: false,
     isPublic: true, 
     createdAt: "2023-08-05T14:22:00Z",
     description: "Minhas séries favoritas para assistir nos finais de semana"
@@ -41,7 +39,6 @@ export const MOCK_LISTS: UserList[] = [
     userId: 2,
     name: "Lista Privada de Games", 
     items: gamesToPlay,
-    isDefault: false,
     isPublic: false, 
     createdAt: "2023-07-22T08:45:00Z",
     description: "Games que ainda preciso jogar"

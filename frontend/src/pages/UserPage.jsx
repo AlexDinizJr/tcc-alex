@@ -19,7 +19,10 @@ export default function UserProfilePage() {
   const { user: loggedInUser } = useAuth();
 
   const userId = parseInt(id);
-  const user = mockUsers.find(u => u.id === userId);
+  const isOwner = loggedInUser?.id === userId;
+  const user = isOwner 
+    ? loggedInUser  // pega os dados atualizados do contexto
+    : mockUsers.find(u => u.id === userId);
 
   if (!user) {
     return (
@@ -31,12 +34,13 @@ export default function UserProfilePage() {
     );
   }
 
-  const isOwner = loggedInUser?.id === user.id;
+  // Verifica se o perfil é privado e não é o dono
+  const isPrivate = user.privacy?.profileVisibility === "private" && !isOwner;
 
-  // Se o perfil é privado e não for o dono, bloqueia algumas informações
-  const canViewSaved = user.privacy?.showSavedItems || isOwner;
-  const canViewFavorites = user.privacy?.showFavorites || isOwner;
-  const canViewReviews = user.privacy?.showReviews || isOwner;
+  const canViewSaved = !isPrivate && (user.privacy?.showSavedItems || isOwner);
+  const canViewFavorites = !isPrivate && (user.privacy?.showFavorites || isOwner);
+  const canViewReviews = !isPrivate && (user.privacy?.showReviews || isOwner);
+  const canViewStats = !isPrivate && (user.privacy?.showStats || isOwner);
 
   const savedMediaItems = canViewSaved ? convertMediaIdsToObjects(user.savedMedia) : [];
   const userFavoritesItems = canViewFavorites ? convertMediaIdsToObjects(user.favorites) : [];
@@ -49,16 +53,63 @@ export default function UserProfilePage() {
     : getListsByUserId(user.id);
 
   return (
-    <div className="min-h-screen bg-gray-100 py-8">
+    <div>
       <div className="max-w-6xl mx-auto px-4">
         <ProfileHeader user={user} isOwner={isOwner} />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-6">
-          {canViewSaved && <SavedItems savedItems={savedMediaItems} />}
-          {canViewFavorites && <UserFavorites userFavorites={userFavoritesItems} />}
-          {canViewReviews && <UserReviews userReviews={userReviews} />}
+
+          {/* Itens Salvos */}
+          {canViewSaved ? (
+            <SavedItems savedItems={savedMediaItems} />
+          ) : (
+            <div className="bg-white rounded-2xl shadow-md p-6 text-center text-gray-500 flex flex-col items-center justify-center min-h-[180px]">
+              <span className="text-3xl mb-3">🔒</span>
+              <p className="text-gray-600 font-medium">
+                Este usuário mantém seus itens salvos privados.
+              </p>
+            </div>
+          )}
+
+          {/* Favoritos */}
+          {canViewFavorites ? (
+            <UserFavorites userFavorites={userFavoritesItems} />
+          ) : (
+            <div className="bg-white rounded-2xl shadow-md p-6 text-center text-gray-500 flex flex-col items-center justify-center min-h-[180px]">
+              <span className="text-3xl mb-3">🔒</span>
+              <p className="text-gray-600 font-medium">
+                Este usuário mantém seus favoritos privados.
+              </p>
+            </div>
+          )}
+
+          {/* Avaliações */}
+          {canViewReviews ? (
+            <UserReviews userReviews={userReviews} />
+          ) : (
+            <div className="bg-white rounded-2xl shadow-md p-6 text-center text-gray-500 flex flex-col items-center justify-center min-h-[180px]">
+              <span className="text-3xl mb-3">🔒</span>
+              <p className="text-gray-600 font-medium">
+                Este usuário mantém suas avaliações privadas.
+              </p>
+            </div>
+          )}
+
+          {/* Estatísticas */}
+          {canViewStats ? (
+            <UserStats user={user} />
+          ) : (
+            <div className="bg-white rounded-2xl shadow-md p-6 text-center text-gray-500 flex flex-col items-center justify-center min-h-[180px]">
+              <span className="text-3xl mb-3">🔒</span>
+              <p className="text-gray-600 font-medium">
+                Este usuário mantém suas estatísticas privadas.
+              </p>
+            </div>
+          )}
+
+          {/* Listas */}
           <UserLists userLists={userLists} />
-          <UserStats user={user} />
+
         </div>
       </div>
     </div>

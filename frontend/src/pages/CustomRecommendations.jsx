@@ -1,62 +1,29 @@
-import { useState, useMemo } from "react";
-import RecommendationGrid from "../components/RecommendationGrid";
+import { useState } from "react";
+import FilterSection from "../components/recommendations/FilterSection";
+import ReferenceMediaGrid from "../components/recommendations/ReferenceMediaGrid";
+import ResultsGrid from "../components/recommendations/ResultsGrid";
 import MediaSearchModal from "../components/recommendations/MediaSearchModal";
+import { useRecommendationFilters } from "../hooks/useRecommendationFilters";
 import { ALL_MEDIA } from "../mockdata/mockMedia";
-import { MediaType } from "../models/MediaType";
-import { MediaGenre } from "../models/GenreModel";
-
-function FilterSection({ title, children }) {
-  const [open, setOpen] = useState(false);
-
-  return (
-    <div className="border rounded-lg overflow-hidden">
-      <button
-        onClick={() => setOpen(!open)}
-        className="w-full flex justify-between items-center px-4 py-3 bg-gray-100 hover:bg-gray-200"
-      >
-        <span className="font-medium text-gray-700">{title}</span>
-        <span className="text-gray-500">{open ? "−" : "+"}</span>
-      </button>
-      {open && <div className="p-4">{children}</div>}
-    </div>
-  );
-}
 
 export default function CustomRecommendations() {
-  // Estados principais
   const [filters, setFilters] = useState({
     types: [],
     genres: [],
     minYear: "",
     maxYear: "",
     minRating: "",
-    platforms: []
+    platforms: [],
+    classifications: []
   });
+  
   const [referenceMedia, setReferenceMedia] = useState([null, null, null]);
   const [showSearchModal, setShowSearchModal] = useState(false);
   const [currentSlot, setCurrentSlot] = useState(0);
   const [recommendations, setRecommendations] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const { mediaTypes, genres, platforms, classifications } = useRecommendationFilters();
 
-  // Valores memoizados
-  const mediaTypes = useMemo(
-    () => Object.values(MediaType).filter(v => typeof v === "string").sort(),
-    []
-  );
-  const genres = useMemo(
-    () => Object.values(MediaGenre).filter(v => typeof v === "string").sort(),
-    []
-  );
-  const platforms = useMemo(
-    () => [
-      ...new Set(
-        ALL_MEDIA.flatMap(m => m.streamingLinks?.map(s => s.service) || [])
-      )
-    ],
-    []
-  );
-
-  // Manipulação de filtros
   const handleFilterChange = (filterType, value) => {
     setFilters(prev => {
       if (Array.isArray(prev[filterType])) {
@@ -69,67 +36,119 @@ export default function CustomRecommendations() {
     });
   };
 
-  // Abertura do modal de seleção de mídia
-  const openMediaSearch = slotIndex => {
+  const openMediaSearch = (slotIndex) => {
     setCurrentSlot(slotIndex);
     setShowSearchModal(true);
   };
 
-  const handleMediaSelect = media => {
+  const handleMediaSelect = (media) => {
     const newReferenceMedia = [...referenceMedia];
     newReferenceMedia[currentSlot] = media;
     setReferenceMedia(newReferenceMedia);
     setShowSearchModal(false);
   };
 
-  const removeReferenceMedia = slotIndex => {
+  const removeReferenceMedia = (slotIndex) => {
     const newReferenceMedia = [...referenceMedia];
     newReferenceMedia[slotIndex] = null;
     setReferenceMedia(newReferenceMedia);
   };
 
-  // Geração de recomendações
   const generateRecommendations = async () => {
     setIsLoading(true);
 
     setTimeout(() => {
-      let results = [...ALL_MEDIA];
+      try {
+        // 1. COMEÇA COM TODOS OS DADOS
+        let filteredPool = [...ALL_MEDIA];
+        console.log('📊 Pool inicial:', filteredPool.length, 'itens');
 
-      // Filtros
-      if (filters.types.length > 0) {
-        results = results.filter(m => filters.types.includes(m.type.toString()));
-      }
-      if (filters.genres.length > 0) {
-        results = results.filter(m => 
-          m.genres && m.genres.some(genre => filters.genres.includes(genre.toString()))
-        );
-      }
-      const minYearNum = parseInt(filters.minYear);
-      if (!isNaN(minYearNum)) results = results.filter(m => m.year >= minYearNum);
-      const maxYearNum = parseInt(filters.maxYear);
-      if (!isNaN(maxYearNum)) results = results.filter(m => m.year <= maxYearNum);
-      const minRatingNum = parseFloat(filters.minRating);
-      if (!isNaN(minRatingNum)) results = results.filter(m => m.rating >= minRatingNum);
-      if (filters.platforms.length > 0) {
-        results = results.filter(m =>
-          m.streamingLinks?.some(s => filters.platforms.includes(s.service))
-        );
-      }
+        // 2. APLICA FILTROS CONSECUTIVOS (PRÉ-SELEÇÃO)
+        if (filters.types.length > 0) {
+          filteredPool = filteredPool.filter(m => filters.types.includes(m.type.toString()));
+          console.log('🎯 Após filtro de tipos:', filteredPool.length, 'itens');
+        }
+        
+        if (filters.genres.length > 0) {
+          filteredPool = filteredPool.filter(m => 
+            m.genres && m.genres.some(genre => filters.genres.includes(genre.toString()))
+          );
+          console.log('🎭 Após filtro de gêneros:', filteredPool.length, 'itens');
+        }
 
-      // Filtro baseado nas mídias de referência
-      const activeReferences = referenceMedia.filter(r => r !== null);
-      if (activeReferences.length > 0) {
-        results = results.filter(m =>
-          activeReferences.some(ref =>
-            m.type === ref.type || 
-            (m.genres && ref.genres && m.genres.some(genre => ref.genres.includes(genre)))
-          )
+        if (filters.classifications.length > 0) {
+        filteredPool = filteredPool.filter(m => 
+          filters.classifications.includes(m.classification)
         );
-      }
+        console.log('🔞 Após filtro de classificação:', filteredPool.length, 'itens');
+        }
+        
+        const minYearNum = parseInt(filters.minYear);
+        if (!isNaN(minYearNum)) {
+          filteredPool = filteredPool.filter(m => m.year >= minYearNum);
+          console.log('📅 Após ano mínimo:', filteredPool.length, 'itens');
+        }
+        
+        const maxYearNum = parseInt(filters.maxYear);
+        if (!isNaN(maxYearNum)) {
+          filteredPool = filteredPool.filter(m => m.year <= maxYearNum);
+          console.log('📅 Após ano máximo:', filteredPool.length, 'itens');
+        }
+        
+        const minRatingNum = parseFloat(filters.minRating);
+        if (!isNaN(minRatingNum)) {
+          filteredPool = filteredPool.filter(m => m.rating >= minRatingNum);
+          console.log('⭐ Após rating mínimo:', filteredPool.length, 'itens');
+        }
+        
+        if (filters.platforms.length > 0) {
+          filteredPool = filteredPool.filter(m =>
+            m.streamingLinks?.some(s => filters.platforms.includes(s.service))
+          );
+          console.log('🖥️ Após filtro de plataformas:', filteredPool.length, 'itens');
+        }
 
-      setRecommendations(results);
-      setIsLoading(false);
+        // 3. FILTRO DE REFERÊNCIAS (OPCIONAL)
+        const activeReferences = referenceMedia.filter(r => r !== null);
+        if (activeReferences.length > 0) {
+          console.log('🔍 Aplicando filtro de referências...');
+          
+          filteredPool = filteredPool.filter(m => {
+            return activeReferences.some(ref => {
+              const sameType = m.type === ref.type;
+              const hasCommonGenres = m.genres && ref.genres && 
+                m.genres.some(genre => ref.genres.includes(genre));
+              return sameType || hasCommonGenres;
+            });
+          });
+          console.log('✅ Após filtro de referências:', filteredPool.length, 'itens');
+        }
+
+        // 4. 🎯 CHAMA SEU ALGORITMO DE TESTE!
+        const finalRecommendations = applyTestAlgorithm(filteredPool);
+        
+        setRecommendations(finalRecommendations);
+        console.log('🎉 Recomendações finais:', finalRecommendations.length, 'itens');
+        
+      } catch (error) {
+        console.error('❌ Erro ao gerar recomendações:', error);
+        setRecommendations([]);
+      } finally {
+        setIsLoading(false);
+      }
     }, 1000);
+  };
+
+  // 5. 📋 ALGORITMO DE TESTE
+  const applyTestAlgorithm = (filteredPool) => {
+    // Se o pool filtrado estiver vazio, retorna vazio
+    if (filteredPool.length === 0) return [];
+    
+    // Se tiver poucos itens, retorna todos
+    if (filteredPool.length <= 5) return filteredPool;
+    
+    // Se tiver muitos itens, retorna 5 aleatórios do pool JÁ FILTRADO
+    return [...filteredPool].sort(() => 0.5 - Math.random()).slice(0, 5);
   };
 
   const hasFilters =
@@ -144,7 +163,7 @@ export default function CustomRecommendations() {
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-6xl mx-auto px-4">
-        {/* Cabeçalho */}
+        {/* Cabeçalho e Filtros */}
         <div className="bg-white rounded-2xl shadow-lg p-8 mb-8">
           <h1 className="text-3xl font-bold text-gray-800 mb-2">
             Recomendações Personalizadas
@@ -152,6 +171,32 @@ export default function CustomRecommendations() {
           <p className="text-gray-600 mb-8">
             Configure suas preferências para receber recomendações sob medida
           </p>
+
+        {/* AVISO SOBRE ESPECIFICIDADE DE FILTROS - SEMPRE VISÍVEL */}
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <div className="flex items-start">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-blue-800">
+                  Dica para melhores recomendações
+                </h3>
+                <div className="mt-2 text-sm text-blue-700">
+                  <p>
+                    ⚠️ <strong>Cuidado com filtros muito específicos!</strong> Combinar muitos critérios 
+                    restritivos (como ano + gênero + plataforma + avaliação) pode limitar demais as opções.
+                  </p>
+                  <p className="mt-2">
+                    💡 <strong>Sugestão:</strong> Comece com filtros mais amplos e vá refinando 
+                    gradualmente.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
 
           {/* Filtros */}
           <div className="space-y-4 mb-8">
@@ -187,35 +232,69 @@ export default function CustomRecommendations() {
               </div>
             </FilterSection>
 
-            <FilterSection title="Ano e Avaliação">
+            <FilterSection title="Classificação Etária">
+              <div className="space-y-2">
+                {classifications.map(cl => (
+                  <label key={cl} className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={filters.classifications.includes(cl)}
+                      onChange={() => handleFilterChange("classifications", cl)}
+                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="ml-2 text-sm text-gray-700">{cl}</span>
+                  </label>
+                ))}
+              </div>
+            </FilterSection>
+
+            <FilterSection title="Ano">
               <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-2">
-                  <input
-                    type="number"
-                    placeholder="Ano mín."
-                    value={filters.minYear}
-                    onChange={e => handleFilterChange("minYear", e.target.value)}
-                    className="rounded border-gray-300 focus:ring-blue-500 focus:border-blue-500"
-                  />
-                  <input
-                    type="number"
-                    placeholder="Ano máx."
-                    value={filters.maxYear}
-                    onChange={e => handleFilterChange("maxYear", e.target.value)}
-                    className="rounded border-gray-300 focus:ring-blue-500 focus:border-blue-500"
-                  />
+                <div className="grid grid-cols-2 gap-4"> {/* Aumentei o gap */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2"> {/* Aumentei o mb */}
+                      Ano mínimo
+                    </label>
+                    <input
+                      type="number"
+                      placeholder="Ex: 1990"
+                      value={filters.minYear}
+                      onChange={e => handleFilterChange("minYear", e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Ano máximo
+                    </label>
+                    <input
+                      type="number"
+                      placeholder="Ex: 2023"
+                      value={filters.maxYear}
+                      onChange={e => handleFilterChange("maxYear", e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm"
+                    />
+                  </div>
                 </div>
+              </div>
+            </FilterSection>
+
+            <FilterSection title="Avaliação Mínima">
+              <div>
                 <select
                   value={filters.minRating}
                   onChange={e => handleFilterChange("minRating", e.target.value)}
-                  className="rounded border-gray-300 focus:ring-blue-500 focus:border-blue-500 w-full"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm bg-white"
                 >
                   <option value="">Qualquer avaliação</option>
-                  <option value="3.0">⭐ 3.0+</option>
-                  <option value="3.5">⭐ 3.5+</option>
-                  <option value="4.0">⭐ 4.0+</option>
-                  <option value="4.5">⭐ 4.5+</option>
+                  <option value="3.0">⭐ 3.0+ (Bom)</option>
+                  <option value="3.5">⭐ 3.5+ (Muito Bom)</option>
+                  <option value="4.0">⭐ 4.0+ (Excelente)</option>
+                  <option value="4.5">⭐ 4.5+ (Excepcional)</option>
                 </select>
+                <p className="text-xs text-gray-500 mt-2">
+                  Selecione a avaliação mínima desejada
+                </p>
               </div>
             </FilterSection>
 
@@ -237,48 +316,17 @@ export default function CustomRecommendations() {
           </div>
 
           {/* Mídias de Referência */}
-          <div className="mb-8">
-            <label className="block text-sm font-medium text-gray-700 mb-4">
-              Mídias de Referência (opcional)
-            </label>
-            <div className="grid grid-cols-3 gap-4">
-              {referenceMedia.map((media, index) => (
-                <div key={index} className="text-center">
-                  {media ? (
-                    <div className="relative">
-                      <img
-                        src={media.image}
-                        alt={media.title}
-                        className="w-full h-32 object-cover rounded-lg mb-2"
-                      />
-                      <p className="text-sm font-medium text-gray-800 line-clamp-1">
-                        {media.title}
-                      </p>
-                      <button
-                        onClick={() => removeReferenceMedia(index)}
-                        className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full text-xs"
-                      >
-                        ✕
-                      </button>
-                    </div>
-                  ) : (
-                    <button
-                      onClick={() => openMediaSearch(index)}
-                      className="w-full h-32 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center hover:border-blue-500 hover:bg-blue-50 transition-colors"
-                    >
-                      <span className="text-2xl text-gray-400">+</span>
-                    </button>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
+          <ReferenceMediaGrid
+            referenceMedia={referenceMedia}
+            onOpenMediaSearch={openMediaSearch}
+            onRemoveReferenceMedia={removeReferenceMedia}
+          />
 
           {/* Botão de Gerar Recomendações */}
           <button
             onClick={generateRecommendations}
             disabled={!hasFilters || isLoading}
-            className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed font-semibold text-lg transition-colors"
+            className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 cursor-pointer disabled:bg-gray-400 disabled:cursor-not-allowed font-semibold text-lg transition-colors"
           >
             {isLoading ? (
               <span className="flex items-center justify-center">
@@ -292,20 +340,13 @@ export default function CustomRecommendations() {
         </div>
 
         {/* Resultados */}
-        {hasFilters && !isLoading && recommendations.length === 0 && (
-          <p className="text-gray-500 text-center mt-4">Nenhuma recomendação encontrada.</p>
-        )}
+        <ResultsGrid
+          recommendations={recommendations}
+          isLoading={isLoading}
+          hasFilters={hasFilters}
+        />
 
-        {recommendations.length > 0 && (
-          <div className="bg-white rounded-2xl shadow-lg p-8">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6">
-              Suas Recomendações Personalizadas ({recommendations.length})
-            </h2>
-            <RecommendationGrid recommendations={recommendations} />
-          </div>
-        )}
-
-        {/* Modal de Busca de Mídias - USANDO O NOVO COMPONENTE */}
+        {/* Modal de Busca de Mídias */}
         <MediaSearchModal
           isOpen={showSearchModal}
           onClose={() => setShowSearchModal(false)}

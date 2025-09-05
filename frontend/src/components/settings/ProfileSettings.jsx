@@ -6,17 +6,16 @@ export default function ProfileSettings({ user }) {
   const [formData, setFormData] = useState({
     name: user.name || "",
     bio: user.bio || "",
-    avatar: user.avatar || ""
+    avatar: user.avatar || "",
+    coverImage: user.coverImage || ""
   });
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    
     try {
       await updateProfile(formData);
-      // Sucesso
     } catch (error) {
       console.error("Erro ao atualizar perfil:", error);
     } finally {
@@ -29,6 +28,18 @@ export default function ProfileSettings({ user }) {
       ...prev,
       [e.target.name]: e.target.value
     }));
+  };
+
+  const handleFileUpload = (key, file) => {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setFormData(prev => ({
+        ...prev,
+        [key]: reader.result
+      }));
+    };
+    reader.readAsDataURL(file);
   };
 
   return (
@@ -45,16 +56,46 @@ export default function ProfileSettings({ user }) {
             <img
               src={formData.avatar || `https://ui-avatars.com/api/?name=${user.name}&background=007bff&color=fff`}
               alt={user.name}
-              className="w-16 h-16 rounded-full object-cover"
+              className="w-16 h-16 rounded-full object-cover border border-gray-300"
             />
-            <input
-              type="url"
-              name="avatar"
-              value={formData.avatar}
-              onChange={handleChange}
-              placeholder="URL da imagem"
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
+            <label className="bg-blue-600 text-white px-3 py-1 rounded-md cursor-pointer hover:bg-blue-700 text-sm">
+              Carregar
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => handleFileUpload("avatar", e.target.files[0])}
+              />
+            </label>
+          </div>
+        </div>
+
+        {/* Capa */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Foto de Capa
+          </label>
+          <div className="w-full h-40 bg-gray-100 rounded-lg overflow-hidden border border-gray-300 relative">
+            {formData.coverImage ? (
+              <img
+                src={formData.coverImage}
+                alt="Capa"
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="flex items-center justify-center h-full text-gray-400">
+                Sem capa
+              </div>
+            )}
+            <label className="absolute bottom-2 right-2 bg-blue-600 text-white px-3 py-1 rounded-md cursor-pointer hover:bg-blue-700 text-sm">
+              Carregar
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => handleFileUpload("coverImage", e.target.files[0])}
+              />
+            </label>
           </div>
         </div>
 

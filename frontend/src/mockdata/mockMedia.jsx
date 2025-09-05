@@ -1,5 +1,6 @@
 import { MediaType } from "../models/MediaType";
 import { MediaGenre } from "../models/GenreModel";
+import { ClassificationRating } from "../models/ClassificationRating";
 
 export const ALL_MEDIA = [
   // Jogos
@@ -144,6 +145,7 @@ export const ALL_MEDIA = [
     type: MediaType.MOVIE,
     year: 1999,
     directors: ["Lana Wachowski", "Lilly Wachowski"],
+    classification: ClassificationRating.FOURTEEN,
     genres: [MediaGenre.SCI_FI, MediaGenre.ACTION, MediaGenre.THRILLER],
     description: "The Matrix apresenta um futuro distópico onde a humanidade está presa em uma realidade simulada por máquinas. Neo descobre a verdade e se junta à rebelião contra as máquinas.",
     streamingLinks: [

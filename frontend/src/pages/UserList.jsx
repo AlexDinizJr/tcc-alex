@@ -1,10 +1,12 @@
 import { useParams } from "react-router-dom";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { MOCK_LISTS } from "../mockdata/mockLists";
 import QuickAddModal from "../components/lists/QuickAddModal";
 import EditListModal from "../components/lists/EditListModal";
 import MediaCardWithActions from "../components/MediaCardWithActions";
+import MediaHeader from "../components/MediaPageHeader";
+import Pagination from "../components/Pagination";
 import { convertMediaIdsToObjects } from "../utils/MediaHelpers";
 
 export default function UserList() {
@@ -12,6 +14,9 @@ export default function UserList() {
   const listId = params.id || params.listId;
   const [showQuickAddModal, setShowQuickAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState("");
   
   const { user, addMediaToList, removeMediaFromList, updateUser, updateList, deleteList } = useAuth();
   
@@ -30,10 +35,41 @@ export default function UserList() {
 
   console.log('🔍 Lista encontrada:', userList);
 
-  // Converter IDs para objetos completos - AGORA DEPOIS de encontrar a userList
-  const mediaItems = userList && Array.isArray(userList.items) 
-    ? convertMediaIdsToObjects(userList.items) 
-    : [];
+  // CORREÇÃO: Converter IDs para objetos completos usando useMemo
+  const allMediaItems = useMemo(() => {
+    if (!userList || !Array.isArray(userList.items)) return [];
+    return convertMediaIdsToObjects(userList.items);
+  }, [userList]); // Dependência apenas do userList
+
+  // Filtrar e ordenar os itens
+  const filteredAndSortedItems = useMemo(() => {
+    let items = allMediaItems;
+
+    // Pesquisa por título
+    if (searchQuery.trim() !== "") {
+      items = items.filter((item) =>
+        item.title.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    // Ordenação
+    if (sortBy === "title") {
+      items = [...items].sort((a, b) => a.title.localeCompare(b.title));
+    } else if (sortBy === "rating") {
+      items = [...items].sort((a, b) => b.rating - a.rating);
+    } else if (sortBy === "year") {
+      items = [...items].sort((a, b) => b.year - a.year);
+    }
+
+    return items;
+  }, [allMediaItems, searchQuery, sortBy]);
+
+  // Configuração da paginação
+  const itemsPerPage = 20;
+  const totalPages = Math.max(1, Math.ceil(filteredAndSortedItems.length / itemsPerPage));
+  const startIdx = (currentPage - 1) * itemsPerPage;
+  const endIdx = startIdx + itemsPerPage;
+  const mediaItemsToShow = filteredAndSortedItems.slice(startIdx, endIdx);
 
   const handleSaveList = async (updatedData) => {
     try {
@@ -57,7 +93,6 @@ export default function UserList() {
       
       if (result.success) {
         alert("Lista excluída com sucesso!");
-        // Redirecionar para a página de listas
         window.location.href = "/lists";
       } else {
         throw new Error(result.error);
@@ -68,7 +103,7 @@ export default function UserList() {
     }
   };
 
-  const handleQuickAdd = async (mediaItem) => {  // Agora recebe um item, não um array
+  const handleQuickAdd = async (mediaItem) => {
     if (!user) {
       alert("Você precisa estar logado para adicionar itens!");
       return;
@@ -94,14 +129,13 @@ export default function UserList() {
       const result = await removeMediaFromList(itemId, parsedListId, user, updateUser);
       if (result.success) {
         console.log(`Item ${itemId} removido com sucesso!`);
-        // Não precisa mostrar alerta aqui, o modal já mostra confirmação
       } else {
         throw new Error(result.error);
       }
     } catch (error) {
       console.error("Erro ao remover item:", error);
       alert(error.message || "Erro ao remover item");
-      throw error; // Propaga o erro para o MediaCardWithActions
+      throw error;
     }
   };
 
@@ -182,7 +216,7 @@ export default function UserList() {
 
           {/* Descrição e contagem */}
           <div className="mt-3 pr-28">
-            <p className="text-gray-600">{mediaItems.length} itens</p>
+            <p className="text-gray-600">{allMediaItems.length} itens</p>
             {userList.description && (
               <p className="text-gray-500 mt-1">{userList.description}</p>
             )}
@@ -210,24 +244,48 @@ export default function UserList() {
           </button>
         </div>
 
+        {/* Media Header para busca e ordenação */}
+        <MediaHeader
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          sortBy={sortBy}
+          setSortBy={setSortBy}
+          itemsCount={filteredAndSortedItems.length}
+        />
+
         {/* Grid de mídias com ações */}
-        {mediaItems.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {mediaItems.map((item) => (
-              <MediaCardWithActions 
-                key={item.id}
-                media={item}
-                onDelete={handleDeleteItem}
-                showDelete={true}
-              />
-            ))}
-          </div>
+        {mediaItemsToShow.length > 0 ? (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+              {mediaItemsToShow.map((item) => (
+                <MediaCardWithActions 
+                  key={item.id}
+                  media={item}
+                  onDelete={handleDeleteItem}
+                  showDelete={true}
+                />
+              ))}
+            </div>
+
+            {/* CORREÇÃO: Paginação sempre visível para testes, na aplicação real somente se for maior que 1 */}
+            {totalPages > 0 && (
+              <div className="mt-8">
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={setCurrentPage}
+                />
+              </div>
+            )}
+          </>
         ) : (
           <div className="text-center py-12">
             <div className="text-6xl text-gray-300 mb-4">📋</div>
-            <p className="text-gray-500">Esta lista está vazia.</p>
+            <p className="text-gray-500">
+              {searchQuery ? "Nenhum item encontrado para sua busca." : "Esta lista está vazia."}
+            </p>
             <p className="text-gray-400 text-sm mt-2">
-              Use o botão "Adicionar Itens" para começar!
+              {searchQuery ? "Tente alterar os termos da busca." : "Use o botão 'Adicionar Itens' para começar!"}
             </p>
           </div>
         )}
@@ -237,7 +295,7 @@ export default function UserList() {
           <QuickAddModal
             onClose={() => setShowQuickAddModal(false)}
             onAddItem={handleQuickAdd}
-            currentListItems={userList.items || []} // Passar os IDs, não os objetos
+            currentListItems={userList.items || []}
           />
         )}
         {showEditModal && (

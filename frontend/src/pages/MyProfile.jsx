@@ -13,9 +13,9 @@ import {
 } from "../utils/MediaHelpers";
 
 export default function MyProfile() {
-  const { user } = useAuth();
+  const { user: currentUser } = useAuth();
   
-  if (!user) {
+  if (!currentUser) {
     return (
       <div className="flex justify-center items-center min-h-screen">
         <p className="text-lg font-semibold text-gray-600">
@@ -24,27 +24,28 @@ export default function MyProfile() {
       </div>
     );
   }
-
-  const savedMediaItems = convertMediaIdsToObjects(user.savedMedia);
-  const userFavoritesItems = convertMediaIdsToObjects(user.favorites);
-  const userReviews = ensureArray(user.reviews).length > 0 
-    ? ensureArray(user.reviews) 
-    : getReviewsByUserId(user.id);
-  const userLists = ensureArray(user.lists).length > 0 
-    ? ensureArray(user.lists) 
-    : getListsByUserId(user.id);
+  const profileUser = currentUser;
+  const isOwner = profileUser.id === currentUser.id;
+  const savedMediaItems = convertMediaIdsToObjects(currentUser.savedMedia);
+  const userFavoritesItems = convertMediaIdsToObjects(currentUser.favorites);
+  const userReviews = ensureArray(currentUser.reviews).length > 0 
+    ? ensureArray(currentUser.reviews) 
+    : getReviewsByUserId(currentUser.id);
+  const userLists = ensureArray(currentUser.lists).length > 0 
+    ? ensureArray(currentUser.lists) 
+    : getListsByUserId(currentUser.id);
 
   return (
-    <div className="min-h-screen bg-gray-100 py-8">
+    <div>
       <div className="max-w-6xl mx-auto px-4">
-        <ProfileHeader user={user} />
+        <ProfileHeader user={profileUser} isOwner={isOwner} />
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <SavedItems savedItems={savedMediaItems} />
           <UserFavorites userFavorites={userFavoritesItems} />
           <UserReviews userReviews={userReviews} />
           <UserLists userLists={userLists} />
-          <UserStats user={user} />
+          <UserStats user={currentUser} />
         </div>
       </div>
     </div>

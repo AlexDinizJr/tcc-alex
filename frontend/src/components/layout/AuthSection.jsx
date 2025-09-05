@@ -82,7 +82,7 @@ export default function AuthSection({ user, isAuthenticated, onLogout, mobile = 
           </Link>
 
           <Link 
-            to="/lists"
+            to="/mylists"
             className="px-2 py-2 rounded-lg hover:bg-gray-700 transition-colors text-sm">
             Minhas Listas
           </Link>

@@ -1,13 +1,9 @@
 export default function MediaDetails({ mediaItem }) {
   const renderMediaField = (field, label, renderFunction) => {
     if (!field) return null;
-    
     if (Array.isArray(field) && field.length === 0) return null;
-    
-    if (renderFunction) {
-      return renderFunction(field);
-    }
-    
+    if (renderFunction) return renderFunction(field);
+
     return (
       <p className="text-gray-700">
         <span className="font-semibold">{label}:</span>{" "}
@@ -18,14 +14,22 @@ export default function MediaDetails({ mediaItem }) {
 
   return (
     <div className="mb-6">
-      {/* Gêneros - nova linha adicionada */}
+      {/* Gêneros */}
       {mediaItem.genres && mediaItem.genres.length > 0 && (
         <p className="text-gray-700">
           <span className="font-semibold">Gêneros:</span>{" "}
           {mediaItem.genres.join(", ")}
         </p>
       )}
-      
+
+      {/* Classificação etária */}
+      {mediaItem.classification && (
+        <p className="text-gray-700">
+          <span className="font-semibold">Classificação:</span>{" "}
+          {mediaItem.classification}
+        </p>
+      )}
+
       {renderMediaField(mediaItem.directors, "Diretor(es)")}
       {renderMediaField(mediaItem.authors, "Autor(es)")}
       {renderMediaField(mediaItem.artists, "Artista(s)")}

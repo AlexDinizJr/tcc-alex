@@ -6,6 +6,7 @@ export interface User {
   email: string;
   password?: string;
   name: string;
+  username: string;
   avatar?: string;
   coverImage?: string;
   bio?: string;
@@ -20,6 +21,7 @@ export interface User {
     showSavedItems: boolean;
     showFavorites: boolean;
     showReviews: boolean;
+    showStats: boolean;
     dataCollection: boolean;
   };
 }

@@ -20,7 +20,7 @@ export default function UnauthRecommendationCTA() {
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
           <Link
-            to="/singup"
+            to="/signup"
             className="bg-white text-blue-600 px-8 py-4 rounded-xl hover:bg-gray-100 transition-all duration-300 font-bold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1"
           >
             Começar Agora - Grátis
@@ -123,7 +123,7 @@ export default function UnauthRecommendationCTA() {
         
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link
-            to="/singup"
+            to="/signup"
             className="bg-blue-600 text-white px-8 py-4 rounded-xl hover:bg-blue-700 transition-colors font-bold text-lg shadow-lg"
           >
             Criar Minha Conta

@@ -1,4 +1,6 @@
 import { MediaType } from "./MediaType";
+import { MediaGenre } from "./GenreModel";
+import { ClassificationRating } from "./ClassificationRating";
 
 export interface Media {
   id: number;
@@ -7,7 +9,8 @@ export interface Media {
   image: string;
   year: number;
   type: MediaType;
-  genres?: string[];
+  classification?: ClassificationRating;
+  genres?: MediaGenre[];
   links?: {
     service: string;
     url: string;

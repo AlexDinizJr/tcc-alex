@@ -12,6 +12,7 @@ import Books from "./pages/Books";
 import Media from "./pages/Media";
 import Login from "./pages/Login";
 import Signup from "./pages/Register";
+import RecoveryPassword from "./pages/RecoveryPassword";
 import MyProfile from "./pages/MyProfile";
 import Preferences from "./pages/Preferences";
 import Search from "./pages/Search";
@@ -33,7 +34,7 @@ function App() {
       <div className="min-h-screen flex flex-col bg-gray-50">
         <ScrollToTop />
         <Navbar />
-        <main className="flex-1 container mx-auto px-4 py-6 ">
+        <main className="flex-1 container mx-auto px-4 py-6">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/movies" element={<Movies />} />
@@ -44,15 +45,16 @@ function App() {
             <Route path="/users" element={<Users />} />
             <Route path="/users/:id" element={<UserPage />} />
             <Route path="/media/:id" element={<Media />} />
+            <Route path="/lists/:id" element={<UserList />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/search" element={<Search />} />
+            <Route path="/recovery-password" element={<RecoveryPassword />} />
             <Route path="/preferences" element={<ProtectedRoute><Preferences /></ProtectedRoute>} />
             <Route path="/myprofile" element={<ProtectedRoute><MyProfile /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-            <Route path="/lists" element={<ProtectedRoute><MyLists /></ProtectedRoute>} />
+            <Route path="/mylists" element={<ProtectedRoute><MyLists /></ProtectedRoute>} />
             <Route path="/lists/create" element={<ProtectedRoute><CreateList /></ProtectedRoute>} />
-            <Route path="/lists/:id" element={<ProtectedRoute><UserList /></ProtectedRoute>} />
             <Route path="/saved-items" element={<ProtectedRoute><SavedItems /></ProtectedRoute>} />
             <Route path="/favorites" element={<ProtectedRoute><MyFavorites /></ProtectedRoute>} />
             <Route path="/my-reviews" element={<ProtectedRoute><MyReviews /></ProtectedRoute>} />

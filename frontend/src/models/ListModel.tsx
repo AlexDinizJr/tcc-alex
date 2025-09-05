@@ -6,7 +6,6 @@ export interface UserList {
   name: string;
   description?: string;
   items: Media[];
-  isDefault: boolean;
   isPublic?: boolean;
   createdAt?: string;
 }
