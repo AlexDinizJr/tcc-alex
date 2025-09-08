@@ -5,7 +5,7 @@ import MediaGrid from "../components/MediaGrid";
 import Pagination from "../components/Pagination";
 import { convertMediaIdsToObjects } from "../utils/MediaHelpers";
 
-export default function SavedItems() {
+export default function MySavedItems() {
   const { user } = useAuth();
   const allSavedMedia = convertMediaIdsToObjects(user?.savedMedia || []);
   const itemsPerPage = 20;

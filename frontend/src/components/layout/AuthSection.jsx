@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-export default function AuthSection({ user, isAuthenticated, onLogout, mobile = false }) {
+export default function AuthSection({ user, isAuthenticated, onLogout, mobile = false, profileLink = "#" }) {
   if (mobile) {
     return (
       <div className="space-y-3">
@@ -18,14 +18,24 @@ export default function AuthSection({ user, isAuthenticated, onLogout, mobile = 
               </div>
               <div>
                 <p className="text-sm font-medium">{user?.name || user?.email}</p>
+                {user?.username && (
+                  <p className="text-xs text-gray-400">@{user.username}</p>
+                )}
               </div>
             </div>
             
             <Link
-              to="/myprofile"
+              to={profileLink}
               className="block px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
             >
               Meu Perfil
+            </Link>
+            
+            <Link 
+              to="/mylists"
+              className="block px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
+            >
+              Minhas Listas
             </Link>
             
             <button
@@ -69,21 +79,27 @@ export default function AuthSection({ user, isAuthenticated, onLogout, mobile = 
                 </span>
               )}
             </div>
-            <span className="text-sm text-gray-300 hidden lg:block">
-              Olá, {user?.name || user?.email}
-            </span>
+            <div className="hidden lg:block">
+              <span className="text-sm text-gray-300 block">
+                Olá, {user?.name || user?.email}
+              </span>
+              {user?.username && (
+                <span className="text-xs text-gray-400 block">@{user.username}</span>
+              )}
+            </div>
           </div>
           
           <Link
-            to="/myprofile"
+            to={profileLink}
             className="px-2 py-2 rounded-lg hover:bg-gray-700 transition-colors text-sm"
           >
             Meu Perfil
           </Link>
 
           <Link 
-            to="/mylists"
-            className="px-2 py-2 rounded-lg hover:bg-gray-700 transition-colors text-sm">
+            to="/lists"
+            className="px-2 py-2 rounded-lg hover:bg-gray-700 transition-colors text-sm"
+          >
             Minhas Listas
           </Link>
           

@@ -16,6 +16,11 @@ export default function Navbar() {
     goHome();
   };
 
+  // Função para obter o link do perfil do usuário
+  const getUserProfileLink = () => {
+    return user?.username ? `/users/${user.username}` : "#";
+  };
+
   if (loading) {
     return (
       <nav className="bg-gray-800 text-white shadow-lg">
@@ -50,6 +55,7 @@ export default function Navbar() {
             user={user} 
             isAuthenticated={isAuthenticated} 
             onLogout={handleLogout} 
+            profileLink={getUserProfileLink()}
           />
         </div>
 
@@ -76,6 +82,7 @@ export default function Navbar() {
             isAuthenticated={isAuthenticated} 
             onLogout={handleLogout} 
             mobile 
+            profileLink={getUserProfileLink()}
           />
         </div>
       )}

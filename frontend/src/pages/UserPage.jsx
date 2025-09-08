@@ -15,14 +15,14 @@ import {
 import { mockUsers } from "../mockdata/mockUsers";
 
 export default function UserProfilePage() {
-  const { id } = useParams();
+  const { username } = useParams(); // Alterado para receber username
   const { user: loggedInUser } = useAuth();
 
-  const userId = parseInt(id);
-  const isOwner = loggedInUser?.id === userId;
+  // Encontrar usuário pelo username em vez do ID
+  const isOwner = loggedInUser?.username === username;
   const user = isOwner 
     ? loggedInUser  // pega os dados atualizados do contexto
-    : mockUsers.find(u => u.id === userId);
+    : mockUsers.find(u => u.username === username); // Busca por username
 
   if (!user) {
     return (

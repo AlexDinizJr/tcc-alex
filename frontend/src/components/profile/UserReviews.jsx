@@ -24,7 +24,7 @@ export default function UserReviews({ userReviews }) {
     <div className="bg-white rounded-2xl shadow-md p-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold text-gray-800">Minhas Avaliações</h2>
-        <Link to="/my-reviews" className="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
+        <Link to="/reviews" className="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
           Ver todas
         </Link>
       </div>

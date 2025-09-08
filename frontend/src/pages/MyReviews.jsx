@@ -5,7 +5,7 @@ import { useAuth } from "../hooks/useAuth";
 import { ensureArray, getReviewsByUserId } from "../utils/MediaHelpers";
 import { ALL_MEDIA } from "../mockdata/mockMedia";
 
-export default function UserReviewsPage() {
+export default function MyReviews() {
   const { user } = useAuth();
   const [reviews, setReviews] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);

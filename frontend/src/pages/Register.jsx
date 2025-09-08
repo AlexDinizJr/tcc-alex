@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 
 export default function Signup() {
   const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -19,6 +20,17 @@ export default function Signup() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+
+    // Validações
+    if (!username.trim()) {
+      setError("Username é obrigatório");
+      return;
+    }
+
+    if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+      setError("Username só pode conter letras, números e underline");
+      return;
+    }
 
     if (password !== confirmPassword) {
       setError("As senhas não coincidem");
@@ -36,6 +48,7 @@ export default function Signup() {
       const newUser = {
         id: Date.now(),
         name: name.trim(),
+        username: username.trim().toLowerCase(),
         email: email.toLowerCase().trim(),
       };
 
@@ -93,6 +106,27 @@ export default function Signup() {
                 <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
               </svg>
             </div>
+          </div>
+
+          <div className="relative">
+            <label className="block text-gray-300 text-sm font-medium mb-2">Username</label>
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="seuusername"
+                className="w-full p-4 rounded-lg bg-gray-700/60 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 border border-gray-600 transition-all duration-200"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+                disabled={loading}
+                pattern="[a-zA-Z0-9_]+"
+                title="Apenas letras, números e underline são permitidos"
+              />
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M5 4a1 1 0 00-2 0v7.268a2 2 0 000 3.464V16a1 1 0 102 0v-1.268a2 2 0 000-3.464V4zM11 4a1 1 0 10-2 0v1.268a2 2 0 000 3.464V16a1 1 0 102 0V8.732a2 2 0 000-3.464V4zM16 3a1 1 0 011 1v7.268a2 2 0 010 3.464V16a1 1 0 11-2 0v-1.268a2 2 0 010-3.464V4a1 1 0 011-1z" />
+              </svg>
+            </div>
+            <p className="text-xs text-gray-500 mt-1">Apenas letras, números e underline</p>
           </div>
           
           <div className="relative">

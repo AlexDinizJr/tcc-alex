@@ -35,9 +35,9 @@ export default function ProfileHeader({ user, isOwner }) {
       <div className="pt-16 pb-6 px-6">
         <div className="flex flex-col md:flex-row md:items-start md:justify-between">
           <div className="flex-1">
-            {/* Nome e Email */}
+            {/* Nome e Username */}
             <h1 className="text-2xl font-bold text-gray-800 mb-1">{user.name}</h1>
-            <p className="text-gray-600 mb-3">{user.email}</p>
+            <p className="text-gray-500 mb-1 py-1">@{user.username}</p> {/* Adicionado username */}
             
             {/* Bio */}
             {hasBio ? (

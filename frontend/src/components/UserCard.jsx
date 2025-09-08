@@ -20,12 +20,12 @@ export default function UserCard({ user: userProp }) {
     : `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random&color=fff`;
 
   return (
-    <Link to={`/users/${user.id}`} className="block">
+    <Link to={`/users/${user.username}`} className="block"> {/* Alterado para usar username */}
       <div className="bg-white rounded-2xl shadow-md p-4 flex justify-between items-center hover:shadow-lg transition-shadow cursor-pointer">
         {/* Informações do usuário */}
         <div className="flex flex-col justify-center">
           <h2 className="text-lg font-semibold text-gray-800">{user.name}</h2>
-          <p className="text-gray-500 text-sm">{user.email}</p>
+          <p className="text-gray-500 text-sm">@{user.username}</p> {/* Adicionado username */}
           {user.bio && (
             <p className="text-gray-400 text-xs mt-1 line-clamp-2">
               {user.bio}
