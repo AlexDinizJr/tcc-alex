@@ -6,6 +6,7 @@ import EmptyListsState from "../components/lists/EmptyListsState";
 import { ensureArray, getListsByUserId } from "../utils/MediaHelpers";
 import Pagination from "../components/Pagination";
 import { mockUsers } from "../mockdata/mockUsers";
+import { BackToProfile } from "../components/BackToProfile";
 
 export default function MyLists() {
   const { username } = useParams(); // username da URL
@@ -66,6 +67,10 @@ export default function MyLists() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-6xl mx-auto">
+        {/* Botão de voltar para o perfil */}
+          <div className="mb-4">
+            <BackToProfile username={username} />
+          </div>
         {/* Header */}
         <div className="bg-white rounded-2xl shadow-md p-8 mb-8 flex justify-between items-center">
           <div>

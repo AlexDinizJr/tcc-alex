@@ -6,6 +6,7 @@ import MediaGrid from "../components/MediaGrid";
 import Pagination from "../components/Pagination";
 import { convertMediaIdsToObjects } from "../utils/MediaHelpers";
 import { mockUsers } from "../mockdata/mockUsers";
+import { BackToProfile } from "../components/BackToProfile";
 
 export default function MySavedItems() {
   const { username } = useParams(); // pega o username da URL
@@ -64,6 +65,10 @@ export default function MySavedItems() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-6xl mx-auto">
+        {/* Botão de voltar para o perfil */}
+        <div className="mb-4">
+          <BackToProfile username={username} />
+        </div>        
         <div className="bg-white rounded-2xl shadow-md p-8 mb-8">
           <h1 className="text-3xl font-bold text-gray-800 mb-2">
             {isOwner ? "Meus Itens Salvos" : `Itens Salvos de ${user.name}`}

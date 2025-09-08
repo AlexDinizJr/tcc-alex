@@ -8,9 +8,11 @@ import MediaCardWithActions from "../components/MediaCardWithActions";
 import MediaHeader from "../components/MediaPageHeader";
 import Pagination from "../components/Pagination";
 import { convertMediaIdsToObjects } from "../utils/MediaHelpers";
+import { BackToProfile } from "../components/BackToProfile";
 
 export default function UserList() {
   const params = useParams();
+  const username = params.username;
   const listId = params.id || params.listId;
   const parsedListId = parseInt(listId);
 
@@ -143,6 +145,10 @@ export default function UserList() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-6xl mx-auto">
+        {/* Botão de voltar para o perfil */}
+          <div className="mb-4">
+            <BackToProfile username={username} />
+          </div>
         {/* Header da lista */}
         <div className="bg-white rounded-2xl shadow-md p-6 mb-8 relative pb-12">
           <div className="flex justify-between items-center">

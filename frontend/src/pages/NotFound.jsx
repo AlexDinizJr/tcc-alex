@@ -9,7 +9,7 @@ export default function NotFound() {
   }, []);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-gray-100 px-4">
+    <div className="min-h-screen flex items-center justify-center from-blue-50 to-gray-100 px-4">
       <div className="max-w-lg w-full bg-white rounded-2xl shadow-xl p-8 text-center">
         {/* Ícone animado */}
         <div className="mb-6">

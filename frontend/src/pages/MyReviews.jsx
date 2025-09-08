@@ -6,6 +6,7 @@ import { useAuth } from "../hooks/useAuth";
 import { ensureArray, getReviewsByUserId } from "../utils/MediaHelpers";
 import { ALL_MEDIA } from "../mockdata/mockMedia";
 import { mockUsers } from "../mockdata/mockUsers";
+import { BackToProfile } from "../components/BackToProfile";
 
 export default function MyReviews() {
   const { username } = useParams(); // pega o username da URL
@@ -117,6 +118,10 @@ export default function MyReviews() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto">
+        {/* Botão de voltar para o perfil */}
+        <div className="mb-4">
+          <BackToProfile username={username} />
+        </div>
         <div className="bg-white rounded-2xl shadow-md p-8 mb-8">
           <h1 className="text-3xl font-bold text-gray-800 mb-2">
             {isOwner ? "Minhas Avaliações" : `Avaliações de ${user.name}`}
