@@ -2,7 +2,7 @@ import { useParams } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import ProfileHeader from "../components/profile/ProfileHeader";
 import UserLists from "../components/profile/UserLists";
-import SavedItems from "../components/profile/SavedItems";
+import SavedItems from "../components/profile/UserSavedItems";
 import UserFavorites from "../components/profile/UserFavorites";
 import UserReviews from "../components/profile/UserReviews";
 import UserStats from "../components/profile/UserStats";
@@ -15,14 +15,13 @@ import {
 import { mockUsers } from "../mockdata/mockUsers";
 
 export default function UserProfilePage() {
-  const { username } = useParams(); // Alterado para receber username
+  const { username } = useParams();
   const { user: loggedInUser } = useAuth();
 
-  // Encontrar usuário pelo username em vez do ID
   const isOwner = loggedInUser?.username === username;
-  const user = isOwner 
-    ? loggedInUser  // pega os dados atualizados do contexto
-    : mockUsers.find(u => u.username === username); // Busca por username
+  const user = isOwner
+    ? loggedInUser
+    : mockUsers.find(u => u.username === username);
 
   if (!user) {
     return (
@@ -61,7 +60,7 @@ export default function UserProfilePage() {
 
           {/* Itens Salvos */}
           {canViewSaved ? (
-            <SavedItems savedItems={savedMediaItems} />
+            <SavedItems savedItems={savedMediaItems} username={user.username} />
           ) : (
             <div className="bg-white rounded-2xl shadow-md p-6 text-center text-gray-500 flex flex-col items-center justify-center min-h-[180px]">
               <span className="text-3xl mb-3">🔒</span>
@@ -73,7 +72,7 @@ export default function UserProfilePage() {
 
           {/* Favoritos */}
           {canViewFavorites ? (
-            <UserFavorites userFavorites={userFavoritesItems} />
+            <UserFavorites userFavorites={userFavoritesItems} username={user.username} />
           ) : (
             <div className="bg-white rounded-2xl shadow-md p-6 text-center text-gray-500 flex flex-col items-center justify-center min-h-[180px]">
               <span className="text-3xl mb-3">🔒</span>
@@ -85,7 +84,7 @@ export default function UserProfilePage() {
 
           {/* Avaliações */}
           {canViewReviews ? (
-            <UserReviews userReviews={userReviews} />
+            <UserReviews userReviews={userReviews} username={user.username} />
           ) : (
             <div className="bg-white rounded-2xl shadow-md p-6 text-center text-gray-500 flex flex-col items-center justify-center min-h-[180px]">
               <span className="text-3xl mb-3">🔒</span>
@@ -108,7 +107,7 @@ export default function UserProfilePage() {
           )}
 
           {/* Listas */}
-          <UserLists userLists={userLists} />
+          <UserLists userLists={userLists} username={user.username} />
 
         </div>
       </div>

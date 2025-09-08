@@ -23,7 +23,7 @@ import MyFavorites from "./pages/MyFavorites";
 import MyReviews from "./pages/MyReviews";
 import Users from "./pages/Users"
 import UserPage from "./pages/UserPage"
-import UserList from "./pages/UserList";
+import UserListPage from "./pages/UserListPage";
 import CreateList from "./pages/CreateList";
 import CustomRecommendations from "./pages/CustomRecommendations";
 
@@ -41,21 +41,21 @@ function App() {
             <Route path="/musics" element={<Musics />} />
             <Route path="/tvseries" element={<TVSeries />} />
             <Route path="/books" element={<Books />} />
+            <Route path="/media/:id" element={<Media />} />
             <Route path="/users" element={<Users />} />
             <Route path="/users/:username" element={<UserPage />} />
-            <Route path="/media/:id" element={<Media />} />
-            <Route path="/lists/:id" element={<UserList />} />
+            <Route path="/users/:username/lists" element={<MyLists />} />
+            <Route path="/users/:username/lists/:id" element={<UserListPage />} />
+            <Route path="/users/:username/saved-items" element={<MySavedItems />} />
+            <Route path="/users/:username/favorites" element={<MyFavorites />} />
+            <Route path="/users/:username/reviews" element={<MyReviews />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
-            <Route path="/search" element={<Search />} />
             <Route path="/recovery-password" element={<RecoveryPassword />} />
+            <Route path="/search" element={<Search />} />
             <Route path="/preferences" element={<ProtectedRoute><Preferences /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-            <Route path="/lists" element={<ProtectedRoute><MyLists /></ProtectedRoute>} />
             <Route path="/lists/create" element={<ProtectedRoute><CreateList /></ProtectedRoute>} />
-            <Route path="/saved-items" element={<ProtectedRoute><MySavedItems /></ProtectedRoute>} />
-            <Route path="/favorites" element={<ProtectedRoute><MyFavorites /></ProtectedRoute>} />
-            <Route path="/reviews" element={<ProtectedRoute><MyReviews /></ProtectedRoute>} />
             <Route path="/custom-recommendations" element={<ProtectedRoute><CustomRecommendations /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
