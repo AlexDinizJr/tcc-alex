@@ -1,12 +1,21 @@
 import { useEffect, useState, useMemo } from "react";
+import { useParams } from "react-router-dom";
 import ReviewGrid from "../components/reviews/ReviewGrid";
 import Pagination from "../components/Pagination";
 import { useAuth } from "../hooks/useAuth";
 import { ensureArray, getReviewsByUserId } from "../utils/MediaHelpers";
 import { ALL_MEDIA } from "../mockdata/mockMedia";
+import { mockUsers } from "../mockdata/mockUsers";
 
 export default function MyReviews() {
-  const { user } = useAuth();
+  const { username } = useParams(); // pega o username da URL
+  const { user: loggedInUser } = useAuth();
+
+  const isOwner = loggedInUser?.username === username;
+  const user = isOwner
+    ? loggedInUser
+    : mockUsers.find((u) => u.username === username);
+
   const [reviews, setReviews] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
@@ -15,19 +24,27 @@ export default function MyReviews() {
   const itemsPerPage = 5;
 
   useEffect(() => {
-    const userReviewsRaw = ensureArray(user?.reviews);
-    const initialReviews = userReviewsRaw.length > 0 && user?.id
-      ? userReviewsRaw
-      : user?.id ? getReviewsByUserId(user.id) : [];
+    if (!user) {
+      setReviews([]);
+      return;
+    }
 
-    const enrichedReviews = initialReviews.map(review => {
-      const media = ALL_MEDIA.find(m => m.id === review.mediaId);
+    const userReviewsRaw = ensureArray(user?.reviews);
+    const initialReviews =
+      userReviewsRaw.length > 0 && user?.id
+        ? userReviewsRaw
+        : user?.id
+        ? getReviewsByUserId(user.id)
+        : [];
+
+    const enrichedReviews = initialReviews.map((review) => {
+      const media = ALL_MEDIA.find((m) => m.id === review.mediaId);
       return {
         ...review,
-        user: user?.name || 'Usuário',
+        user: user?.name || "Usuário",
         avatar: user?.avatar,
         mediaTitle: media?.title || `Mídia #${review.mediaId}`,
-        helpful: review.helpful || 0
+        helpful: review.helpful || 0,
       };
     });
 
@@ -35,24 +52,35 @@ export default function MyReviews() {
   }, [user]);
 
   const handleHelpfulClick = (reviewId) => {
-    setReviews(reviews.map(r =>
-      r.id === reviewId ? { ...r, helpful: (r.helpful || 0) + 1 } : r
-    ));
+    setReviews((reviews) =>
+      reviews.map((r) =>
+        r.id === reviewId
+          ? { ...r, helpful: (r.helpful || 0) + 1 }
+          : r
+      )
+    );
   };
 
   const handleEditClick = (reviewId, newComment, newRating) => {
-    setReviews(reviews.map(r =>
-      r.id === reviewId
-        ? { ...r, comment: newComment, rating: newRating, date: new Date().toLocaleDateString('pt-BR') }
-        : r
-    ));
+    setReviews((reviews) =>
+      reviews.map((r) =>
+        r.id === reviewId
+          ? {
+              ...r,
+              comment: newComment,
+              rating: newRating,
+              date: new Date().toLocaleDateString("pt-BR"),
+            }
+          : r
+      )
+    );
   };
 
   const filteredAndSortedReviews = useMemo(() => {
     let list = [...reviews];
 
     if (searchQuery.trim() !== "") {
-      list = list.filter(r =>
+      list = list.filter((r) =>
         r.mediaTitle.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
@@ -68,16 +96,31 @@ export default function MyReviews() {
     return list;
   }, [reviews, searchQuery, sortBy]);
 
-  const totalPages = Math.ceil(filteredAndSortedReviews.length / itemsPerPage);
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredAndSortedReviews.length / itemsPerPage)
+  );
   const startIdx = (currentPage - 1) * itemsPerPage;
   const endIdx = startIdx + itemsPerPage;
   const reviewsToShow = filteredAndSortedReviews.slice(startIdx, endIdx);
+
+  if (!user) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <p className="text-lg font-semibold text-gray-600">
+          Usuário não encontrado.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto">
         <div className="bg-white rounded-2xl shadow-md p-8 mb-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">Minhas Avaliações</h1>
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">
+            {isOwner ? "Minhas Avaliações" : `Avaliações de ${user.name}`}
+          </h1>
           <p className="text-gray-600">{reviews.length} avaliações</p>
         </div>
 
@@ -106,7 +149,11 @@ export default function MyReviews() {
         <ReviewGrid
           reviews={reviewsToShow}
           showViewAll={false}
-          emptyMessage="Você ainda não avaliou nenhum conteúdo."
+          emptyMessage={
+            isOwner
+              ? "Você ainda não avaliou nenhum conteúdo."
+              : `${user.name} ainda não avaliou nenhum conteúdo.`
+          }
           onHelpfulClick={handleHelpfulClick}
           onEditClick={handleEditClick}
         />

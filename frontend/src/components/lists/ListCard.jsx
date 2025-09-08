@@ -1,14 +1,14 @@
 import { Link } from "react-router-dom";
-import { convertMediaIdsToObjects } from "../../utils/MediaHelpers"; // Importe o helper
+import { convertMediaIdsToObjects } from "../../utils/MediaHelpers";
 
-export default function ListCard({ list }) {
+export default function ListCard({ list, username }) { // Adicione a prop username
   const mediaItems = Array.isArray(list.items) 
-    ? convertMediaIdsToObjects(list.items).slice(0, 4) // Pega até 4 itens para o preview
+    ? convertMediaIdsToObjects(list.items).slice(0, 4)
     : [];
 
   return (
     <Link
-      to={`/lists/${list.id}`}
+      to={username ? `/users/${username}/lists/${list.id}` : `/lists/${list.id}`}
       className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer border border-gray-100 overflow-hidden group"
     >
       {/* Header da Lista */}
@@ -60,7 +60,6 @@ export default function ListCard({ list }) {
                     alt={item.title || ""}
                     className="w-full h-full object-cover"
                     onError={(e) => {
-                      // Fallback se a imagem não carregar
                       e.target.style.display = 'none';
                       e.target.nextSibling.style.display = 'flex';
                     }}

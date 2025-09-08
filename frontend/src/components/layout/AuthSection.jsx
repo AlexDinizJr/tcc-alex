@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-export default function AuthSection({ user, isAuthenticated, onLogout, mobile = false, profileLink = "#" }) {
+export default function AuthSection({ user, isAuthenticated, onLogout, mobile = false, profileLink = "#", listsLink = "#" }) {
   if (mobile) {
     return (
       <div className="space-y-3">
@@ -32,7 +32,7 @@ export default function AuthSection({ user, isAuthenticated, onLogout, mobile = 
             </Link>
             
             <Link 
-              to="/mylists"
+              to={listsLink}
               className="block px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
             >
               Minhas Listas
@@ -97,7 +97,7 @@ export default function AuthSection({ user, isAuthenticated, onLogout, mobile = 
           </Link>
 
           <Link 
-            to="/lists"
+            to={listsLink}
             className="px-2 py-2 rounded-lg hover:bg-gray-700 transition-colors text-sm"
           >
             Minhas Listas

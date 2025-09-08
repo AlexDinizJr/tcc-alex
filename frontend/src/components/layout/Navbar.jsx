@@ -16,17 +16,14 @@ export default function Navbar() {
     goHome();
   };
 
-  // Função para obter o link do perfil do usuário
-  const getUserProfileLink = () => {
-    return user?.username ? `/users/${user.username}` : "#";
-  };
+  // Funções para links do usuário logado
+  const getUserProfileLink = () => (user?.username ? `/users/${user.username}` : "#");
+  const getUserListsLink = () => (user?.username ? `/users/${user.username}/lists` : "#");
 
   if (loading) {
     return (
       <nav className="bg-gray-800 text-white shadow-lg">
-        <div className="container mx-auto px-4 py-3">
-          <div>Carregando...</div>
-        </div>
+        <div className="container mx-auto px-4 py-3">Carregando...</div>
       </nav>
     );
   }
@@ -34,10 +31,12 @@ export default function Navbar() {
   return (
     <nav className="bg-gray-800 text-white shadow-lg">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-
         {/* Esquerda: Logo + SearchBar + Links */}
         <div className="flex items-center gap-4">
-          <Link to="/" className="text-xl font-bold hover:text-blue-400 transition-colors flex items-center gap-1">
+          <Link
+            to="/"
+            className="text-xl font-bold hover:text-blue-400 transition-colors flex items-center gap-1"
+          >
             <span className="bg-blue-600 p-1 rounded">🎬</span>
             MediaHub
           </Link>
@@ -51,11 +50,12 @@ export default function Navbar() {
 
         {/* Direita: Auth */}
         <div className="hidden md:flex items-center">
-          <AuthSection 
-            user={user} 
-            isAuthenticated={isAuthenticated} 
-            onLogout={handleLogout} 
+          <AuthSection
+            user={user}
+            isAuthenticated={isAuthenticated}
+            onLogout={handleLogout}
             profileLink={getUserProfileLink()}
+            listsLink={getUserListsLink()}
           />
         </div>
 
@@ -77,12 +77,13 @@ export default function Navbar() {
         <div className="md:hidden mt-4 pt-4 border-t border-gray-700 flex flex-col gap-4">
           <SearchBar />
           <NavLinks mobile />
-          <AuthSection 
-            user={user} 
-            isAuthenticated={isAuthenticated} 
-            onLogout={handleLogout} 
-            mobile 
+          <AuthSection
+            user={user}
+            isAuthenticated={isAuthenticated}
+            onLogout={handleLogout}
+            mobile
             profileLink={getUserProfileLink()}
+            listsLink={getUserListsLink()}
           />
         </div>
       )}
