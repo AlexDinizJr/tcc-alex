@@ -6,6 +6,7 @@ export const loginUser = (userData, setUser) => {
     ...userData,
     bio: userData.bio || '',
     username: userData.username || userData.name?.toLowerCase().replace(/\s+/g, ''),
+    createdAt: userData.createdAt,
     savedMedia: userData.savedMedia || [],
     lists: userData.lists || MOCK_LISTS.filter(list => list.userId === userData.id),
     reviews: userData.reviews || MOCK_REVIEWS.filter(review => review.userId === userData.id),
@@ -25,6 +26,7 @@ export const mockLoginUser = (credentials, mockUsers, login) => {
     const userWithCompleteData = {
       ...user,
       username: user.username || user.name?.toLowerCase().replace(/\s+/g, ''),
+      createdAt: user.createdAt,
       lists: MOCK_LISTS.filter(list => list.userId === user.id),
       reviews: MOCK_REVIEWS.filter(review => review.userId === user.id)
     };

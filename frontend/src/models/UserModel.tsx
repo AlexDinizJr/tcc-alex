@@ -8,6 +8,7 @@ export interface User {
   name: string;
   username: string;
   avatar?: string;
+  createdAt?: Date;
   coverImage?: string;
   bio?: string;
   //dados mais complexos

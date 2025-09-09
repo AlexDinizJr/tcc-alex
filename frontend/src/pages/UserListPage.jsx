@@ -239,7 +239,12 @@ export default function UserList() {
               {searchQuery ? "Nenhum item encontrado para sua busca." : "Esta lista está vazia."}
             </p>
             <p className="text-gray-400 text-sm mt-2">
-              {searchQuery ? "Tente alterar os termos da busca." : "Use o botão 'Adicionar Itens' para começar!"}
+              {searchQuery 
+                ? "Tente alterar os termos da busca." 
+                : isOwner 
+                  ? "Use o botão 'Adicionar Itens' para começar!" 
+                  : "Esta lista ainda não possui itens."
+              }
             </p>
           </div>
         )}

@@ -2,8 +2,8 @@ import { Link } from "react-router-dom";
 
 export default function EmptyListsState({ isOwner }) {
   return (
-    <div className="flex flex-col items-center justify-center text-center py-20 bg-white rounded-2xl shadow-md">
-      <p className="text-gray-600 mb-4">
+    <div className="flex flex-col items-center justify-center text-center bg-gray-800/80 rounded-2xl shadow-md border border-gray-700/50 p-6 mb-8">
+      <p className="text-gray-400 mb-4">
         {isOwner 
           ? "Você ainda não criou nenhuma lista." 
           : "Este usuário ainda não possui listas."}

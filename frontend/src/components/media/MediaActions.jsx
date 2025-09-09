@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
 import { FaBookmark, FaHeart, FaPlus } from "react-icons/fa";
+import { FiShare2 } from "react-icons/fi"; // ⬅️ Ícone de compartilhar
 import { useAuth } from "../../hooks/useAuth";
 import AddToListModal from "./AddToListModal";
+import ShareMediaModal from "../ShareMediaModal"; // ⬅️ Importa o modal
 
 export default function MediaActions({ mediaItem }) {
   const { 
@@ -15,6 +17,7 @@ export default function MediaActions({ mediaItem }) {
   const [isSaved, setIsSaved] = useState(false);
   const [isFavorited, setIsFavorited] = useState(false);
   const [showAddToListModal, setShowAddToListModal] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false); // ⬅️ Novo estado
 
   useEffect(() => {
     if (user) {
@@ -90,14 +93,33 @@ export default function MediaActions({ mediaItem }) {
           <FaPlus />
           Adicionar à Lista
         </button>
+
+        {/* 🔗 Botão de Compartilhar */}
+        <button
+          onClick={() => setShowShareModal(true)}
+          className="flex items-center gap-2 px-3 py-2 bg-gray-700/80 text-gray-200 rounded-lg font-semibold hover:bg-gray-600 transition-colors cursor-pointer"
+        >
+          <FiShare2 />
+          Compartilhar
+        </button>
       </div>
 
+      {/* Modal de Adicionar à Lista */}
       {showAddToListModal && (
         <AddToListModal 
           mediaItem={mediaItem}
           userLists={user?.lists || []}
           onAddToList={handleAddToListConfirm}
           onClose={() => setShowAddToListModal(false)}
+        />
+      )}
+
+      {/* Modal de Compartilhar */}
+      {showShareModal && (
+        <ShareMediaModal 
+          isOpen={showShareModal}
+          onClose={() => setShowShareModal(false)}
+          media={mediaItem}
         />
       )}
     </>

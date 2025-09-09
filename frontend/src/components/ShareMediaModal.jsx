@@ -1,6 +1,7 @@
 // ShareMediaModal.jsx
 import { FiX, FiCopy, FiLink } from "react-icons/fi";
-import { FaWhatsapp, FaTwitter, FaFacebookF, FaTelegramPlane } from "react-icons/fa";
+import { FaWhatsapp, FaFacebookF, FaTelegramPlane } from "react-icons/fa";
+import { FaXTwitter } from "react-icons/fa6";
 import { useEffect, useState } from "react";
 import Portal from "./Portal";
 
@@ -37,10 +38,10 @@ export default function ShareMediaModal({ isOpen, onClose, media }) {
       color: "bg-green-500 hover:bg-green-600",
     },
     {
-      name: "Twitter",
-      icon: <FaTwitter size={20} />,
-      url: `https://twitter.com/intent/tweet?text=${encodeURIComponent(`Confira "${media.title}" no MediaHub! ${mediaLink}`)}`,
-      color: "bg-blue-400 hover:bg-blue-500",
+      name: "",
+      icon: <FaXTwitter size={20} />,
+      url: `https://x.com/intent/tweet?text=${encodeURIComponent(`Confira "${media.title}" no MediaHub! ${mediaLink}`)}`,
+      color: "bg-black",
     },
     {
       name: "Facebook",

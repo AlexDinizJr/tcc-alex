@@ -28,6 +28,7 @@ export const createNewUser = (mockUsers) => {
   const defaultUser = mockUsers[0];
   return {
     ...defaultUser,
+    createdAt: new Date().toISOString(),
     lists: MOCK_LISTS.filter(list => list.userId === defaultUser.id),
     reviews: MOCK_REVIEWS.filter(review => review.userId === defaultUser.id),
     password: undefined
@@ -56,6 +57,7 @@ export const convertLegacyUserStructure = (userData) => {
 
   return {
     ...userData,
+    createdAt: userData.createdAt || new Date().toISOString(), // ← garante que exista
     reviews: reviews || [],
     lists: lists || [],
     savedMedia: userData.savedMedia || [],

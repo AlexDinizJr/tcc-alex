@@ -3,6 +3,12 @@ import { Link } from "react-router-dom";
 export default function ProfileHeader({ user, isOwner }) {
   const hasBio = user?.bio && user.bio.trim().length > 0;
 
+  // 🔹 Formatar data de criação
+  const createdAt = user?.createdAt ? new Date(user.createdAt) : null;
+  const formattedDate = createdAt
+    ? new Intl.DateTimeFormat("pt-BR", { month: "short", year: "numeric" }).format(createdAt)
+    : "Data desconhecida";
+
   return (
     <div className="bg-gray-800/80 rounded-2xl shadow-md overflow-hidden mb-8 border border-gray-700/50">
       {/* Header */}
@@ -70,12 +76,13 @@ export default function ProfileHeader({ user, isOwner }) {
               </div>
             )}
             
+            {/* Data de criação */}
             <p className="text-gray-400 text-xs flex items-center gap-1">
               {/* ícone de calendário */}
               <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
-              Membro desde Jan 2023
+              Membro desde {formattedDate}
             </p>
           </div>
           

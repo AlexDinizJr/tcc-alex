@@ -4,7 +4,7 @@ import { ALL_MEDIA } from "../mockdata/mockMedia";
 
 export default function Preferences() {
   const [selected, setSelected] = useState([]);
-  const { goToProfile } = useAppNavigate();
+  const { goHome } = useAppNavigate();
 
   const toggleSelect = (id) => {
     if (selected.includes(id)) {
@@ -16,11 +16,11 @@ export default function Preferences() {
 
   const handleConfirm = () => {
     console.log("Preferências escolhidas:", selected);
-    goToProfile();
+    goHome();
   };
 
   const handleSkip = () => {
-    goToProfile();
+    goHome();
   };
 
   return (
