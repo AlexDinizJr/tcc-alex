@@ -33,10 +33,10 @@ import ProtectedContentRoute from "./routes/ProtectedContentRoute";
 function App() {
   return (
     <Router>
-      <div className="min-h-screen flex flex-col bg-gray-50">
+      <div className="min-h-screen flex flex-col bg-gray-900 text-white">
         <ScrollToTop />
         <Navbar />
-        <main className="flex-1 container mx-auto px-4 py-6">
+        <main className="flex-1 mx-auto px-4 py-6 max-w-[1500px] w-full">
           <Routes>
             {/* Páginas públicas */}
             <Route path="/" element={<Home />} />

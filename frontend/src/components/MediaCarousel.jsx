@@ -2,11 +2,9 @@ import MediaCarouselCard from "./MediaCarouselCard";
 
 export default function MediaCarousel({ items }) {
   return (
-    <div className="w-full max-w-5xl mx-auto overflow-x-auto flex gap-4 pb-4 snap-x snap-mandatory scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 justify-center">
+    <div className="w-full grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 px-2 py-2 overflow-visible">
       {items.map((media) => (
-        <div key={media.id} className="snap-start">
-          <MediaCarouselCard media={media} />
-        </div>
+        <MediaCarouselCard key={media.id} media={media} />
       ))}
     </div>
   );

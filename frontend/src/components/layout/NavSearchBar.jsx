@@ -23,32 +23,24 @@ export default function SearchBar() {
     }
 
     document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const handleSearchIconClick = () => {
     if (isExpanded && query.trim()) {
-      // Se já está expandido e tem query, vai para página de busca
       navigate(`/search?q=${encodeURIComponent(query)}`);
       setIsExpanded(false);
       setIsOpen(false);
       setQuery("");
     } else {
-      // Se não está expandido, expande o input
       setIsExpanded(true);
       setTimeout(() => {
-        if (searchRef.current) {
-          searchRef.current.querySelector('input').focus();
-        }
+        if (searchRef.current) searchRef.current.querySelector('input').focus();
       }, 10);
     }
   };
 
-  const handleInputFocus = () => {
-    setIsOpen(true);
-  };
+  const handleInputFocus = () => setIsOpen(true);
 
   const handleKeyPress = (e) => {
     if (e.key === 'Enter' && query.trim()) {
@@ -60,10 +52,8 @@ export default function SearchBar() {
   };
 
   return (
-    <div className="relative" ref={searchRef}>
-      {/* Container da busca */}
+    <div className="relative scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-700" ref={searchRef}>
       <div className="flex items-center">
-        {/* Input de busca - aparece quando expandido */}
         {isExpanded && (
           <div className="relative mr-2">
             <input
@@ -73,23 +63,21 @@ export default function SearchBar() {
               onChange={(e) => setQuery(e.target.value)}
               onFocus={handleInputFocus}
               onKeyPress={handleKeyPress}
-              className="w-50 px-3 py-1 rounded-full border border-gray-600 bg-gray-700 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              className="w-50 px-3 py-1 rounded-full border border-gray-600 bg-gray-800 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
             />
           </div>
         )}
         
-        {/* Ícone de pesquisa - sempre visível */}
         <button
           onClick={handleSearchIconClick}
           className="p-2 rounded-full hover:bg-gray-700 transition-colors cursor-pointer"
           title="Buscar mídias"
         >
-          <svg className="w-10 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
         </button>
 
-        {/* Botão de fechar - aparece quando expandido */}
         {isExpanded && (
           <button
             onClick={() => {
@@ -107,11 +95,10 @@ export default function SearchBar() {
         )}
       </div>
 
-      {/* Resultados da busca rápida */}
       {isOpen && query && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white shadow-xl rounded-xl p-4 text-left max-h-64 overflow-y-auto z-50">
+        <div className="absolute top-full left-0 right-0 mt-2 bg-gray-800 shadow-xl rounded-xl p-4 text-gray-100 max-h-64 overflow-y-auto z-50 scrollbar scrollbar-thumb-gray-600 scrollbar-track-gray-700">
           <div className="flex justify-between items-center mb-3">
-            <h2 className="font-bold text-gray-800 text-sm uppercase tracking-wide">
+            <h2 className="font-bold text-gray-100 text-sm uppercase tracking-wide">
               Resultados da busca
             </h2>
             <Link
@@ -121,7 +108,7 @@ export default function SearchBar() {
                 setIsExpanded(false);
                 setQuery("");
               }}
-              className="text-xs text-blue-600 hover:text-blue-800 font-medium"
+              className="text-xs text-blue-400 hover:text-blue-500 font-medium"
             >
               Ver todos →
             </Link>
@@ -138,7 +125,7 @@ export default function SearchBar() {
                       setIsOpen(false);
                       setIsExpanded(false);
                     }}
-                    className="block p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer border border-gray-100"
+                    className="block p-3 rounded-lg hover:bg-gray-700 transition-colors cursor-pointer border border-gray-700"
                   >
                     <div className="flex items-center gap-3">
                       <img 
@@ -148,17 +135,15 @@ export default function SearchBar() {
                       />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between">
-                          <span className="text-gray-800 font-medium truncate">
+                          <span className="text-gray-100 font-medium truncate">
                             {media.title}
                           </span>
-                          <span className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded-full whitespace-nowrap">
+                          <span className="text-xs px-2 py-1 bg-blue-700 text-blue-100 rounded-full whitespace-nowrap">
                             {media.type}
                           </span>
                         </div>
                         {media.year && (
-                          <p className="text-sm text-gray-500 mt-1">
-                            {media.year}
-                          </p>
+                          <p className="text-sm text-gray-400 mt-1">{media.year}</p>
                         )}
                       </div>
                     </div>
@@ -167,7 +152,7 @@ export default function SearchBar() {
               ))}
             </ul>
           ) : (
-            <p className="text-gray-500 py-4 text-center">Nenhum resultado encontrado.</p>
+            <p className="text-gray-400 py-4 text-center">Nenhum resultado encontrado.</p>
           )}
         </div>
       )}

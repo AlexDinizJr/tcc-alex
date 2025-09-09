@@ -2,6 +2,7 @@ import { useParams } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { mockUsers } from "../mockdata/mockUsers";
 import { BackToProfile } from "../components/BackToProfile";
+import { FaLock } from "react-icons/fa";
 
 export default function ProtectedContentRoute({ children, contentType }) {
   const params = useParams();
@@ -52,17 +53,15 @@ export default function ProtectedContentRoute({ children, contentType }) {
 
   if (!canViewContent()) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="text-center">
-          <div className="text-6xl mb-4">🔒</div>
-          <h2 className="text-xl font-semibold text-gray-800 mb-2">
-            Conteúdo Restrito
-          </h2>
-          <p className="text-gray-600">
-            Este usuário optou por manter seu {contentType} privado.
-          </p>
-          <BackToProfile username={username} className="mt-4" />
-        </div>
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <FaLock className="text-3xl text-gray-400 mb-3" />
+        <h2 className="text-xl font-semibold text-white mb-2">
+          Conteúdo Restrito
+        </h2>
+        <p className="text-gray-400 text-center">
+          Este usuário optou por manter seu {contentType} privado.
+        </p>
+        <BackToProfile username={username} className="mt-4" />
       </div>
     );
   }

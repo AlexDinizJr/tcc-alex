@@ -11,8 +11,8 @@ export default function Settings() {
 
   if (!user) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <p className="text-lg font-semibold text-gray-600">
+      <div className="flex justify-center items-center min-h-screen bg-gray-900">
+        <p className="text-lg font-semibold text-gray-400">
           Você precisa estar logado para acessar as configurações.
         </p>
       </div>
@@ -33,17 +33,20 @@ export default function Settings() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 py-8">
+    <div className="min-h-screen py-8">
       <div className="max-w-6xl mx-auto px-4">
-        <div className="bg-white rounded-2xl shadow-md overflow-hidden">
-          <div className="flex flex-col md:flex-row">
-            {/* Sidebar */}
-            <SettingsSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
-            
-            {/* Conteúdo */}
-            <div className="flex-1 p-6 md:p-8">
-              {renderContent()}
-            </div>
+        <div className="bg-gray-800/80 border border-gray-700/50 rounded-2xl shadow-md overflow-hidden flex flex-col md:flex-row">
+          
+          {/* Sidebar */}
+          <SettingsSidebar 
+            activeTab={activeTab} 
+            setActiveTab={setActiveTab} 
+            className="bg-gray-800/80 border-r border-gray-700/50"
+          />
+          
+          {/* Conteúdo */}
+          <div className="flex-1 p-6 md:p-8">
+            {renderContent()}
           </div>
         </div>
       </div>

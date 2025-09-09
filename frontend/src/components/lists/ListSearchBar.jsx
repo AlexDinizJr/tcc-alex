@@ -67,8 +67,8 @@ export default function ListSearchBar({ onSearchResults, modalMode = false }) {
               onKeyPress={handleKeyPress}
               className={`${
                 modalMode 
-                  ? "w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
-                  : "w-64 px-4 py-2 rounded-full border border-gray-600 bg-gray-700 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  ? "w-full px-4 py-3 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-800 text-white placeholder-gray-400" 
+                  : "w-64 px-4 py-2 rounded-full border border-gray-600 bg-gray-800 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
               }`}
             />
             
@@ -82,15 +82,31 @@ export default function ListSearchBar({ onSearchResults, modalMode = false }) {
             )}
           </div>
         )}
+
+        {/* Botão de pesquisa (apenas quando não modal e não expandido) */}
+        {!modalMode && !isExpanded && (
+          <button
+            onClick={() => setIsExpanded(true)}
+            className="p-2 text-gray-400 hover:text-white transition-colors"
+            title="Buscar"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </button>
+        )}
       </div>
 
       {/* Resultados da busca - APENAS quando NÃO for modal mode */}
       {showResults && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white shadow-xl rounded-xl p-4 text-left max-h-80 overflow-y-auto z-50 border border-gray-200">
+        <div className="absolute top-full left-0 right-0 mt-2 bg-gray-800 shadow-xl rounded-xl p-4 text-left max-h-80 overflow-y-auto z-50 border border-gray-700">
           <div className="flex justify-between items-center mb-3">
-            <h2 className="font-bold text-gray-800 text-sm uppercase tracking-wide">
+            <h2 className="font-bold text-white text-sm uppercase tracking-wide">
               Resultados da busca
             </h2>
+            <span className="text-xs text-gray-400 bg-gray-700 px-2 py-1 rounded-full">
+              {filteredResults.length} encontrados
+            </span>
           </div>
           
           {filteredResults.slice(0, 5).length > 0 ? (
@@ -106,7 +122,7 @@ export default function ListSearchBar({ onSearchResults, modalMode = false }) {
                       setIsExpanded(false);
                       window.location.href = `/media/${media.id}`;
                     }}
-                    className="block p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer border border-gray-100"
+                    className="block p-3 rounded-lg hover:bg-gray-700 transition-colors cursor-pointer border border-gray-600"
                   >
                     <div className="flex items-center gap-3">
                       <img 
@@ -116,17 +132,23 @@ export default function ListSearchBar({ onSearchResults, modalMode = false }) {
                       />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between">
-                          <span className="text-gray-800 font-medium truncate">
+                          <span className="text-white font-medium truncate">
                             {media.title}
                           </span>
-                          <span className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded-full whitespace-nowrap">
+                          <span className="text-xs px-2 py-1 bg-blue-500/20 text-blue-400 rounded-full whitespace-nowrap border border-blue-500/30">
                             {media.type}
                           </span>
                         </div>
                         {media.year && (
-                          <p className="text-sm text-gray-500 mt-1">
+                          <p className="text-sm text-gray-400 mt-1">
                             {media.year}
                           </p>
+                        )}
+                        {media.rating && (
+                          <div className="flex items-center mt-1">
+                            <span className="text-yellow-400 text-xs">⭐</span>
+                            <span className="text-xs text-gray-400 ml-1">{media.rating}</span>
+                          </div>
                         )}
                       </div>
                     </div>
@@ -134,9 +156,13 @@ export default function ListSearchBar({ onSearchResults, modalMode = false }) {
                 </li>
               ))}
             </ul>
-          ) : (
-            <p className="text-gray-500 py-4 text-center">Nenhum resultado encontrado.</p>
-          )}
+          ) : query ? (
+            <div className="text-center py-4">
+              <div className="text-gray-400 text-4xl mb-2">🔍</div>
+              <p className="text-gray-400">Nenhum resultado encontrado para</p>
+              <p className="text-white font-medium">"{query}"</p>
+            </div>
+          ) : null}
         </div>
       )}
     </div>

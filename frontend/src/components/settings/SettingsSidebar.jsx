@@ -1,13 +1,15 @@
-export default function SettingsSidebar({ activeTab, setActiveTab }) {
+import { FaUser, FaCog, FaLock } from "react-icons/fa";
+
+export default function SettingsSidebar({ activeTab, setActiveTab, className = "" }) {
   const menuItems = [
-    { id: "profile", label: "Perfil", icon: "👤" },
-    { id: "account", label: "Conta", icon: "⚙️" },
-    { id: "privacy", label: "Privacidade", icon: "🔒" }
+    { id: "profile", label: "Perfil", icon: <FaUser /> },
+    { id: "account", label: "Conta", icon: <FaCog /> },
+    { id: "privacy", label: "Privacidade", icon: <FaLock /> },
   ];
 
   return (
-    <div className="md:w-64 bg-gray-50 p-6">
-      <h2 className="text-xl font-bold text-gray-800 mb-6">Configurações</h2>
+    <div className={`md:w-64 p-6 ${className}`}>
+      <h2 className="text-xl font-bold text-gray-200 mb-6">Configurações</h2>
       
       <nav className="space-y-2">
         {menuItems.map((item) => (
@@ -16,8 +18,8 @@ export default function SettingsSidebar({ activeTab, setActiveTab }) {
             onClick={() => setActiveTab(item.id)}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors ${
               activeTab === item.id
-                ? "bg-blue-100 text-blue-700 font-medium"
-                : "text-gray-600 hover:bg-gray-100"
+                ? "bg-blue-600 text-white font-medium"
+                : "text-gray-300 hover:bg-gray-700"
             }`}
           >
             <span className="text-lg">{item.icon}</span>

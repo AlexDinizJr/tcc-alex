@@ -1,12 +1,21 @@
 import { Link } from "react-router-dom";
+import { 
+  FiFilm, 
+  FiTv, 
+  FiMusic, 
+  FiBookOpen, 
+  FiUser 
+} from "react-icons/fi";
+
+import { FaGamepad } from "react-icons/fa";
 
 const navItems = [
-  { to: "/movies", label: "Filmes", icon: "🎥" },
-  { to: "/tvseries", label: "Séries", icon: "📺" },
-  { to: "/games", label: "Games", icon: "🎮" },
-  { to: "/musics", label: "Músicas", icon: "🎵" },
-  { to: "/books", label: "Livros", icon: "📚" },
-  { to: "/users", label: "Usuários", icon: "👤" }
+  { to: "/movies", label: "Filmes", icon: <FiFilm size={18} /> },
+  { to: "/tvseries", label: "Séries", icon: <FiTv size={18} /> },
+  { to: "/games", label: "Games", icon: <FaGamepad size={18} /> },
+  { to: "/musics", label: "Músicas", icon: <FiMusic size={18} /> },
+  { to: "/books", label: "Livros", icon: <FiBookOpen size={18} /> },
+  { to: "/users", label: "Usuários", icon: <FiUser size={18} /> }
 ];
 
 export default function NavLinks({ mobile = false }) {
@@ -19,7 +28,7 @@ export default function NavLinks({ mobile = false }) {
             to={item.to}
             className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
           >
-            <span>{item.icon}</span>
+            {item.icon}
             {item.label}
           </Link>
         ))}
@@ -35,7 +44,7 @@ export default function NavLinks({ mobile = false }) {
           to={item.to}
           className="flex items-center gap-1 px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors text-sm font-medium"
         >
-          <span>{item.icon}</span>
+          {item.icon}
           {item.label}
         </Link>
       ))}

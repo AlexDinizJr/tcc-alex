@@ -13,6 +13,7 @@ import {
   getReviewsByUserId, 
 } from "../utils/MediaHelpers";
 import { mockUsers } from "../mockdata/mockUsers";
+import { FaLock } from "react-icons/fa";
 
 export default function UserProfilePage() {
   const { username } = useParams();
@@ -51,6 +52,14 @@ export default function UserProfilePage() {
     ? ensureArray(user.lists) 
     : getListsByUserId(user.id);
 
+  // Card reutilizável para itens privados
+  const PrivateCard = ({ message }) => (
+    <div className="bg-gray-800/80 rounded-2xl shadow-md border border-gray-700/50 p-6 text-center text-gray-300 flex flex-col items-center justify-center min-h-[180px]">
+      <FaLock className="text-3xl mb-3 text-gray-400" />
+      <p className="text-white font-medium">{message}</p>
+    </div>
+  );
+
   return (
     <div>
       <div className="max-w-6xl mx-auto px-4">
@@ -62,48 +71,28 @@ export default function UserProfilePage() {
           {canViewSaved ? (
             <SavedItems savedItems={savedMediaItems} username={user.username} />
           ) : (
-            <div className="bg-white rounded-2xl shadow-md p-6 text-center text-gray-500 flex flex-col items-center justify-center min-h-[180px]">
-              <span className="text-3xl mb-3">🔒</span>
-              <p className="text-gray-600 font-medium">
-                Este usuário mantém seus itens salvos privados.
-              </p>
-            </div>
+            <PrivateCard message="Este usuário mantém seus itens salvos privados." />
           )}
 
           {/* Favoritos */}
           {canViewFavorites ? (
             <UserFavorites userFavorites={userFavoritesItems} username={user.username} />
           ) : (
-            <div className="bg-white rounded-2xl shadow-md p-6 text-center text-gray-500 flex flex-col items-center justify-center min-h-[180px]">
-              <span className="text-3xl mb-3">🔒</span>
-              <p className="text-gray-600 font-medium">
-                Este usuário mantém seus favoritos privados.
-              </p>
-            </div>
+            <PrivateCard message="Este usuário mantém seus favoritos privados." />
           )}
 
           {/* Avaliações */}
           {canViewReviews ? (
             <UserReviews userReviews={userReviews} username={user.username} />
           ) : (
-            <div className="bg-white rounded-2xl shadow-md p-6 text-center text-gray-500 flex flex-col items-center justify-center min-h-[180px]">
-              <span className="text-3xl mb-3">🔒</span>
-              <p className="text-gray-600 font-medium">
-                Este usuário mantém suas avaliações privadas.
-              </p>
-            </div>
+            <PrivateCard message="Este usuário mantém suas avaliações privadas." />
           )}
 
           {/* Estatísticas */}
           {canViewStats ? (
             <UserStats user={user} />
           ) : (
-            <div className="bg-white rounded-2xl shadow-md p-6 text-center text-gray-500 flex flex-col items-center justify-center min-h-[180px]">
-              <span className="text-3xl mb-3">🔒</span>
-              <p className="text-gray-600 font-medium">
-                Este usuário mantém suas estatísticas privadas.
-              </p>
-            </div>
+            <PrivateCard message="Este usuário mantém suas estatísticas privadas." />
           )}
 
           {/* Listas */}

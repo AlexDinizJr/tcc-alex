@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import ReviewCard from "./ReviewCard";
 
 export default function ReviewGrid({ 
@@ -8,20 +9,32 @@ export default function ReviewGrid({
   onHelpfulClick,
   onEditClick,
   currentUserId = null,
-  showContainer = true // Nova prop para controlar o container
+  showContainer = true
 }) {
   
   const content = (
     <>
       {(title || showViewAll) && (
         <div className="flex justify-between items-center mb-6">
-          {title && <h2 className="text-xl font-bold text-gray-800">{title}</h2>}
+          {title && (
+            <h2 className="text-xl font-bold text-white flex items-center gap-2">
+              {/* Ícone de avaliações */}
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+              </svg>
+              {title}
+            </h2>
+          )}
           {showViewAll && reviews.length > 0 && (
             <Link 
               to="/my-reviews" 
-              className="text-indigo-600 hover:text-indigo-800 text-sm font-medium"
+              className="text-blue-400 hover:text-blue-300 text-sm font-medium flex items-center gap-1 transition-colors"
             >
               Ver todas
+              {/* Ícone de seta */}
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
             </Link>
           )}
         </div>
@@ -43,7 +56,7 @@ export default function ReviewGrid({
         <div className="text-center py-8">
           <svg 
             xmlns="http://www.w3.org/2000/svg" 
-            className="h-12 w-12 mx-auto text-gray-300 mb-3" 
+            className="h-12 w-12 mx-auto text-gray-400 mb-3" 
             fill="none" 
             viewBox="0 0 24 24" 
             stroke="currentColor"
@@ -55,7 +68,7 @@ export default function ReviewGrid({
               d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" 
             />
           </svg>
-          <p className="text-gray-500">{emptyMessage}</p>
+          <p className="text-gray-300">{emptyMessage}</p>
         </div>
       )}
     </>
@@ -65,9 +78,8 @@ export default function ReviewGrid({
     return content;
   }
 
-  // Se showContainer for true, envolve no container
   return (
-    <div className="bg-white rounded-2xl shadow-md p-6">
+    <div className="bg-gray-800/80 rounded-2xl shadow-md p-6 border border-gray-700/50">
       {content}
     </div>
   );

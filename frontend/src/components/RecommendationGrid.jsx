@@ -1,6 +1,7 @@
+import { useState, useEffect, useCallback } from "react";
 import { ALL_MEDIA } from "../mockdata/mockMedia";
 import MediaCarousel from "./MediaCarousel";
-import { useState, useEffect, useCallback } from "react";
+import { SlLike } from "react-icons/sl"
 
 export default function RecommendationGrid() {
   const [recommendations, setRecommendations] = useState([]);
@@ -21,9 +22,13 @@ export default function RecommendationGrid() {
   }, [generateRecommendations]);
 
   return (
-    <div className="w-full max-w-5xl mx-auto mt-10">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-semibold">✨ Recomendado para você</h2>
+    <div className="w-full max-w-[1500px] mx-auto mt-10 flex flex-col gap-6">
+      {/* Cabeçalho da seção */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-semibold flex items-center gap-2 text-gray-900 dark:text-white">
+          <SlLike className="w-6 h-6 text-blue-500" />
+           Recomendado para você
+        </h2>
         <button
           onClick={generateRecommendations}
           disabled={isLoading}
@@ -46,7 +51,10 @@ export default function RecommendationGrid() {
         </button>
       </div>
 
-      <MediaCarousel items={recommendations} />
+      {/* Carousel centralizado */}
+      <div className="w-full overflow-x-auto">
+        <MediaCarousel items={recommendations} />
+      </div>
     </div>
   );
 }

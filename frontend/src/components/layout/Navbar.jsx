@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { useAppNavigate } from "../../hooks/useAppNavigate";
+import { FaPlayCircle } from "react-icons/fa";
 import SearchBar from "./NavSearchBar";
 import NavLinks from "./NavLinks";
 import AuthSection from "./AuthSection";
@@ -29,7 +30,7 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="bg-gray-800 text-white shadow-lg">
+    <nav className="bg-gray-950 text-white">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         {/* Esquerda: Logo + SearchBar + Links */}
         <div className="flex items-center gap-4">
@@ -37,7 +38,7 @@ export default function Navbar() {
             to="/"
             className="text-xl font-bold hover:text-blue-400 transition-colors flex items-center gap-1"
           >
-            <span className="bg-blue-600 p-1 rounded">🎬</span>
+            <span className="text-blue-500"><FaPlayCircle size={24} /></span>
             MediaHub
           </Link>
 

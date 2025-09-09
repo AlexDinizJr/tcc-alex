@@ -122,11 +122,11 @@ export default function MyReviews() {
         <div className="mb-4">
           <BackToProfile username={username} />
         </div>
-        <div className="bg-white rounded-2xl shadow-md p-8 mb-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">
+        <div className="bg-gray-800/80 rounded-2xl shadow-md border border-gray-700/50 p-6 mb-8">
+          <h1 className="text-3xl font-bold text-white mb-2">
             {isOwner ? "Minhas Avaliações" : `Avaliações de ${user.name}`}
           </h1>
-          <p className="text-gray-600">{reviews.length} avaliações</p>
+          <p className="text-gray-400">{reviews.length} avaliações</p>
         </div>
 
         {/* Busca e ordenação */}
@@ -139,16 +139,15 @@ export default function MyReviews() {
             className="px-4 py-2 border rounded-lg w-full sm:w-1/2"
           />
 
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-            className="px-4 py-2 border rounded-lg"
-          >
-            <option value="">Ordenar por</option>
-            <option value="mediaTitle">Nome</option>
-            <option value="rating">Avaliação</option>
-            <option value="helpful">Útil</option>
-          </select>
+        <select
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value)}
+          className="px-4 py-2 border rounded-lg bg-gray-700 text-white border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <option value="">Ordenar por</option>
+          <option value="mediaTitle">Nome</option>
+          <option value="rating">Avaliação</option>
+          <option value="helpful">Útil</option>
+        </select>
         </div>
 
         <ReviewGrid

@@ -69,11 +69,11 @@ export default function MyFavorites() {
         <div className="mb-4">
           <BackToProfile username={username} />
         </div>
-        <div className="bg-white rounded-2xl shadow-md p-8 mb-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">
+        <div className="bg-gray-800/80 rounded-2xl shadow-md border border-gray-700/50 p-6 mb-8">
+          <h1 className="text-3xl font-bold text-white mb-2">
             {isOwner ? "Meus Favoritos" : `Favoritos de ${user.name}`}
           </h1>
-          <p className="text-gray-600">{allFavorites.length} favoritos</p>
+          <p className="text-gray-400">{allFavorites.length} favoritos</p>
         </div>
 
         <MediaPageHeader

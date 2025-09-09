@@ -34,7 +34,7 @@ export default function UserList() {
   }
 
   // 🔑 Verifica se o usuário logado é dono da lista
-  const isOwner = user && userList && user.id === userList.ownerId;
+  const isOwner = user && userList && user.username === username;
 
   // Converter IDs para objetos completos
   const allMediaItems = useMemo(() => {
@@ -150,10 +150,10 @@ export default function UserList() {
             <BackToProfile username={username} />
           </div>
         {/* Header da lista */}
-        <div className="bg-white rounded-2xl shadow-md p-6 mb-8 relative pb-12">
+        <div className="bg-gray-800/80 rounded-2xl shadow-md border border-gray-700/50 p-6 mb-8 relative pb-12">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-bold text-gray-800">{userList.name}</h1>
+              <h1 className="text-3xl font-bold text-white">{userList.name}</h1>
               {isOwner && (
                 <button
                   onClick={() => setShowEditModal(true)}
@@ -183,9 +183,9 @@ export default function UserList() {
 
           {/* Descrição */}
           <div className="mt-3 pr-28">
-            <p className="text-gray-600">{allMediaItems.length} itens</p>
+            <p className="text-gray-400">{allMediaItems.length} itens</p>
             {userList.description && (
-              <p className="text-gray-500 mt-1">{userList.description}</p>
+              <p className="text-gray-400 mt-1">{userList.description}</p>
             )}
           </div>
 

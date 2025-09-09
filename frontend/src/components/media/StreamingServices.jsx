@@ -11,7 +11,7 @@ export default function StreamingServices({ mediaItem }) {
 
   return (
     <div className="mb-6">
-      <h3 className="text-xl font-semibold text-gray-800 mb-3">Disponível em:</h3>
+      <h3 className="text-xl font-semibold text-white mb-3">Disponível em:</h3>
       <div className="flex flex-wrap gap-3">
         {streamingLinks.map((service, index) => (
           <button

@@ -43,8 +43,8 @@ export default function MediaCardWithActions({
 
   return (
     <>
-      <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 relative group">
-        {/* Botão de exclusão */}
+      <div className="bg-gray-800/80 rounded-2xl shadow-md overflow-hidden hover:shadow-white/10 transition-shadow duration-300 relative group border border-gray-700/50">
+        {/* Botão de exclusão - SEM opacity-0 para sempre visível */}
         {showDelete && onDelete && (
           <button
             onClick={(e) => {
@@ -52,7 +52,7 @@ export default function MediaCardWithActions({
               e.stopPropagation();
               setShowDeleteModal(true);
             }}
-            className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10 hover:bg-red-600"
+            className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full z-10 hover:bg-red-600 border border-red-400/50"
             title="Remover item"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -61,11 +61,11 @@ export default function MediaCardWithActions({
           </button>
         )}
 
-        {/* Botão de adicionar à lista */}
+        {/* Botão de adicionar à lista - SEM opacity-0 para sempre visível */}
         {showAddToList && onAddToList && (
           <button
             onClick={handleAddToListClick}
-            className="absolute top-2 left-2 bg-blue-500 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10 hover:bg-blue-600"
+            className="absolute top-2 left-2 bg-blue-500 text-white p-2 rounded-full z-10 hover:bg-blue-600 border border-blue-400/50"
             title="Adicionar à lista"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -91,26 +91,26 @@ export default function MediaCardWithActions({
           {/* Conteúdo */}
           <div className="p-4">
             {/* Título */}
-            <h3 className="font-bold text-lg mb-2 text-gray-800 line-clamp-2">
+            <h3 className="font-bold text-lg mb-2 text-white line-clamp-2">
               {media.title}
             </h3>
 
             {/* Tipo */}
-            <span className="inline-block bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full mb-2">
+            <span className="inline-block bg-gray-700 text-gray-300 text-xs px-2 py-1 rounded-full mb-2 border border-gray-600/50">
               {media.type}
             </span>
 
             {/* Avaliação */}
             {media.rating && (
               <div className="flex items-center mt-2">
-                <span className="text-yellow-500 mr-1">⭐</span>
-                <span className="text-sm text-gray-700">{media.rating}</span>
+                <span className="text-yellow-400 mr-1">⭐</span>
+                <span className="text-sm text-gray-300">{media.rating}</span>
               </div>
             )}
 
             {/* Ano */}
             {media.year && (
-              <p className="text-sm text-gray-500 mt-1">{media.year}</p>
+              <p className="text-sm text-gray-400 mt-1">{media.year}</p>
             )}
           </div>
         </Link>

@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { FaStar } from "react-icons/fa";
 
 export default function MediaCard({ media }) {
   const handleClick = () => {
@@ -12,38 +13,40 @@ export default function MediaCard({ media }) {
     <Link 
       to={`/media/${media.id}`}
       onClick={handleClick}
-      className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 cursor-pointer"
+      className="block bg-gray-800/80 rounded-2xl shadow-md hover:shadow-white/20 transition-shadow duration-300 cursor-pointer border border-gray-700/50 overflow-hidden group"
     >
       {/* Imagem */}
-      <div className="relative">
+      <div className="relative w-full h-48 overflow-hidden">
         <img 
           src={media.image} 
           alt={media.title}
-          className="w-full h-48 object-cover"
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
         />
+        {/* Overlay sutil no hover */}
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300" />
       </div>
 
       {/* Conteúdo */}
-      <div className="p-4 flex flex-col">
-        {/* Linha do título + ano + nota */}
-        <div className="flex justify-between items-start">
+      <div className="p-4">
+        {/* Título */}
+        <h3 className="font-bold text-white text-lg line-clamp-2 mb-1">
+          {media.title}
+        </h3>
+        
+        {/* Informações secundárias */}
+        <div className="flex justify-between items-center mt-2">
           <div className="flex flex-col">
-            {/* Título */}
-            <h3 className="font-bold text-lg text-gray-800 line-clamp-2">
-              {media.title}
-            </h3>
-
-            {/* Ano de lançamento */}
+            {/* Ano */}
             {media.year && (
-              <span className="text-sm text-gray-500">{media.year}</span>
+              <span className="text-gray-400 text-sm">{media.year}</span>
             )}
           </div>
 
           {/* Avaliação */}
           {media.rating && (
-            <div className="flex items-center ml-2">
-              <span className="text-yellow-500 mr-1">⭐</span>
-              <span className="text-sm text-gray-700">{media.rating}</span>
+            <div className="flex items-center bg-gray-700/50 rounded-full px-3 py-1 border border-gray-600/50">
+              <FaStar className="text-yellow-400 w-4 h-4 mr-1" />
+              <span className="text-gray-200 text-sm font-medium">{media.rating}</span>
             </div>
           )}
         </div>

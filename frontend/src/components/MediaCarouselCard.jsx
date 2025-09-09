@@ -31,7 +31,6 @@ export default function MediaCarouselCard({ media }) {
     e.preventDefault();
     e.stopPropagation();
     console.log("Não recomendar mais:", media.title);
-    // Aqui você implementaria a lógica para não recomendar mais este conteúdo
     setMenuOpen(false);
   };
 
@@ -39,7 +38,6 @@ export default function MediaCarouselCard({ media }) {
     e.preventDefault();
     e.stopPropagation();
     console.log("Adicionar aos favoritos:", media.title);
-    // Lógica para adicionar aos favoritos
     setMenuOpen(false);
   };
 
@@ -47,11 +45,9 @@ export default function MediaCarouselCard({ media }) {
     e.preventDefault();
     e.stopPropagation();
     console.log("Compartilhar:", media.title);
-    // Lógica de compartilhamento
     setMenuOpen(false);
   };
 
-  // Fechar o menu quando clicar fora
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -66,28 +62,17 @@ export default function MediaCarouselCard({ media }) {
   }, []);
 
   return (
-    <Link
-      to={`/media/${media.id}`}
-      className="block bg-white shadow-md hover:shadow-xl transition relative w-[180px] flex-shrink-0 h-[260px] rounded-2xl"
-    >
-      {/* Botão de menu (3 pontinhos) */}
+    <div className="bg-gray-800/80 border border-gray-700/50 shadow-md hover:shadow-2xl 
+             transition-transform transform-gpu duration-300 relative rounded-2xl
+             w-full h-auto hover:scale-105 hover:z-10">
+      {/* Botão de menu */}
       <button
         onClick={toggleMenu}
-        className="absolute top-2 left-2 p-2 rounded-full transition-all z-10 bg-gray-100 text-gray-400 hover:bg-gray-200"
+        className="absolute top-3 left-3 p-2 rounded-full transition-all z-10 bg-gray-900/80 text-gray-200 hover:bg-blue-600/30 backdrop-blur-sm"
         title="Mais opções"
       >
-        <svg
-          className="w-4 h-4"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
-          />
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01" />
         </svg>
       </button>
 
@@ -95,40 +80,40 @@ export default function MediaCarouselCard({ media }) {
       {menuOpen && (
         <div
           ref={menuRef}
-          className="absolute top-10 left-2 bg-white shadow-lg rounded-lg py-2 z-20 min-w-[160px] border border-gray-200"
+          className="absolute top-12 left-3 bg-gray-900/95 shadow-xl rounded-lg py-2 z-20 min-w-[160px] border border-gray-700 backdrop-blur-sm"
         >
           <button
             onClick={handleNotInterested}
-            className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+            className="w-full text-left px-4 py-2 text-sm text-gray-200 hover:bg-blue-600/20 transition-colors flex items-center gap-3"
           >
-            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
-            Não recomendar mais
+            <span>Não recomendar mais</span>
           </button>
-          
+
           <button
             onClick={handleAddToFavorites}
-            className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+            className="w-full text-left px-4 py-2 text-sm text-gray-200 hover:bg-blue-600/20 transition-colors flex items-center gap-3"
           >
-            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
             </svg>
-            Favoritos
+            <span>Favoritos</span>
           </button>
-          
+
           <button
             onClick={handleShare}
-            className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+            className="w-full text-left px-4 py-2 text-sm text-gray-200 hover:bg-blue-600/20 transition-colors flex items-center gap-3"
           >
-            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
             </svg>
-            Compartilhar
+            <span>Compartilhar</span>
           </button>
-          
-          <hr className="my-1" />
-          
+
+          <hr className="my-2 border-gray-700" />
+
           <button
             onClick={(e) => {
               e.preventDefault();
@@ -136,12 +121,12 @@ export default function MediaCarouselCard({ media }) {
               console.log("Reportar conteúdo:", media.title);
               setMenuOpen(false);
             }}
-            className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 flex items-center"
+            className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-red-600/20 transition-colors flex items-center gap-3"
           >
-            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
-            Reportar conteúdo
+            <span>Reportar conteúdo</span>
           </button>
         </div>
       )}
@@ -149,10 +134,10 @@ export default function MediaCarouselCard({ media }) {
       {/* Botão de salvar */}
       <button
         onClick={handleSave}
-        className={`absolute top-2 right-2 p-2 rounded-full transition-all z-10 ${
+        className={`absolute top-3 right-3 p-2 rounded-full transition-all z-10 backdrop-blur-sm ${
           isSaved
-            ? "bg-green-100 text-green-600 hover:bg-green-200"
-            : "bg-gray-100 text-gray-400 hover:bg-gray-200"
+            ? "bg-green-600/90 text-white hover:bg-green-500/90"
+            : "bg-blue-600/90 text-white hover:bg-blue-500/90"
         }`}
         title={isSaved ? "Remover dos salvos" : "Salvar para depois"}
       >
@@ -162,45 +147,45 @@ export default function MediaCarouselCard({ media }) {
           stroke="currentColor"
           viewBox="0 0 24 24"
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
-          />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
         </svg>
       </button>
 
-      {/* Imagem - arredondada apenas no topo */}
-      <div className="w-full h-[150px] overflow-hidden rounded-t-2xl">
+      {/* Imagem */}
+      <Link to={`/media/${media.id}`} className="block w-full h-[160px] sm:h-[180px] md:h-[200px] overflow-hidden rounded-t-2xl">
         <img
           src={media.image}
           alt={media.title}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
         />
-      </div>
+      </Link>
 
-      {/* Conteúdo textual compacto */}
-      <div className="p-2 flex flex-col justify-between h-[110px] text-center">
-        <h3 className="text-sm font-semibold text-gray-800 line-clamp-2 mb-1">
+      {/* Conteúdo textual */}
+      <Link to={`/media/${media.id}`} className="block p-4 flex flex-col justify-between h-[120px]">
+        <h3 className="text-sm font-semibold text-white line-clamp-2 mb-2 leading-tight">
           {media.title}
         </h3>
-        <div className="flex items-center justify-center gap-1 mb-1">
-          {media.type && (
-            <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-800 rounded-full">
-              {media.type}
-            </span>
-          )}
-          {media.rating && (
-            <span className="text-xs text-yellow-600 font-semibold">
-              ⭐ {media.rating}
-            </span>
+        
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center justify-between">
+            {media.type && (
+              <span className="text-xs px-2.5 py-1 bg-blue-600/20 text-blue-400 rounded-full border border-blue-500/30">
+                {media.type}
+              </span>
+            )}
+            {media.rating && (
+              <span className="text-xs text-yellow-400 font-semibold flex items-center gap-1">
+                <span className="text-yellow-300">⭐</span>
+                {media.rating}
+              </span>
+            )}
+          </div>
+          
+          {media.year && (
+            <p className="text-xs text-gray-400 text-right">{media.year}</p>
           )}
         </div>
-        {media.year && (
-          <p className="text-xs text-gray-500 mt-0">{media.year}</p>
-        )}
-      </div>
-    </Link>
+      </Link>
+    </div>
   );
 }

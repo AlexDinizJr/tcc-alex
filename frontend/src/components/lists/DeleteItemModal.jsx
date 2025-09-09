@@ -8,25 +8,37 @@ export default function DeleteItemModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl p-6 max-w-md w-full">
-        <h3 className="text-xl font-bold text-gray-800 mb-4">Confirmar exclusão</h3>
-        <p className="text-gray-600 mb-6">
-          Tem certeza que deseja remover <span className="font-semibold">"{itemName}"</span> da lista?
-          Esta ação não pode ser desfeita.
+    <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+      <div className="bg-gray-800 rounded-2xl p-6 max-w-md w-full border border-gray-700">
+        {/* Ícone de alerta */}
+        <div className="flex justify-center mb-4">
+          <div className="w-12 h-12 bg-red-500/20 rounded-full flex items-center justify-center">
+            <svg className="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+          </div>
+        </div>
+
+        <h3 className="text-xl font-bold text-white mb-4 text-center">Confirmar exclusão</h3>
+        <p className="text-gray-300 mb-6 text-center">
+          Tem certeza que deseja remover <span className="font-semibold text-white">"{itemName}"</span> da lista?
+          <br />
+          <span className="text-red-400 text-sm">Esta ação não pode ser desfeita.</span>
         </p>
-        <div className="flex gap-3 justify-end">
+        
+        {/* Botões */}
+        <div className="flex justify-center gap-3">
           <button
             onClick={onClose}
             disabled={isDeleting}
-            className="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 flex items-center justify-center h-10 text-gray-300 hover:text-white font-medium rounded-lg border border-gray-600 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             Cancelar
           </button>
           <button
             onClick={onConfirm}
             disabled={isDeleting}
-            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            className="px-4 py-2 flex items-center justify-center h-10 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed gap-2 transition-colors"
           >
             {isDeleting ? (
               <>
@@ -34,7 +46,12 @@ export default function DeleteItemModal({
                 Removendo...
               </>
             ) : (
-              'Sim, remover'
+              <>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                Sim, remover
+              </>
             )}
           </button>
         </div>

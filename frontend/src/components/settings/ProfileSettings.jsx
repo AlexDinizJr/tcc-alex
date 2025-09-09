@@ -43,22 +43,20 @@ export default function ProfileSettings({ user }) {
   };
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">Configurações de Perfil</h1>
-      
-      <form onSubmit={handleSubmit} className="space-y-6">
+    <div className="space-y-6">
+      <h1 className="text-2xl font-bold text-white mb-6">Configurações de Perfil</h1>
+
+      <form onSubmit={handleSubmit} className="space-y-6 bg-gray-800/80 p-6 rounded-2xl border border-gray-700/50">
         {/* Avatar */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Foto de Perfil
-          </label>
+          <label className="block text-sm font-medium text-white mb-2">Foto de Perfil</label>
           <div className="flex items-center gap-4">
             <img
               src={formData.avatar || `https://ui-avatars.com/api/?name=${user.name}&background=007bff&color=fff`}
               alt={user.name}
-              className="w-16 h-16 rounded-full object-cover border border-gray-300"
+              className="w-16 h-16 rounded-full object-cover border border-gray-600"
             />
-            <label className="bg-blue-600 text-white px-3 py-1 rounded-md cursor-pointer hover:bg-blue-700 text-sm">
+            <label className="bg-blue-500 text-white px-3 py-1 rounded-md cursor-pointer hover:bg-blue-600 text-sm">
               Carregar
               <input
                 type="file"
@@ -72,10 +70,8 @@ export default function ProfileSettings({ user }) {
 
         {/* Capa */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Foto de Capa
-          </label>
-          <div className="w-full h-40 bg-gray-100 rounded-lg overflow-hidden border border-gray-300 relative">
+          <label className="block text-sm font-medium text-white mb-2">Foto de Capa</label>
+          <div className="w-full h-40 bg-gray-700/30 rounded-lg overflow-hidden border border-gray-600 relative">
             {formData.coverImage ? (
               <img
                 src={formData.coverImage}
@@ -83,11 +79,11 @@ export default function ProfileSettings({ user }) {
                 className="w-full h-full object-cover"
               />
             ) : (
-              <div className="flex items-center justify-center h-full text-gray-400">
+              <div className="flex items-center justify-center h-full text-gray-300">
                 Sem capa
               </div>
             )}
-            <label className="absolute bottom-2 right-2 bg-blue-600 text-white px-3 py-1 rounded-md cursor-pointer hover:bg-blue-700 text-sm">
+            <label className="absolute bottom-2 right-2 bg-blue-500 text-white px-3 py-1 rounded-md cursor-pointer hover:bg-blue-600 text-sm">
               Carregar
               <input
                 type="file"
@@ -101,30 +97,26 @@ export default function ProfileSettings({ user }) {
 
         {/* Nome */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Nome
-          </label>
+          <label className="block text-sm font-medium text-white mb-2">Nome</label>
           <input
             type="text"
             name="name"
             value={formData.name}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent text-white bg-gray-800/90"
             required
           />
         </div>
 
         {/* Bio */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Biografia
-          </label>
+          <label className="block text-sm font-medium text-white mb-2">Biografia</label>
           <textarea
             name="bio"
             value={formData.bio}
             onChange={handleChange}
             rows={4}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent text-white bg-gray-800/90"
             placeholder="Conte um pouco sobre você..."
           />
         </div>
@@ -132,7 +124,7 @@ export default function ProfileSettings({ user }) {
         <button
           type="submit"
           disabled={isLoading}
-          className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+          className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50"
         >
           {isLoading ? "Salvando..." : "Salvar Alterações"}
         </button>
