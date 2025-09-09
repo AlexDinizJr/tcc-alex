@@ -288,7 +288,7 @@ export default function CustomRecommendations() {
           <button
             onClick={generateRecommendations}
             disabled={!hasFilters || isLoading}
-            className="w-full bg-blue-500 text-white py-3 px-6 rounded-2xl hover:bg-blue-600 cursor-pointer disabled:bg-gray-600 disabled:cursor-not-allowed font-semibold text-lg transition-colors"
+            className="w-full bg-blue-600 text-white py-3 px-6 rounded-2xl hover:bg-blue-500 cursor-pointer disabled:bg-gray-600 disabled:cursor-not-allowed font-semibold text-lg transition-colors"
           >
             {isLoading ? (
               <span className="flex items-center justify-center">
@@ -296,7 +296,7 @@ export default function CustomRecommendations() {
                 Gerando recomendações...
               </span>
             ) : (
-              "🎯 Gerar Recomendações Personalizadas"
+              "Gerar Recomendações Personalizadas"
             )}
           </button>
         </div>

@@ -13,10 +13,10 @@ export default function MediaCard({ media }) {
     <Link 
       to={`/media/${media.id}`}
       onClick={handleClick}
-      className="block bg-gray-800/80 rounded-2xl shadow-md hover:shadow-white/20 transition-shadow duration-300 cursor-pointer border border-gray-700/50 overflow-hidden group"
+      className="bg-gray-800/80 border border-gray-700/50 shadow-md hover:shadow-2xl transition-transform transform-gpu duration-300 relative rounded-2xl w-full h-auto hover:scale-105 hover:z-10 overflow-hidden"
     >
       {/* Imagem */}
-      <div className="relative w-full h-48 overflow-hidden">
+      <div className="relative w-full h-48 overflow-hidden rounded-t-2xl">
         <img 
           src={media.image} 
           alt={media.title}

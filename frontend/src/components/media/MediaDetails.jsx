@@ -23,13 +23,6 @@ export default function MediaDetails({ mediaItem }) {
         </p>
       )}
 
-      {/* Classificação etária */}
-      {mediaItem.classification && (
-        <p className="text-gray-200">
-          <span className="font-semibold">Classificação:</span> {mediaItem.classification}
-        </p>
-      )}
-
       {renderMediaField(mediaItem.directors, "Diretor(es)")}
       {renderMediaField(mediaItem.authors, "Autor(es)")}
       {renderMediaField(mediaItem.artists, "Artista(s)")}

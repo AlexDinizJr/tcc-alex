@@ -1,4 +1,4 @@
-import { FiCalendar, FiClock, FiBook, FiTv, FiFilm, FiMusic } from "react-icons/fi";
+import { FiCalendar, FiClock, FiBook, FiTv, FiFilm, FiMusic, FiShield } from "react-icons/fi";
 
 export default function MediaMetadata({ mediaItem }) {
   return (
@@ -6,6 +6,11 @@ export default function MediaMetadata({ mediaItem }) {
       {mediaItem.year && (
         <span className="text-gray-200 font-medium flex items-center gap-1">
           <FiCalendar /> {mediaItem.year}
+        </span>
+      )}
+      {mediaItem.classification && (
+        <span className="text-gray-200 font-medium flex items-center gap-1">
+          <FiShield /> {mediaItem.classification}
         </span>
       )}
       {mediaItem.duration && (

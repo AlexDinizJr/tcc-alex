@@ -43,7 +43,7 @@ export default function MediaCardWithActions({
 
   return (
     <>
-      <div className="bg-gray-800/80 rounded-2xl shadow-md overflow-hidden hover:shadow-white/10 transition-shadow duration-300 relative group border border-gray-700/50">
+      <div className="bg-gray-800/80 border border-gray-700/50 shadow-md hover:shadow-2xl transition-transform transform-gpu duration-300 relative rounded-2xl w-full h-auto hover:scale-105 hover:z-10 overflow-hidden">
         {/* Botão de exclusão - SEM opacity-0 para sempre visível */}
         {showDelete && onDelete && (
           <button
@@ -80,7 +80,7 @@ export default function MediaCardWithActions({
           className="block"
         >
           {/* Imagem */}
-          <div className="relative">
+          <div className="relative w-full h-48 overflow-hidden rounded-t-2xl">
             <img 
               src={media.image} 
               alt={media.title}
