@@ -1,11 +1,11 @@
-import { ALL_REVIEWS } from "../mockdata/mockReviews";
+import { MOCK_REVIEWS } from "../mockdata/mockReviews";
 
 /**
  * Busca todas as reviews de uma mídia
  */
 export async function fetchReviewsByMediaId(mediaId) {
   await new Promise(res => setTimeout(res, 200));
-  return ALL_REVIEWS.filter(r => r.mediaId === mediaId);
+  return MOCK_REVIEWS.filter(r => r.mediaId === mediaId);
 }
 
 /**
@@ -13,7 +13,7 @@ export async function fetchReviewsByMediaId(mediaId) {
  */
 export async function createReview(reviewData) {
   await new Promise(res => setTimeout(res, 200));
-  ALL_REVIEWS.push(reviewData); // Simula persistência
+  MOCK_REVIEWS.push(reviewData); // Simula persistência
   return reviewData;
 }
 
@@ -22,7 +22,7 @@ export async function createReview(reviewData) {
  */
 export async function editReview(reviewId, newComment, newRating) {
   await new Promise(res => setTimeout(res, 200));
-  const review = ALL_REVIEWS.find(r => r.id === reviewId);
+  const review = MOCK_REVIEWS.find(r => r.id === reviewId);
   if (review) {
     review.comment = newComment;
     review.rating = newRating;
@@ -36,7 +36,7 @@ export async function editReview(reviewId, newComment, newRating) {
  */
 export async function incrementHelpful(reviewId) {
   await new Promise(res => setTimeout(res, 200));
-  const review = ALL_REVIEWS.find(r => r.id === reviewId);
+  const review = MOCK_REVIEWS.find(r => r.id === reviewId);
   if (review) {
     review.helpful = (review.helpful || 0) + 1;
   }

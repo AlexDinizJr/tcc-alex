@@ -1,7 +1,16 @@
-import { getStreamingLinks } from "../../utils/getServices";
+import { useEffect, useState } from "react";
+import { fetchStreamingLinks } from "../../services/streamingService";
 
 export default function StreamingServices({ mediaItem }) {
-  const streamingLinks = getStreamingLinks(mediaItem);
+  const [streamingLinks, setStreamingLinks] = useState([]);
+
+  useEffect(() => {
+    async function loadLinks() {
+      const links = await fetchStreamingLinks(mediaItem);
+      setStreamingLinks(links);
+    }
+    loadLinks();
+  }, [mediaItem]);
 
   const handleStreamingClick = (url) => {
     window.open(url, '_blank', 'noopener,noreferrer');

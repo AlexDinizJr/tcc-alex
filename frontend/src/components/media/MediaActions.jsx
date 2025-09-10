@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { FaBookmark, FaHeart, FaPlus } from "react-icons/fa";
-import { FiShare2 } from "react-icons/fi"; // ⬅️ Ícone de compartilhar
+import { FiShare2 } from "react-icons/fi";
 import { useAuth } from "../../hooks/useAuth";
 import AddToListModal from "./AddToListModal";
-import ShareMediaModal from "../ShareMediaModal"; // ⬅️ Importa o modal
+import ShareMediaModal from "../ShareMediaModal";
 
 export default function MediaActions({ mediaItem }) {
   const { 
@@ -17,7 +17,7 @@ export default function MediaActions({ mediaItem }) {
   const [isSaved, setIsSaved] = useState(false);
   const [isFavorited, setIsFavorited] = useState(false);
   const [showAddToListModal, setShowAddToListModal] = useState(false);
-  const [showShareModal, setShowShareModal] = useState(false); // ⬅️ Novo estado
+  const [showShareModal, setShowShareModal] = useState(false);
 
   useEffect(() => {
     if (user) {

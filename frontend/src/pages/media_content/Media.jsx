@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { fetchMediaById, fetchMediaByType } from "../../services/mediaService";
 import { fetchUserById } from "../../services/userService";
+import { fetchReviewsByMediaId, createReview, editReview, incrementHelpful } from "../../services/reviewService";
 import { MediaType } from "../../models/MediaType";
 import { useAuth } from "../../hooks/useAuth";
 
@@ -20,51 +21,48 @@ export default function MediaPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [similarMedia, setSimilarMedia] = useState([]);
 
-  // Busca o item de mídia
+  // Carrega mídia, similares e reviews
   useEffect(() => {
     async function loadMedia() {
       const media = await fetchMediaById(Number(id));
       setMediaItem(media);
 
       if (media) {
-        // Carregar mídias similares
+        // Mídias similares
         const similar = await fetchMediaByType(media.type, { excludeId: media.id, limit: 4 });
         setSimilarMedia(similar);
 
-        // Carregar avaliações
-        if (media.reviews?.length) {
-          const enrichedReviews = await Promise.all(
-            media.reviews.map(async (review) => {
-              const userData = await fetchUserById(review.userId);
-              return {
-                ...review,
-                user: userData.name,
-                avatar: userData.avatar,
-              };
-            })
-          );
-          setReviews(enrichedReviews);
-        }
+        // Reviews via reviewService
+        const reviewsData = await fetchReviewsByMediaId(media.id);
+        const enrichedReviews = await Promise.all(
+          reviewsData.map(async (review) => {
+            const userData = await fetchUserById(review.userId);
+            return {
+              ...review,
+              user: userData.name,
+              avatar: userData.avatar,
+            };
+          })
+        );
+        setReviews(enrichedReviews);
       }
     }
+
     loadMedia();
   }, [id]);
 
-  const handleEditClick = (reviewId, newComment, newRating) => {
+  // Handlers para reviews
+  const handleEditClick = async (reviewId, newComment, newRating) => {
+    const updatedReview = await editReview(reviewId, newComment, newRating);
     setReviews((prev) =>
-      prev.map((r) =>
-        r.id === reviewId
-          ? { ...r, comment: newComment, rating: newRating, date: new Date().toLocaleDateString("pt-BR") }
-          : r
-      )
+      prev.map((r) => (r.id === reviewId ? { ...r, ...updatedReview } : r))
     );
   };
 
-  const handleHelpfulClick = (reviewId) => {
+  const handleHelpfulClick = async (reviewId) => {
+    const updatedReview = await incrementHelpful(reviewId);
     setReviews((prev) =>
-      prev.map((r) =>
-        r.id === reviewId ? { ...r, helpful: (r.helpful || 0) + 1 } : r
-      )
+      prev.map((r) => (r.id === reviewId ? { ...r, ...updatedReview } : r))
     );
   };
 
@@ -82,14 +80,24 @@ export default function MediaPage() {
         id: Date.now(),
         mediaId: mediaItem.id,
         userId: user.id,
-        user: user.name,
-        avatar: user.avatar,
         rating: newReview.rating,
         comment: newReview.comment,
         date: new Date().toLocaleDateString("pt-BR"),
         helpful: 0,
       };
-      setReviews(prev => [newReviewData, ...prev]);
+
+      const createdReview = await createReview(newReviewData);
+
+      // Enriquecendo com nome e avatar do usuário
+      setReviews(prev => [
+        {
+          ...createdReview,
+          user: user.name,
+          avatar: user.avatar,
+        },
+        ...prev,
+      ]);
+
       setNewReview({ rating: 0, comment: "" });
     } catch (error) {
       console.error("Erro ao enviar avaliação:", error);
@@ -129,7 +137,6 @@ export default function MediaPage() {
             onEditClick={handleEditClick}
             showContainer={false}
             currentUserId={user?.id}
-            darkMode
           />
 
           <ReviewForm
@@ -138,7 +145,6 @@ export default function MediaPage() {
             onRatingChange={handleRatingChange}
             onInputChange={handleInputChange}
             onSubmit={handleSubmitReview}
-            darkMode
           />
         </div>
 
@@ -152,7 +158,7 @@ export default function MediaPage() {
                mediaItem.type === MediaType.SERIES ? "Séries" :
                mediaItem.type === MediaType.MUSIC ? "Álbuns" : "Mídias"} Similares
             </h2>
-            <MediaGrid items={similarMedia} darkMode />
+            <MediaGrid items={similarMedia} />
           </div>
         )}
 
