@@ -48,7 +48,7 @@ export default function ListSearchBar({ onSearchResults, modalMode = false }) {
   // No modal mode, o input está sempre visível e expandido
   const showInput = modalMode || isExpanded;
   
-  // NOVO: No modal mode, NÃO mostrar resultados próprios
+  // No modal mode, NÃO mostrar resultados próprios
   const showResults = !modalMode && isOpen && query;
 
   return (

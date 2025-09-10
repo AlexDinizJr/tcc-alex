@@ -11,7 +11,7 @@ export interface User {
   createdAt?: Date;
   coverImage?: string;
   bio?: string;
-  //dados mais complexos
+  // dados mais complexos
   savedMedia?: number[];
   favorites?: number[];
   lists?: UserList[];

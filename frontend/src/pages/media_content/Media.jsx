@@ -88,7 +88,6 @@ export default function MediaPage() {
 
       const createdReview = await createReview(newReviewData);
 
-      // Enriquecendo com nome e avatar do usuário
       setReviews(prev => [
         {
           ...createdReview,

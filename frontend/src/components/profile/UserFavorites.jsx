@@ -5,7 +5,7 @@ export default function Favorites({ userFavorites, username }) {
     <div className="bg-gray-800/80 rounded-2xl shadow-md p-6 border border-gray-700/50">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold text-white flex items-center gap-2">
-          {/* Ícone de favoritos - Coração contornado em rosa */}
+          {/* Ícone de favoritos */}
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-pink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
           </svg>
@@ -56,7 +56,7 @@ export default function Favorites({ userFavorites, username }) {
         </div>
       ) : (
         <div className="text-center py-8">
-          {/* Ícone de coração contornado para estado vazio */}
+          {/* Ícone de coração para estado vazio */}
           <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-gray-400 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
           </svg>

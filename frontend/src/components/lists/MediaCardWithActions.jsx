@@ -61,7 +61,7 @@ export default function MediaCardWithActions({
           </button>
         )}
 
-        {/* Botão de adicionar à lista - SEM opacity-0 para sempre visível */}
+        {/* Botão de adicionar à lista */}
         {showAddToList && onAddToList && (
           <button
             onClick={handleAddToListClick}

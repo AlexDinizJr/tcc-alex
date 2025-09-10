@@ -49,7 +49,7 @@ export const addMediaToList = (mediaItem, listId, listName, user, updateUser) =>
     const newList = {
       id: Date.now(),
       name: listName,
-      items: [mediaItem.id], // ← APENAS o ID
+      items: [mediaItem.id],
       isDefault: false,
       createdAt: new Date().toISOString(),
       description: ""

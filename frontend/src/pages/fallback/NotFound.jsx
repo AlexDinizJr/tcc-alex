@@ -11,8 +11,7 @@ export default function NotFound() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-900 px-4">
       <div className="relative z-10 bg-gray-800/90 backdrop-blur-md p-8 rounded-2xl w-full max-w-lg border border-gray-700/50 shadow-xl text-center">
-        
-        {/* Ícone SVG moderno */}
+      
         <div className="mb-6 flex justify-center">
           <svg
             className="w-20 h-20 text-blue-400"

@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 export default function ProfileHeader({ user, isOwner }) {
   const hasBio = user?.bio && user.bio.trim().length > 0;
 
-  // 🔹 Formatar data de criação
+  // Formatar data de criação
   const createdAt = user?.createdAt ? new Date(user.createdAt) : null;
   const formattedDate = createdAt
     ? new Intl.DateTimeFormat("pt-BR", { month: "short", year: "numeric" }).format(createdAt)

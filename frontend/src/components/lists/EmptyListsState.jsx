@@ -9,7 +9,7 @@ export default function EmptyListsState({ isOwner }) {
           : "Este usuário ainda não possui listas."}
       </p>
 
-      {/* 🔹 Botão só aparece se for o dono */}
+      {/* Botão só aparece se for o dono */}
       {isOwner && (
         <Link
           to="/lists/create"

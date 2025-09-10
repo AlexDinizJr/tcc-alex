@@ -9,7 +9,6 @@ import { SERVICES } from "../mockdata/mockServices";
 export async function fetchStreamingLinks(mediaItem) {
   await new Promise(res => setTimeout(res, 200)); // simula latência
 
-  // Se não houver streamingLinks, tenta buscar no mock
   const targetMedia = mediaItem.streamingLinks 
     ? mediaItem 
     : ALL_MEDIA.find(m => m.id === mediaItem.id) || mediaItem;

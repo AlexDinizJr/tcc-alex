@@ -1,4 +1,3 @@
-// src/pages/Login.jsx
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import { useAuth } from "../../hooks/useAuth";

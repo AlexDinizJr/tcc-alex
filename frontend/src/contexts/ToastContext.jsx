@@ -1,7 +1,6 @@
 import { createContext, useState } from 'react';
 import { useToast } from "../hooks/useToast";
 
-// Export apenas o Context para uso interno
 const ToastContext = createContext();
 
 // Componente ToastProvider
