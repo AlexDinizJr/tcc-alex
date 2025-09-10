@@ -1,18 +1,18 @@
 import { useParams } from "react-router-dom";
-import { useAuth } from "../hooks/useAuth";
-import ProfileHeader from "../components/profile/ProfileHeader";
-import UserLists from "../components/profile/UserLists";
-import SavedItems from "../components/profile/UserSavedItems";
-import UserFavorites from "../components/profile/UserFavorites";
-import UserReviews from "../components/profile/UserReviews";
-import UserStats from "../components/profile/UserStats";
+import { useAuth } from "../../hooks/useAuth";
+import ProfileHeader from "../../components/profile/ProfileHeader";
+import UserLists from "../../components/profile/UserLists";
+import SavedItems from "../../components/profile/UserSavedItems";
+import UserFavorites from "../../components/profile/UserFavorites";
+import UserReviews from "../../components/profile/UserReviews";
+import UserStats from "../../components/profile/UserStats";
 import { 
   convertMediaIdsToObjects, 
   ensureArray, 
   getListsByUserId, 
   getReviewsByUserId, 
-} from "../utils/MediaHelpers";
-import { mockUsers } from "../mockdata/mockUsers";
+} from "../../utils/MediaHelpers";
+import { mockUsers } from "../../mockdata/mockUsers";
 import { FaLock } from "react-icons/fa";
 
 export default function UserProfilePage() {

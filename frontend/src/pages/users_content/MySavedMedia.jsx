@@ -1,14 +1,14 @@
 import { useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
-import { useAuth } from "../hooks/useAuth";
-import MediaPageHeader from "../components/MediaPageHeader";
-import MediaGrid from "../components/MediaGrid";
-import Pagination from "../components/Pagination";
-import { convertMediaIdsToObjects } from "../utils/MediaHelpers";
-import { mockUsers } from "../mockdata/mockUsers";
-import { BackToProfile } from "../components/BackToProfile";
+import { useAuth } from "../../hooks/useAuth";
+import MediaPageHeader from "../../components/contents/MediaPageHeader";
+import MediaGrid from "../../components/contents/MediaGrid";
+import Pagination from "../../components/Pagination";
+import { convertMediaIdsToObjects } from "../../utils/MediaHelpers";
+import { mockUsers } from "../../mockdata/mockUsers";
+import { BackToProfile } from "../../components/profile/BackToProfile";
 
-export default function MyFavorites() {
+export default function MySavedItems() {
   const { username } = useParams(); // pega o username da URL
   const { user: loggedInUser } = useAuth();
 
@@ -17,15 +17,15 @@ export default function MyFavorites() {
     ? loggedInUser
     : mockUsers.find((u) => u.username === username);
 
-  const allFavorites = convertMediaIdsToObjects(user?.favorites || []);
-  const itemsPerPage = 12;
+  const allSavedMedia = convertMediaIdsToObjects(user?.savedMedia || []);
+  const itemsPerPage = 20;
 
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("");
 
-  const filteredAndSortedFavorites = useMemo(() => {
-    let items = [...allFavorites];
+  const filteredAndSortedMedia = useMemo(() => {
+    let items = [...allSavedMedia];
 
     if (searchQuery.trim() !== "") {
       items = items.filter((m) =>
@@ -42,15 +42,15 @@ export default function MyFavorites() {
     }
 
     return items;
-  }, [allFavorites, searchQuery, sortBy]);
+  }, [allSavedMedia, searchQuery, sortBy]);
 
   const totalPages = Math.max(
     1,
-    Math.ceil(filteredAndSortedFavorites.length / itemsPerPage)
+    Math.ceil(filteredAndSortedMedia.length / itemsPerPage)
   );
   const startIdx = (currentPage - 1) * itemsPerPage;
   const endIdx = startIdx + itemsPerPage;
-  const favoritesToShow = filteredAndSortedFavorites.slice(startIdx, endIdx);
+  const savedMediaToShow = filteredAndSortedMedia.slice(startIdx, endIdx);
 
   if (!user) {
     return (
@@ -68,12 +68,12 @@ export default function MyFavorites() {
         {/* Botão de voltar para o perfil */}
         <div className="mb-4">
           <BackToProfile username={username} />
-        </div>
+        </div>        
         <div className="bg-gray-800/80 rounded-2xl shadow-md border border-gray-700/50 p-6 mb-8">
           <h1 className="text-3xl font-bold text-white mb-2">
-            {isOwner ? "Meus Favoritos" : `Favoritos de ${user.name}`}
+            {isOwner ? "Meus Itens Salvos" : `Itens Salvos de ${user.name}`}
           </h1>
-          <p className="text-gray-400">{allFavorites.length} favoritos</p>
+          <p className="text-gray-400">{allSavedMedia.length} itens salvos</p>
         </div>
 
         <MediaPageHeader
@@ -82,15 +82,15 @@ export default function MyFavorites() {
           sortBy={sortBy}
           setSortBy={setSortBy}
           sortOptions={["title", "rating", "year"]}
-          searchPlaceholder="Pesquisar favoritos..."
+          searchPlaceholder="Pesquisar itens salvos..."
         />
 
         <MediaGrid
-          items={favoritesToShow}
+          items={savedMediaToShow}
           emptyMessage={
             isOwner
-              ? "Você ainda não favoritou nenhum item."
-              : `${user.name} ainda não favoritou nenhum item.`
+              ? "Você ainda não salvou nenhum item."
+              : `${user.name} ainda não salvou nenhum item.`
           }
         />
 

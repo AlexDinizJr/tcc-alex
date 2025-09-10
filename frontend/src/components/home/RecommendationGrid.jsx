@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
-import { ALL_MEDIA } from "../mockdata/mockMedia";
-import MediaCarousel from "./MediaCarousel";
+import { ALL_MEDIA } from "../../mockdata/mockMedia";
+import MediaCarousel from "../MediaCarousel";
 import { SlLike } from "react-icons/sl"
 
 export default function RecommendationGrid() {

@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
-import { mockUsers } from "../mockdata/mockUsers";
-import UserCard from "../components/UserCard";
-import Pagination from "../components/Pagination";
+import { mockUsers } from "../../mockdata/mockUsers";
+import UserCard from "../../components/contents/UserCard";
+import Pagination from "../../components/Pagination";
 
 export default function Users() {
   const itemsPerPage = 12;

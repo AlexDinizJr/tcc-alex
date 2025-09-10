@@ -1,15 +1,15 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useMemo, useEffect } from "react";
-import { useAuth } from "../hooks/useAuth";
-import { deleteList, updateList } from "../contexts/AuthListFunctions";
-import { MOCK_LISTS } from "../mockdata/mockLists";
-import QuickAddModal from "../components/lists/QuickAddModal";
-import EditListModal from "../components/lists/EditListModal";
-import MediaCardWithActions from "../components/MediaCardWithActions";
-import MediaHeader from "../components/MediaPageHeader";
-import Pagination from "../components/Pagination";
-import { convertMediaIdsToObjects } from "../utils/MediaHelpers";
-import { BackToProfile } from "../components/BackToProfile";
+import { useAuth } from "../../hooks/useAuth";
+import { deleteList, updateList } from "../../contexts/AuthListFunctions";
+import { MOCK_LISTS } from "../../mockdata/mockLists";
+import QuickAddModal from "../../components/lists/QuickAddModal";
+import EditListModal from "../../components/lists/EditListModal";
+import MediaCardWithActions from "../../components/lists/MediaCardWithActions";
+import MediaHeader from "../../components/contents/MediaPageHeader";
+import Pagination from "../../components/Pagination";
+import { convertMediaIdsToObjects } from "../../utils/MediaHelpers";
+import { BackToProfile } from "../../components/profile/BackToProfile";
 
 export default function UserList() {
   const params = useParams();

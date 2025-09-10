@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
-import { useAuth } from "../hooks/useAuth";
-import { mockUsers } from "../mockdata/mockUsers";
+import { useAuth } from "../../hooks/useAuth";
+import { mockUsers } from "../../mockdata/mockUsers";
 
 export default function UserCard({ user: userProp }) {
   const { user: loggedInUser } = useAuth();

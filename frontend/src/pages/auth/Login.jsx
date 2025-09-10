@@ -1,9 +1,9 @@
 // src/pages/Login.jsx
 import { Link } from "react-router-dom";
 import { useState } from "react";
-import { useAuth } from "../hooks/useAuth";
+import { useAuth } from "../../hooks/useAuth";
 import { useNavigate, useLocation } from "react-router-dom";
-import AuthContainer from "../components/auth/AuthContainer";
+import AuthContainer from "../../components/auth/AuthContainer";
 
 export default function Login() {
   const [email, setEmail] = useState("");

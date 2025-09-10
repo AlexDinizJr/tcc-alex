@@ -4,7 +4,6 @@ import { useAuth } from "../hooks/useAuth";
 export default function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
 
-  // Mostra um loading enquanto verifica a autenticação
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">

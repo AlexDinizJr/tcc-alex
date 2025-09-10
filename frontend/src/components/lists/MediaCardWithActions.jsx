@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
-import DeleteItemModal from "./lists/DeleteItemModal";
+import DeleteItemModal from "./DeleteItemModal";
 
 export default function MediaCardWithActions({ 
   media, 

@@ -1,10 +1,10 @@
 import { useState } from "react";
-import FilterSection from "../components/recommendations/FilterSection";
-import ReferenceMediaGrid from "../components/recommendations/ReferenceMediaGrid";
-import ResultsGrid from "../components/recommendations/ResultsGrid";
-import MediaSearchModal from "../components/recommendations/MediaSearchModal";
-import { useRecommendationFilters } from "../hooks/useRecommendationFilters";
-import { ALL_MEDIA } from "../mockdata/mockMedia";
+import FilterSection from "../../components/recommendations/FilterSection";
+import ReferenceMediaGrid from "../../components/recommendations/ReferenceMediaGrid";
+import ResultsGrid from "../../components/recommendations/ResultsGrid";
+import MediaSearchModal from "../../components/recommendations/MediaSearchModal";
+import { useRecommendationFilters } from "../../hooks/useRecommendationFilters";
+import { ALL_MEDIA } from "../../mockdata/mockMedia";
 
 export default function CustomRecommendations() {
   const [filters, setFilters] = useState({

@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { useAuth } from "../hooks/useAuth";
-import AuthContainer from "../components/auth/AuthContainer";
+import { useAuth } from "../../hooks/useAuth";
+import AuthContainer from "../../components/auth/AuthContainer";
 
 export default function Signup() {
   const [name, setName] = useState("");

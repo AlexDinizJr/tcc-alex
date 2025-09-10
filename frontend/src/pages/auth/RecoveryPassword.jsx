@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import AuthContainer from "../components/auth/AuthContainer";
+import AuthContainer from "../../components/auth/AuthContainer";
 
 export default function RecoveryPassword() {
   const [password, setPassword] = useState("");

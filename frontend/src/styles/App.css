@@ -15,7 +15,6 @@
   animation: slide-in 0.3s ease-out;
 }
 
-/* Scrollbar personalizada para todos os elementos com scrollbar-thin */
 .scrollbar-thin::-webkit-scrollbar {
   height: 6px;
 }
@@ -25,12 +24,11 @@
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  background-color: #4b5563; /* bg-gray-600 */
+  background-color: #4b5563;
   border-radius: 10px;
   border: 1px solid #1f2937;
 }
 
-/* Para Firefox */
 .scrollbar-thin {
   scrollbar-width: thin;
   scrollbar-color: #4b5563 #1f2937;

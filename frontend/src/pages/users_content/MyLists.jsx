@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
-import { useAuth } from "../hooks/useAuth";
-import ListCard from "../components/lists/ListCard";
-import EmptyListsState from "../components/lists/EmptyListsState";
-import { ensureArray, getListsByUserId } from "../utils/MediaHelpers";
-import Pagination from "../components/Pagination";
-import { mockUsers } from "../mockdata/mockUsers";
-import { BackToProfile } from "../components/BackToProfile";
+import { useAuth } from "../../hooks/useAuth";
+import ListCard from "../../components/lists/ListCard";
+import EmptyListsState from "../../components/lists/EmptyListsState";
+import { ensureArray, getListsByUserId } from "../../utils/MediaHelpers";
+import Pagination from "../../components/Pagination";
+import { mockUsers } from "../../mockdata/mockUsers";
+import { BackToProfile } from "../../components/profile/BackToProfile";
 
 export default function MyLists() {
   const { username } = useParams(); // username da URL

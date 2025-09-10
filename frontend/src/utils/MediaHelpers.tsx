@@ -1,7 +1,6 @@
 import { ALL_MEDIA } from "../mockdata/mockMedia";
 import { MOCK_REVIEWS } from "../mockdata/mockReviews";
 import { MOCK_LISTS } from "../mockdata/mockLists";
-import { mockUsers } from "../mockdata/mockUsers";
 
 // Converte IDs de mídia para objetos completos
 export const convertMediaIdsToObjects = (mediaIds = []) => {

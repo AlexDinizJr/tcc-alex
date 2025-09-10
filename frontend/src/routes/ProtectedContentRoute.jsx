@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { mockUsers } from "../mockdata/mockUsers";
-import { BackToProfile } from "../components/BackToProfile";
+import { BackToProfile } from "../components/profile/BackToProfile";
 import { FaLock } from "react-icons/fa";
 
 export default function ProtectedContentRoute({ children, contentType }) {

@@ -1,12 +1,12 @@
 import { useEffect, useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
-import ReviewGrid from "../components/reviews/ReviewGrid";
-import Pagination from "../components/Pagination";
-import { useAuth } from "../hooks/useAuth";
-import { ensureArray, getReviewsByUserId } from "../utils/MediaHelpers";
-import { ALL_MEDIA } from "../mockdata/mockMedia";
-import { mockUsers } from "../mockdata/mockUsers";
-import { BackToProfile } from "../components/BackToProfile";
+import ReviewGrid from "../../components/reviews/ReviewGrid";
+import Pagination from "../../components/Pagination";
+import { useAuth } from "../../hooks/useAuth";
+import { ensureArray, getReviewsByUserId } from "../../utils/MediaHelpers";
+import { ALL_MEDIA } from "../../mockdata/mockMedia";
+import { mockUsers } from "../../mockdata/mockUsers";
+import { BackToProfile } from "../../components/profile/BackToProfile";
 
 export default function MyReviews() {
   const { username } = useParams(); // pega o username da URL

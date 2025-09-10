@@ -1,9 +1,9 @@
-import React, { useState } from "react";
-import MediaGrid from "../components/MediaGrid";
-import Pagination from "../components/Pagination";
-import MediaPageHeader from "../components/MediaPageHeader";
-import { MediaType } from "../models/MediaType";
-import { getMediaByType } from "../utils/MediaHelpers";
+import { useState } from "react";
+import Pagination from "../../components/Pagination";
+import MediaGrid from "../../components/contents/MediaGrid";
+import MediaPageHeader from "../../components/contents/MediaPageHeader";
+import { MediaType } from "../../models/MediaType";
+import { getMediaByType } from "../../utils/MediaHelpers";
 
 export default function MusicsPage() {
   const allMusics = getMediaByType(MediaType.MUSIC);

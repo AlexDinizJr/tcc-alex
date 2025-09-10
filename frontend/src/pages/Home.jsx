@@ -1,8 +1,8 @@
 import { useAuth } from "../hooks/useAuth";
-import RecommendationGrid from "../components/RecommendationGrid";
-import TrendingSection from "../components/TrendingSection";
-import UnauthRecommendationCTA from "../components/UnauthRecommendationCTA";
-import CustomRecommendationButton from "../components/CustomRecommendationButton";
+import RecommendationGrid from "../components/home/RecommendationGrid";
+import TrendingSection from "../components/home/TrendingSection";
+import UnauthRecommendationCTA from "../components/home/UnauthRecommendationCTA";
+import CustomRecommendationButton from "../components/home/CustomRecommendationButton";
 import { FaPlayCircle } from "react-icons/fa";
 
 export default function Home() {

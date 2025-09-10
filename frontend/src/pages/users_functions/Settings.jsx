@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { useAuth } from "../hooks/useAuth";
-import SettingsSidebar from "../components/settings/SettingsSidebar";
-import ProfileSettings from "../components/settings/ProfileSettings";
-import AccountSettings from "../components/settings/AccountSettings";
-import PrivacySettings from "../components/settings/PrivacySettings";
+import { useAuth } from "../../hooks/useAuth";
+import SettingsSidebar from "../../components/settings/SettingsSidebar";
+import ProfileSettings from "../../components/settings/ProfileSettings";
+import AccountSettings from "../../components/settings/AccountSettings";
+import PrivacySettings from "../../components/settings/PrivacySettings";
 
 export default function Settings() {
   const { user } = useAuth();

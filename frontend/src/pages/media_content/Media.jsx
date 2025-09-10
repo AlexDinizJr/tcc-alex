@@ -1,14 +1,14 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { getMediaById, getMediaByType } from "../utils/MediaHelpers";
-import { MediaType } from "../models/MediaType";
-import { useAuth } from "../hooks/useAuth";
-import MediaGrid from "../components/MediaGrid";
-import MediaHeader from "../components/media/MediaHeader";
-import ReviewGrid from "../components/reviews/ReviewGrid";
-import ReviewForm from "../components/media/ReviewForm";
-import { getReviewsByMediaId } from "../utils/MediaHelpers";
-import { getUserById } from "../utils/userHelpers";
+import { getMediaById, getMediaByType } from "../../utils/MediaHelpers";
+import { MediaType } from "../../models/MediaType";
+import { useAuth } from "../../hooks/useAuth";
+import MediaGrid from "../../components/contents/MediaGrid";
+import MediaHeader from "../../components/media/MediaHeader";
+import ReviewGrid from "../../components/reviews/ReviewGrid";
+import ReviewForm from "../../components/media/ReviewForm";
+import { getReviewsByMediaId } from "../../utils/MediaHelpers";
+import { getUserById } from "../../utils/userHelpers";
 
 export default function Media() {
   const { id } = useParams();

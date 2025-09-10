@@ -1,5 +1,5 @@
-import { ALL_MEDIA } from "../mockdata/mockMedia";
-import MediaCarousel from "./MediaCarousel";
+import { ALL_MEDIA } from "../../mockdata/mockMedia";
+import MediaCarousel from "../MediaCarousel";
 import { IoMdTrendingUp } from "react-icons/io";
 
 export default function TrendingSection() {

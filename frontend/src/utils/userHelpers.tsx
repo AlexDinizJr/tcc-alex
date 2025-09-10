@@ -1,6 +1,7 @@
 import { mockUsers } from "../mockdata/mockUsers";
 import { User } from "../models/UserModel";
 
+// Buscar usuário por ID
 export const getUserById = (userId: number) => {
   const user = mockUsers.find(user => user.id === userId);
 
@@ -19,6 +20,7 @@ export const getUserById = (userId: number) => {
   };
 };
 
+// Buscar usuário por Username
 export const getUserByUsername = (username: string) => {
   const user = mockUsers.find(u => u.username === username);
 
@@ -39,6 +41,7 @@ export const getUserByUsername = (username: string) => {
   };
 };
 
+// Verificar se o usuário já avaliou
 export const hasUserReviewed = (user: User, mediaId: number): boolean => {
   if (!user.reviews) return false;
   return mediaId in user.reviews;

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { ALL_MEDIA } from "../mockdata/mockMedia";
-import MediaGrid from "../components/MediaGrid";
+import { ALL_MEDIA } from "../../mockdata/mockMedia";
+import MediaGrid from "../../components/contents/MediaGrid";
 
 export default function Search() {
   const [searchResults, setSearchResults] = useState([]);
