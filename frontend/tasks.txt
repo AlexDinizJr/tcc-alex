@@ -1,12 +1,3 @@
-* trocar alerts por toasts:
-    - editlistmodal;
-	- quickaddmodal;
-	- deleteaccountmodal;
-	- mediaactions;
-	- accountsettings;
-	- media;
-	- userlistpage;
-
 * refatorar login, cadastro, recovery-password;
 
 * refatorar users, user-page, e users-content-page;

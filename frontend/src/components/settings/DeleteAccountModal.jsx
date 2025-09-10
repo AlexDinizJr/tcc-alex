@@ -1,16 +1,19 @@
 import { useState } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "../../hooks/useToast";
 
 export default function DeleteAccountModal({ onClose }) {
   const { logout } = useAuth();
   const navigate = useNavigate();
+  const { showToast } = useToast();
+
   const [confirmationText, setConfirmationText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
 
   const handleDeleteAccount = async () => {
     if (confirmationText !== "EXCLUIR CONTA") {
-      alert("Por favor, digite 'EXCLUIR CONTA' para confirmar.");
+      showToast("Por favor, digite 'EXCLUIR CONTA' para confirmar.", "warning");
       return;
     }
 
@@ -23,10 +26,10 @@ export default function DeleteAccountModal({ onClose }) {
       // Logout e redirecionamento
       logout();
       navigate("/");
-      alert("Sua conta foi excluída com sucesso.");
+      showToast("Sua conta foi excluída com sucesso.", "success");
     } catch (error) {
       console.error("Erro ao excluir conta:", error);
-      alert("Erro ao excluir conta. Tente novamente.");
+      showToast("Erro ao excluir conta. Tente novamente.", "error");
     } finally {
       setIsDeleting(false);
       onClose();

@@ -1,19 +1,19 @@
 import { useState } from "react";
 import ListSearchBar from "./ListSearchBar";
 import { convertMediaIdsToObjects } from "../../utils/MediaHelpers";
+import { useToast } from "../../hooks/useToast";
 
 export default function QuickAddModal({ onClose, onAddItem, currentListItems }) {
   const [selectedMedia, setSelectedMedia] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
   const [isAdding, setIsAdding] = useState(false);
+  const { showToast } = useToast();
 
-  // Converter IDs para objetos para a verificação de duplicatas
   const currentMediaObjects = convertMediaIdsToObjects(currentListItems);
 
   const handleSearchResults = (results) => {
-    // Filtrar resultados para excluir itens já na lista (usando objetos convertidos)
-    const availableResults = results.filter(media => 
-      !currentMediaObjects.some(item => item.id === media.id)
+    const availableResults = results.filter(
+      media => !currentMediaObjects.some(item => item.id === media.id)
     );
     setSearchResults(availableResults);
   };
@@ -21,36 +21,31 @@ export default function QuickAddModal({ onClose, onAddItem, currentListItems }) 
   const handleToggleSelection = (media) => {
     setSelectedMedia(prev => {
       const isSelected = prev.some(item => item.id === media.id);
-      if (isSelected) {
-        return prev.filter(item => item.id !== media.id);
-      } else {
-        return [...prev, media];
-      }
+      if (isSelected) return prev.filter(item => item.id !== media.id);
+      return [...prev, media];
     });
   };
 
   const handleAddSelected = async () => {
     if (selectedMedia.length === 0) {
-      alert("Selecione pelo menos um item para adicionar!");
+      showToast("Selecione pelo menos um item para adicionar!", "warning");
       return;
     }
 
     setIsAdding(true);
     try {
-      // Adicionar cada item individualmente
-      for (const media of selectedMedia) {
-        await onAddItem(media);
-      }
+      // Adiciona todos em paralelo
+      await Promise.all(selectedMedia.map(media => onAddItem(media)));
+      showToast(`${selectedMedia.length} item(s) adicionados com sucesso!`, "success");
       onClose();
     } catch (error) {
       console.error("Erro ao adicionar itens:", error);
-      alert("Erro ao adicionar itens. Tente novamente.");
+      showToast("Erro ao adicionar itens. Tente novamente.", "error");
     } finally {
       setIsAdding(false);
     }
   };
 
-  // Prevenir navegação quando clicar em um item no modal
   const handleItemClick = (e, media) => {
     e.preventDefault();
     e.stopPropagation();
@@ -77,12 +72,9 @@ export default function QuickAddModal({ onClose, onAddItem, currentListItems }) 
           </button>
         </div>
 
-        {/* SearchBar em modo modal */}
+        {/* SearchBar */}
         <div className="p-6 border-b border-gray-700">
-          <ListSearchBar
-            onSearchResults={handleSearchResults}
-            modalMode={true}
-          />
+          <ListSearchBar onSearchResults={handleSearchResults} modalMode={true} />
         </div>
 
         {/* Lista de resultados */}
@@ -98,9 +90,9 @@ export default function QuickAddModal({ onClose, onAddItem, currentListItems }) 
                 <div
                   key={media.id}
                   className={`flex items-center p-3 rounded-lg cursor-pointer transition-all ${
-                    selectedMedia.some(item => item.id === media.id) 
-                      ? 'bg-blue-500/20 border border-blue-400/50' 
-                      : 'border border-gray-600 hover:bg-gray-700/50'
+                    selectedMedia.some(item => item.id === media.id)
+                      ? "bg-blue-500/20 border border-blue-400/50"
+                      : "border border-gray-600 hover:bg-gray-700/50"
                   }`}
                   onClick={(e) => handleItemClick(e, media)}
                 >
@@ -121,14 +113,17 @@ export default function QuickAddModal({ onClose, onAddItem, currentListItems }) 
                     <h3 className="font-medium text-white">{media.title}</h3>
                     <div className="flex items-center gap-2 mt-1">
                       <span className="text-xs px-2 py-1 bg-gray-700 text-gray-300 rounded-full border border-gray-600/50">
-                        {media.type === 'movie' ? 'Filme' : 
-                         media.type === 'tv' ? 'Série' : 
-                         media.type === 'game' ? 'Game' : 
-                         media.type === 'music' ? 'Música' : media.type}
+                        {media.type === "movie"
+                          ? "Filme"
+                          : media.type === "tv"
+                          ? "Série"
+                          : media.type === "game"
+                          ? "Game"
+                          : media.type === "music"
+                          ? "Música"
+                          : media.type}
                       </span>
-                      {media.year && (
-                        <span className="text-xs text-gray-400">{media.year}</span>
-                      )}
+                      {media.year && <span className="text-xs text-gray-400">{media.year}</span>}
                       {media.rating && (
                         <div className="flex items-center ml-auto">
                           <span className="text-yellow-400 text-xs mr-1">⭐</span>
@@ -146,9 +141,7 @@ export default function QuickAddModal({ onClose, onAddItem, currentListItems }) 
         {/* Footer */}
         <div className="flex justify-between items-center p-6 border-t border-gray-700 bg-gray-800/80">
           <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-400">
-              {selectedMedia.length} item(s) selecionado(s)
-            </span>
+            <span className="text-sm text-gray-400">{selectedMedia.length} item(s) selecionado(s)</span>
             {selectedMedia.length > 0 && (
               <button
                 onClick={() => setSelectedMedia([])}

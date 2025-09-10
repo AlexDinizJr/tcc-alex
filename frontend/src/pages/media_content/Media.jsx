@@ -5,6 +5,7 @@ import { fetchUserById } from "../../services/userService";
 import { fetchReviewsByMediaId, createReview, editReview, incrementHelpful } from "../../services/reviewService";
 import { MediaType } from "../../models/MediaType";
 import { useAuth } from "../../hooks/useAuth";
+import { useToast } from "../../hooks/useToast";
 
 import MediaGrid from "../../components/contents/MediaGrid";
 import MediaHeader from "../../components/media/MediaHeader";
@@ -14,6 +15,7 @@ import ReviewForm from "../../components/media/ReviewForm";
 export default function MediaPage() {
   const { id } = useParams();
   const { user } = useAuth();
+  const { showToast } = useToast();
 
   const [mediaItem, setMediaItem] = useState(null);
   const [reviews, setReviews] = useState([]);
@@ -28,11 +30,9 @@ export default function MediaPage() {
       setMediaItem(media);
 
       if (media) {
-        // Mídias similares
         const similar = await fetchMediaByType(media.type, { excludeId: media.id, limit: 4 });
         setSimilarMedia(similar);
 
-        // Reviews via reviewService
         const reviewsData = await fetchReviewsByMediaId(media.id);
         const enrichedReviews = await Promise.all(
           reviewsData.map(async (review) => {
@@ -57,6 +57,7 @@ export default function MediaPage() {
     setReviews((prev) =>
       prev.map((r) => (r.id === reviewId ? { ...r, ...updatedReview } : r))
     );
+    showToast("Avaliação editada com sucesso!", "success");
   };
 
   const handleHelpfulClick = async (reviewId) => {
@@ -71,8 +72,9 @@ export default function MediaPage() {
 
   const handleSubmitReview = async (e) => {
     e.preventDefault();
-    if (!user) return alert("Faça login para enviar uma avaliação.");
-    if (newReview.rating === 0 || !newReview.comment.trim()) return alert("Preencha todos os campos obrigatórios.");
+    if (!user) return showToast("Faça login para enviar uma avaliação.", "warning");
+    if (newReview.rating === 0 || !newReview.comment.trim()) 
+      return showToast("Preencha todos os campos obrigatórios.", "warning");
 
     setIsSubmitting(true);
     try {
@@ -98,8 +100,10 @@ export default function MediaPage() {
       ]);
 
       setNewReview({ rating: 0, comment: "" });
+      showToast("Avaliação enviada com sucesso!", "success");
     } catch (error) {
       console.error("Erro ao enviar avaliação:", error);
+      showToast("Erro ao enviar avaliação.", "error");
     } finally {
       setIsSubmitting(false);
     }

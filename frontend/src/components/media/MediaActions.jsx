@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { FaBookmark, FaHeart, FaPlus } from "react-icons/fa";
 import { FiShare2 } from "react-icons/fi";
 import { useAuth } from "../../hooks/useAuth";
+import { useToast } from "../../hooks/useToast";
 import AddToListModal from "./AddToListModal";
 import ShareMediaModal from "../ShareMediaModal";
 
@@ -14,6 +15,8 @@ export default function MediaActions({ mediaItem }) {
     isAuthenticated 
   } = useAuth();
   
+  const { showToast } = useToast();
+
   const [isSaved, setIsSaved] = useState(false);
   const [isFavorited, setIsFavorited] = useState(false);
   const [showAddToListModal, setShowAddToListModal] = useState(false);
@@ -27,34 +30,36 @@ export default function MediaActions({ mediaItem }) {
   }, [user, mediaItem.id]);
 
   const handleSave = () => {
-    if (!isAuthenticated) return alert("Você precisa estar logado para salvar itens!");
+    if (!isAuthenticated) return showToast("Você precisa estar logado para salvar itens!", "warning");
+    
     const result = toggleSavedMedia(mediaItem);
     if (result.success) setIsSaved(result.isSaved);
-    else alert(result.error);
+    else showToast(result.error || "Erro ao salvar item", "error");
   };
 
   const handleFavorite = () => {
-    if (!isAuthenticated) return alert("Você precisa estar logado para favoritar itens!");
+    if (!isAuthenticated) return showToast("Você precisa estar logado para favoritar itens!", "warning");
+    
     const result = toggleFavorite(mediaItem);
     if (result.success) setIsFavorited(result.isFavorited);
-    else alert(result.error);
+    else showToast(result.error || "Erro ao favoritar item", "error");
   };
 
   const handleAddToList = () => {
-    if (!isAuthenticated) return alert("Você precisa estar logado para adicionar itens a listas!");
+    if (!isAuthenticated) return showToast("Você precisa estar logado para adicionar itens a listas!", "warning");
     setShowAddToListModal(true);
   };
 
   const handleAddToListConfirm = (listId, listName = null) => {
-    if (!isAuthenticated) return alert("Você precisa estar logado para adicionar itens a listas!");
-    if (!mediaItem?.id) return alert("Erro: Item de mídia inválido!");
+    if (!isAuthenticated) return showToast("Você precisa estar logado para adicionar itens a listas!", "warning");
+    if (!mediaItem?.id) return showToast("Erro: Item de mídia inválido!", "error");
 
     const result = addMediaToList(mediaItem, listId, listName);
     if (result.success) {
-      alert(`"${mediaItem.title}" adicionado à lista ${result.list.name} com sucesso!`);
+      showToast(`"${mediaItem.title}" adicionado à lista ${result.list.name} com sucesso!`, "success");
       setShowAddToListModal(false);
     } else {
-      alert(result.error || "Erro ao adicionar à lista");
+      showToast(result.error || "Erro ao adicionar à lista", "error");
       if (result.error?.includes('já está')) setShowAddToListModal(false);
     }
   };
@@ -94,7 +99,6 @@ export default function MediaActions({ mediaItem }) {
           Adicionar à Lista
         </button>
 
-        {/* 🔗 Botão de Compartilhar */}
         <button
           onClick={() => setShowShareModal(true)}
           className="flex items-center gap-2 px-3 py-2 bg-gray-700/80 text-gray-200 rounded-lg font-semibold hover:bg-gray-600 transition-colors cursor-pointer"
@@ -104,7 +108,6 @@ export default function MediaActions({ mediaItem }) {
         </button>
       </div>
 
-      {/* Modal de Adicionar à Lista */}
       {showAddToListModal && (
         <AddToListModal 
           mediaItem={mediaItem}
@@ -114,7 +117,6 @@ export default function MediaActions({ mediaItem }) {
         />
       )}
 
-      {/* Modal de Compartilhar */}
       {showShareModal && (
         <ShareMediaModal 
           isOpen={showShareModal}

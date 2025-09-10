@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useToast } from "../../hooks/useToast";
 
 export default function EditListModal({ 
   isOpen, 
@@ -7,15 +8,21 @@ export default function EditListModal({
   onDelete,
   list 
 }) {
+  const { showToast } = useToast();
+
   const [name, setName] = useState(list?.name || "");
   const [description, setDescription] = useState(list?.description || "");
   const [isPublic, setIsPublic] = useState(list?.isPublic || false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+
+  if (!isOpen) return null;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!name.trim()) {
-      alert("O nome da lista é obrigatório!");
+      showToast("O nome da lista é obrigatório!", "warning");
       return;
     }
 
@@ -26,23 +33,32 @@ export default function EditListModal({
         description: description.trim(),
         isPublic
       });
+      showToast("Lista salva com sucesso!", "success");
       onClose();
     } catch (error) {
       console.error("Erro ao salvar lista:", error);
-      alert("Erro ao salvar alterações.");
+      showToast("Erro ao salvar alterações.", "error");
     } finally {
       setIsSaving(false);
     }
   };
 
   const handleDelete = async () => {
-    if (window.confirm(`Tem certeza que deseja excluir a lista "${list.name}"? Esta ação não pode ser desfeita.`)) {
+    setIsDeleting(true);
+    try {
       await onDelete();
+      showToast(`"${list.name}" foi excluída com sucesso!`, "success");
       onClose();
+    } catch (error) {
+      console.error("Erro ao excluir lista:", error);
+      showToast("Erro ao excluir lista.", "error");
+    } finally {
+      setIsDeleting(false);
+      setConfirmDelete(false);
     }
   };
 
-  if (!isOpen) return null;
+  const isBusy = isSaving || isDeleting;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
@@ -102,11 +118,25 @@ export default function EditListModal({
           </div>
 
           {/* Actions */}
-          <div className="flex justify-between items-center pt-4 border-t border-gray-700">
-            <div>
+          <div className="flex justify-center items-center pt-4 border-t border-gray-700 gap-3">
+            {confirmDelete ? (
               <button
                 type="button"
                 onClick={handleDelete}
+                disabled={isBusy}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 disabled:opacity-50 transition-colors"
+              >
+                {isDeleting ? (
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                ) : (
+                  "Confirmar"
+                )}
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setConfirmDelete(true)}
+                disabled={isBusy}
                 className="px-4 py-2 text-red-400 hover:text-red-300 font-medium text-sm flex items-center gap-2 transition-colors"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -114,37 +144,33 @@ export default function EditListModal({
                 </svg>
                 Excluir Lista
               </button>
-            </div>
-            
-            <div className="flex gap-3">
-              <button
-                type="button"
-                onClick={onClose}
-                disabled={isSaving}
-                className="px-4 py-2 border border-gray-600 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white disabled:opacity-50 transition-colors"
-              >
-                Cancelar
-              </button>
-              <button
-                type="submit"
-                disabled={isSaving}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2 transition-colors"
-              >
-                {isSaving ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    Salvando...
-                  </>
-                ) : (
-                  <>
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    Salvar
-                  </>
-                )}
-              </button>
-            </div>
+            )}
+
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={isBusy}
+              className="px-4 py-2 border border-gray-600 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white disabled:opacity-50 transition-colors text-sm"
+            >
+              Cancelar
+            </button>
+
+            <button
+              type="submit"
+              disabled={isBusy}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2 transition-colors text-sm"
+            >
+              {isSaving ? (
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+              ) : (
+                <>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Salvar
+                </>
+              )}
+            </button>
           </div>
         </form>
       </div>

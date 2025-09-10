@@ -1,3 +1,6 @@
+import { useState } from "react";
+import { useToast } from "../../hooks/useToast";
+
 export default function DeleteItemModal({ 
   isOpen, 
   onClose, 
@@ -5,7 +8,26 @@ export default function DeleteItemModal({
   itemName,
   isDeleting = false
 }) {
+  const { showToast } = useToast();
+  const [loading, setLoading] = useState(false);
+
   if (!isOpen) return null;
+
+  const handleConfirm = async () => {
+    setLoading(true);
+    try {
+      await onConfirm();
+      showToast(`"${itemName}" foi removido com sucesso!`, "success");
+      onClose();
+    } catch (error) {
+      console.error("Erro ao remover item:", error);
+      showToast("Erro ao remover item. Tente novamente.", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const isBusy = isDeleting || loading;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
@@ -30,17 +52,17 @@ export default function DeleteItemModal({
         <div className="flex justify-center gap-3">
           <button
             onClick={onClose}
-            disabled={isDeleting}
+            disabled={isBusy}
             className="px-4 py-2 flex items-center justify-center h-10 text-gray-300 hover:text-white font-medium rounded-lg border border-gray-600 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             Cancelar
           </button>
           <button
-            onClick={onConfirm}
-            disabled={isDeleting}
+            onClick={handleConfirm}
+            disabled={isBusy}
             className="px-4 py-2 flex items-center justify-center h-10 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed gap-2 transition-colors"
           >
-            {isDeleting ? (
+            {isBusy ? (
               <>
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                 Removendo...

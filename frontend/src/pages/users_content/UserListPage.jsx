@@ -70,38 +70,31 @@ export default function UserList() {
   const mediaItemsToShow = filteredAndSortedItems.slice(startIdx, endIdx);
 
   // Handlers
-  const handleSaveList = async (updatedData) => {
+    const handleSaveList = async (updatedData) => {
     if (!isOwner) return;
     try {
       const result = updateList(localList.id, updatedData, user, updateUser);
       if (result.success) {
-        // Atualiza localList
         setLocalList(prev => ({ ...prev, ...updatedData, updatedAt: new Date().toISOString() }));
-        alert("Lista atualizada com sucesso!");
       } else {
         throw new Error(result.error);
       }
     } catch (error) {
       console.error("Erro ao atualizar lista:", error);
-      alert(error.message || "Erro ao atualizar lista");
     }
   };
 
   const handleDeleteList = async () => {
     if (!isOwner) return;
-    if (!window.confirm("Tem certeza que deseja excluir esta lista?")) return;
-
     try {
       const result = deleteList(localList.id, user, updateUser);
       if (result.success) {
-        alert("Lista excluída com sucesso!");
         navigate(`/users/${username}/lists`);
       } else {
         throw new Error(result.error);
       }
     } catch (error) {
       console.error("Erro ao excluir lista:", error);
-      alert(error.message || "Erro ao excluir lista");
     }
   };
 
@@ -115,7 +108,6 @@ export default function UserList() {
       }));
       return Promise.resolve();
     } else {
-      alert(result.error || "Erro ao adicionar à lista");
       return Promise.reject(result.error);
     }
   };
@@ -134,7 +126,6 @@ export default function UserList() {
       }
     } catch (error) {
       console.error("Erro ao remover item:", error);
-      alert(error.message || "Erro ao remover item");
     }
   };
 

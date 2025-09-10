@@ -3,9 +3,11 @@ import { FaWhatsapp, FaFacebookF, FaTelegramPlane } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 import { useEffect, useState } from "react";
 import Portal from "./Portal";
+import { useToast } from "../hooks/useToast";
 
 export default function ShareMediaModal({ isOpen, onClose, media }) {
   const [copied, setCopied] = useState(false);
+  const { showToast } = useToast();
 
   useEffect(() => {
     const handleEscape = (e) => {
@@ -24,8 +26,8 @@ export default function ShareMediaModal({ isOpen, onClose, media }) {
       await navigator.clipboard.writeText(mediaLink);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error('Falha ao copiar: ', err);
+    } catch {
+      showToast("Falha ao copiar o link", "error");
     }
   };
 

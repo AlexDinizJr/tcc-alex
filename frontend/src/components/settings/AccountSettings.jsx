@@ -1,5 +1,6 @@
 import { useState } from "react";
 import DeleteAccountModal from "./DeleteAccountModal";
+import { useToast } from "../../hooks/useToast";
 
 function Modal({ title, children, onClose }) {
   return (
@@ -19,6 +20,8 @@ function Modal({ title, children, onClose }) {
 }
 
 export default function AccountSettings({ user }) {
+  const { showToast } = useToast();
+
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
@@ -29,19 +32,18 @@ export default function AccountSettings({ user }) {
 
   const handleEmailChange = async () => {
     if (!emailForm.newEmail || !emailForm.currentPassword) {
-      alert("Preencha o novo email e a senha atual");
-      return;
+      return showToast("Preencha o novo email e a senha atual", "warning");
     }
 
     setIsSubmitting(true);
     try {
       await new Promise(r => setTimeout(r, 1500));
-      alert("Email alterado com sucesso!");
+      showToast("Email alterado com sucesso!", "success");
       setEmailForm({ newEmail: "", currentPassword: "" });
       setIsEmailModalOpen(false);
     } catch (error) {
       console.error(error);
-      alert("Falha ao alterar email");
+      showToast("Falha ao alterar email", "error");
     } finally {
       setIsSubmitting(false);
     }
@@ -50,23 +52,21 @@ export default function AccountSettings({ user }) {
   const handlePasswordChange = async () => {
     const { newPassword, confirmPassword, currentPassword } = passwordForm;
     if (!newPassword || !confirmPassword || !currentPassword) {
-      alert("Preencha todos os campos");
-      return;
+      return showToast("Preencha todos os campos", "warning");
     }
     if (newPassword !== confirmPassword) {
-      alert("As senhas não coincidem");
-      return;
+      return showToast("As senhas não coincidem", "error");
     }
 
     setIsSubmitting(true);
     try {
       await new Promise(r => setTimeout(r, 1500));
-      alert("Senha alterada com sucesso!");
+      showToast("Senha alterada com sucesso!", "success");
       setPasswordForm({ newPassword: "", confirmPassword: "", currentPassword: "" });
       setIsPasswordModalOpen(false);
     } catch (error) {
       console.error(error);
-      alert("Falha ao alterar senha");
+      showToast("Falha ao alterar senha", "error");
     } finally {
       setIsSubmitting(false);
     }
