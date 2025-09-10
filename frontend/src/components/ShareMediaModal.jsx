@@ -1,4 +1,3 @@
-// ShareMediaModal.jsx
 import { FiX, FiCopy, FiLink } from "react-icons/fi";
 import { FaWhatsapp, FaFacebookF, FaTelegramPlane } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";

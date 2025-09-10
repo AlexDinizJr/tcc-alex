@@ -1,77 +1,82 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { getMediaById, getMediaByType } from "../../utils/MediaHelpers";
+import { fetchMediaById, fetchMediaByType } from "../../services/mediaService";
+import { fetchUserById } from "../../services/userService";
 import { MediaType } from "../../models/MediaType";
 import { useAuth } from "../../hooks/useAuth";
+
 import MediaGrid from "../../components/contents/MediaGrid";
 import MediaHeader from "../../components/media/MediaHeader";
 import ReviewGrid from "../../components/reviews/ReviewGrid";
 import ReviewForm from "../../components/media/ReviewForm";
-import { getReviewsByMediaId } from "../../utils/MediaHelpers";
-import { getUserById } from "../../utils/userHelpers";
 
-export default function Media() {
+export default function MediaPage() {
   const { id } = useParams();
-  const mediaItem = getMediaById(Number(id));
   const { user } = useAuth();
 
+  const [mediaItem, setMediaItem] = useState(null);
   const [reviews, setReviews] = useState([]);
   const [newReview, setNewReview] = useState({ rating: 0, comment: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [similarMedia, setSimilarMedia] = useState([]);
 
+  // Busca o item de mídia
   useEffect(() => {
-    if (mediaItem) {
-      const mediaReviews = getReviewsByMediaId(mediaItem.id);
-      const enrichedReviews = mediaReviews.map(review => {
-        const userData = getUserById(review.userId);
-        return {
-          ...review,
-          user: userData.name,
-          avatar: userData.avatar,
-          userId: review.userId
-        };
-      });
-      setReviews(enrichedReviews);
+    async function loadMedia() {
+      const media = await fetchMediaById(Number(id));
+      setMediaItem(media);
+
+      if (media) {
+        // Carregar mídias similares
+        const similar = await fetchMediaByType(media.type, { excludeId: media.id, limit: 4 });
+        setSimilarMedia(similar);
+
+        // Carregar avaliações
+        if (media.reviews?.length) {
+          const enrichedReviews = await Promise.all(
+            media.reviews.map(async (review) => {
+              const userData = await fetchUserById(review.userId);
+              return {
+                ...review,
+                user: userData.name,
+                avatar: userData.avatar,
+              };
+            })
+          );
+          setReviews(enrichedReviews);
+        }
+      }
     }
-  }, [mediaItem]);
+    loadMedia();
+  }, [id]);
 
   const handleEditClick = (reviewId, newComment, newRating) => {
-    const updatedReviews = reviews.map(review =>
-      review.id === reviewId
-        ? {
-            ...review,
-            comment: newComment,
-            rating: newRating,
-            date: new Date().toLocaleDateString("pt-BR")
-          }
-        : review
+    setReviews((prev) =>
+      prev.map((r) =>
+        r.id === reviewId
+          ? { ...r, comment: newComment, rating: newRating, date: new Date().toLocaleDateString("pt-BR") }
+          : r
+      )
     );
-    setReviews(updatedReviews);
-    console.log("Review editada:", reviewId, "Novo comentário:", newComment, "Nova nota:", newRating);
   };
 
   const handleHelpfulClick = (reviewId) => {
-    const updatedReviews = reviews.map(review =>
-      review.id === reviewId
-        ? { ...review, helpful: (review.helpful || 0) + 1 }
-        : review
+    setReviews((prev) =>
+      prev.map((r) =>
+        r.id === reviewId ? { ...r, helpful: (r.helpful || 0) + 1 } : r
+      )
     );
-    setReviews(updatedReviews);
   };
 
   const handleRatingChange = (rating) => setNewReview(prev => ({ ...prev, rating }));
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setNewReview(prev => ({ ...prev, [name]: value }));
-  };
+  const handleInputChange = (e) => setNewReview(prev => ({ ...prev, [e.target.name]: e.target.value }));
 
   const handleSubmitReview = async (e) => {
     e.preventDefault();
-    if (!user) return alert("Por favor, faça login para enviar uma avaliação.");
+    if (!user) return alert("Faça login para enviar uma avaliação.");
     if (newReview.rating === 0 || !newReview.comment.trim()) return alert("Preencha todos os campos obrigatórios.");
 
     setIsSubmitting(true);
-
     try {
       const newReviewData = {
         id: Date.now(),
@@ -83,7 +88,6 @@ export default function Media() {
         comment: newReview.comment,
         date: new Date().toLocaleDateString("pt-BR"),
         helpful: 0,
-        mediaTitle: mediaItem.title
       };
       setReviews(prev => [newReviewData, ...prev]);
       setNewReview({ rating: 0, comment: "" });
@@ -103,7 +107,6 @@ export default function Media() {
     );
   }
 
-  const similarMedia = getMediaByType(mediaItem.type).filter(item => item.id !== Number(id)).slice(0, 4);
   const description = mediaItem.description || "Descrição detalhada não disponível.";
 
   return (
@@ -111,12 +114,10 @@ export default function Media() {
       <div className="max-w-6xl mx-auto px-4">
 
         {/* Header */}
-        <div>
-          <MediaHeader mediaItem={mediaItem} description={description} />
-        </div>
+        <MediaHeader mediaItem={mediaItem} description={description} />
 
         {/* Reviews */}
-        <div className="bg-gray-800/80 rounded-2xl shadow-md p-6 border border-gray-700/50 p-8 mb-8">
+        <div className="bg-gray-800/80 rounded-2xl shadow-md border border-gray-700/50 p-8 mb-8">
           <h2 className="text-2xl font-bold text-white mb-6">Avaliações dos Usuários</h2>
 
           <ReviewGrid
@@ -143,7 +144,7 @@ export default function Media() {
 
         {/* Similar Media */}
         {similarMedia.length > 0 && (
-          <div className="bg-gray-800/80 rounded-2xl shadow-md p-6 border border-gray-700/50 p-8 mb-8">
+          <div className="bg-gray-800/80 rounded-2xl shadow-md border border-gray-700/50 p-8 mb-8">
             <h2 className="text-2xl font-bold text-white mb-6">
               {mediaItem.type === MediaType.MOVIE ? "Filmes" :
                mediaItem.type === MediaType.GAME ? "Jogos" :

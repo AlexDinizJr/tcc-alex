@@ -1,9 +1,29 @@
-import { ALL_MEDIA } from "../../mockdata/mockMedia";
+import { useState, useEffect } from "react";
 import MediaCarousel from "../MediaCarousel";
 import { IoMdTrendingUp } from "react-icons/io";
+import { fetchTrending } from "../../services/mediaService";
 
 export default function TrendingSection() {
-  const trendingItems = ALL_MEDIA.filter((m) => m.rating >= 4.5).slice(0, 5);
+  const [trendingItems, setTrendingItems] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const loadTrending = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const data = await fetchTrending();
+        setTrendingItems(data);
+      } catch {
+        setError("Não foi possível carregar os trending items.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadTrending();
+  }, []);
 
   return (
     <div className="w-full mb-8 flex flex-col">
@@ -11,7 +31,12 @@ export default function TrendingSection() {
         <IoMdTrendingUp className="w-6 h-6 text-blue-500" />
         Trendings
       </h2>
+
+      {error && <p className="text-red-500">{error}</p>}
+
       <MediaCarousel items={trendingItems} />
+
+      {isLoading && <p className="text-gray-400 mt-2">Carregando...</p>}
     </div>
   );
 }

@@ -1,58 +1,43 @@
-import { useState, useMemo } from "react";
-import Pagination from "../../components/Pagination";
+import { useState, useEffect } from "react";
+import { fetchMedia } from "../../services/mediaService";
 import MediaGrid from "../../components/contents/MediaGrid";
 import MediaPageHeader from "../../components/contents/MediaPageHeader";
+import Pagination from "../../components/Pagination";
 import { MediaType } from "../../models/MediaType";
-import { getMediaByType } from "../../utils/MediaHelpers";
 
 export default function BooksPage() {
-  const allBooks = getMediaByType(MediaType.BOOK);
   const itemsPerPage = 20;
-
+  const [books, setBooks] = useState([]);
+  const [totalPages, setTotalPages] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("");
 
-  const filteredAndSortedBooks = useMemo(() => {
-    let books = allBooks;
-
-    // Pesquisa por título
-    if (searchQuery.trim() !== "") {
-      books = books.filter((b) =>
-        b.title.toLowerCase().includes(searchQuery.toLowerCase())
-      );
+  useEffect(() => {
+    async function loadBooks() {
+      const { items, total } = await fetchMedia({
+        type: MediaType.BOOK,
+        searchQuery,
+        sortBy,
+        page: currentPage,
+        itemsPerPage
+      });
+      setBooks(items);
+      setTotalPages(Math.ceil(total / itemsPerPage));
     }
-
-    // Ordenação rápida
-    if (sortBy === "title") {
-      books = [...books].sort((a, b) => a.title.localeCompare(b.title));
-    } else if (sortBy === "rating") {
-      books = [...books].sort((a, b) => b.rating - a.rating);
-    } else if (sortBy === "year") {
-      books = [...books].sort((a, b) => b.year - a.year);
-    }
-
-    return books;
-  }, [allBooks, searchQuery, sortBy]);
-
-  const totalPages = Math.ceil(filteredAndSortedBooks.length / itemsPerPage);
-  const startIdx = (currentPage - 1) * itemsPerPage;
-  const endIdx = startIdx + itemsPerPage;
-  const booksToShow = filteredAndSortedBooks.slice(startIdx, endIdx);
+    loadBooks();
+  }, [searchQuery, sortBy, currentPage]);
 
   return (
     <div>
       <h2 className="text-2xl font-bold mb-4">Livros</h2>
-
       <MediaPageHeader
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
         sortBy={sortBy}
         setSortBy={setSortBy}
       />
-
-      <MediaGrid items={booksToShow} />
-
+      <MediaGrid items={books} />
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}

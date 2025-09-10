@@ -1,58 +1,43 @@
-import { useState, useMemo } from "react";
-import Pagination from "../../components/Pagination";
+import { useState, useEffect } from "react";
+import { fetchMedia } from "../../services/mediaService";
 import MediaGrid from "../../components/contents/MediaGrid";
 import MediaPageHeader from "../../components/contents/MediaPageHeader";
+import Pagination from "../../components/Pagination";
 import { MediaType } from "../../models/MediaType";
-import { getMediaByType } from "../../utils/MediaHelpers";
 
 export default function GamesPage() {
-  const allGames = getMediaByType(MediaType.GAME);
   const itemsPerPage = 20;
-
+  const [games, setGames] = useState([]);
+  const [totalPages, setTotalPages] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("");
 
-  const filteredAndSortedGames = useMemo(() => {
-    let games = allGames;
-
-    // Pesquisa por título
-    if (searchQuery.trim() !== "") {
-      games = games.filter((g) =>
-        g.title.toLowerCase().includes(searchQuery.toLowerCase())
-      );
+  useEffect(() => {
+    async function loadGames() {
+      const { items, total } = await fetchMedia({
+        type: MediaType.GAME,
+        searchQuery,
+        sortBy,
+        page: currentPage,
+        itemsPerPage
+      });
+      setGames(items);
+      setTotalPages(Math.ceil(total / itemsPerPage));
     }
-
-    // Ordenação rápida
-    if (sortBy === "title") {
-      games = [...games].sort((a, b) => a.title.localeCompare(b.title));
-    } else if (sortBy === "rating") {
-      games = [...games].sort((a, b) => b.rating - a.rating);
-    } else if (sortBy === "year") {
-      games = [...games].sort((a, b) => b.year - a.year);
-    }
-
-    return games;
-  }, [allGames, searchQuery, sortBy]);
-
-  const totalPages = Math.ceil(filteredAndSortedGames.length / itemsPerPage);
-  const startIdx = (currentPage - 1) * itemsPerPage;
-  const endIdx = startIdx + itemsPerPage;
-  const gamesToShow = filteredAndSortedGames.slice(startIdx, endIdx);
+    loadGames();
+  }, [searchQuery, sortBy, currentPage]);
 
   return (
     <div>
       <h2 className="text-2xl font-bold mb-4">Games</h2>
-
       <MediaPageHeader
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
         sortBy={sortBy}
         setSortBy={setSortBy}
       />
-
-      <MediaGrid items={gamesToShow} />
-
+      <MediaGrid items={games} />
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}
