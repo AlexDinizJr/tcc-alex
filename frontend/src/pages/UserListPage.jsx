@@ -1,6 +1,7 @@
-import { useParams } from "react-router-dom";
-import { useState, useMemo } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useState, useMemo, useEffect } from "react";
 import { useAuth } from "../hooks/useAuth";
+import { deleteList, updateList } from "../contexts/AuthListFunctions";
 import { MOCK_LISTS } from "../mockdata/mockLists";
 import QuickAddModal from "../components/lists/QuickAddModal";
 import EditListModal from "../components/lists/EditListModal";
@@ -12,6 +13,7 @@ import { BackToProfile } from "../components/BackToProfile";
 
 export default function UserList() {
   const params = useParams();
+  const navigate = useNavigate();
   const username = params.username;
   const listId = params.id || params.listId;
   const parsedListId = parseInt(listId);
@@ -22,31 +24,32 @@ export default function UserList() {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("");
 
-  const { user, addMediaToList, removeMediaFromList, updateUser, updateList, deleteList } = useAuth();
+  const { user, addMediaToList, removeMediaFromList, updateUser } = useAuth();
 
-  // Garantir que lists seja sempre um array
-  const userLists = Array.isArray(user?.lists) ? user.lists : [];
+  // Estado local da lista para atualização em tempo real
+  const [localList, setLocalList] = useState(() => {
+    const lists = Array.isArray(user?.lists) ? user.lists : [];
+    return lists.find(l => l.id === parsedListId) || MOCK_LISTS.find(l => l.id === parsedListId);
+  });
 
-  // Buscar lista do usuário logado ou dos mocks
-  let userList = userLists.find((list) => list.id === parsedListId);
-  if (!userList) {
-    userList = MOCK_LISTS.find((list) => list.id === parsedListId);
-  }
+  // Sincronizar localList quando user mudar
+  useEffect(() => {
+    const lists = Array.isArray(user?.lists) ? user.lists : [];
+    const updatedList = lists.find(l => l.id === parsedListId) || MOCK_LISTS.find(l => l.id === parsedListId);
+    setLocalList(updatedList);
+  }, [user, parsedListId]);
 
-  // 🔑 Verifica se o usuário logado é dono da lista
-  const isOwner = user && userList && user.username === username;
+  const isOwner = user && localList && user.username === username;
 
-  // Converter IDs para objetos completos
   const allMediaItems = useMemo(() => {
-    if (!userList || !Array.isArray(userList.items)) return [];
-    return convertMediaIdsToObjects(userList.items);
-  }, [userList]);
+    if (!localList || !Array.isArray(localList.items)) return [];
+    return convertMediaIdsToObjects(localList.items);
+  }, [localList]);
 
-  // Filtrar e ordenar
   const filteredAndSortedItems = useMemo(() => {
     let items = allMediaItems;
     if (searchQuery.trim() !== "") {
-      items = items.filter((item) =>
+      items = items.filter(item =>
         item.title.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
@@ -60,7 +63,6 @@ export default function UserList() {
     return items;
   }, [allMediaItems, searchQuery, sortBy]);
 
-  // Paginação
   const itemsPerPage = 20;
   const totalPages = Math.max(1, Math.ceil(filteredAndSortedItems.length / itemsPerPage));
   const startIdx = (currentPage - 1) * itemsPerPage;
@@ -71,8 +73,10 @@ export default function UserList() {
   const handleSaveList = async (updatedData) => {
     if (!isOwner) return;
     try {
-      const result = updateList(userList.id, updatedData);
+      const result = updateList(localList.id, updatedData, user, updateUser);
       if (result.success) {
+        // Atualiza localList
+        setLocalList(prev => ({ ...prev, ...updatedData, updatedAt: new Date().toISOString() }));
         alert("Lista atualizada com sucesso!");
       } else {
         throw new Error(result.error);
@@ -85,11 +89,13 @@ export default function UserList() {
 
   const handleDeleteList = async () => {
     if (!isOwner) return;
+    if (!window.confirm("Tem certeza que deseja excluir esta lista?")) return;
+
     try {
-      const result = deleteList(userList.id);
+      const result = deleteList(localList.id, user, updateUser);
       if (result.success) {
         alert("Lista excluída com sucesso!");
-        window.location.href = "/lists";
+        navigate(`/users/${username}/lists`);
       } else {
         throw new Error(result.error);
       }
@@ -101,9 +107,12 @@ export default function UserList() {
 
   const handleQuickAdd = async (mediaItem) => {
     if (!isOwner) return;
-    const result = addMediaToList(mediaItem, parsedListId, null, user, updateUser);
+    const result = addMediaToList(mediaItem, localList.id, null, user, updateUser);
     if (result.success) {
-      console.log(`"${mediaItem.title}" adicionado à lista com sucesso!`);
+      setLocalList(prev => ({
+        ...prev,
+        items: [...(prev.items || []), mediaItem.id]
+      }));
       return Promise.resolve();
     } else {
       alert(result.error || "Erro ao adicionar à lista");
@@ -114,9 +123,12 @@ export default function UserList() {
   const handleDeleteItem = async (itemId) => {
     if (!isOwner) return;
     try {
-      const result = await removeMediaFromList(itemId, parsedListId, user, updateUser);
+      const result = await removeMediaFromList(itemId, localList.id, user, updateUser);
       if (result.success) {
-        console.log(`Item ${itemId} removido com sucesso!`);
+        setLocalList(prev => ({
+          ...prev,
+          items: prev.items.filter(id => id !== itemId)
+        }));
       } else {
         throw new Error(result.error);
       }
@@ -126,7 +138,6 @@ export default function UserList() {
     }
   };
 
-  // Casos de erro
   if (!listId || isNaN(parsedListId)) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -134,7 +145,8 @@ export default function UserList() {
       </div>
     );
   }
-  if (!userList) {
+
+  if (!localList) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <p className="text-lg text-gray-600">Lista não encontrada</p>
@@ -145,15 +157,14 @@ export default function UserList() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-6xl mx-auto">
-        {/* Botão de voltar para o perfil */}
-          <div className="mb-4">
-            <BackToProfile username={username} />
-          </div>
-        {/* Header da lista */}
+        <div className="mb-4">
+          <BackToProfile username={username} />
+        </div>
+
         <div className="bg-gray-800/80 rounded-2xl shadow-md border border-gray-700/50 p-6 mb-8 relative pb-12">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-bold text-white">{userList.name}</h1>
+              <h1 className="text-3xl font-bold text-white">{localList.name}</h1>
               {isOwner && (
                 <button
                   onClick={() => setShowEditModal(true)}
@@ -174,22 +185,20 @@ export default function UserList() {
 
             <span
               className={`px-3 py-1 rounded-full text-sm ${
-                userList.isPublic ? "bg-green-100 text-green-800" : "bg-blue-100 text-blue-800"
+                localList.isPublic ? "bg-green-100 text-green-800" : "bg-blue-100 text-blue-800"
               }`}
             >
-              {userList.isPublic ? "Pública" : "Privada"}
+              {localList.isPublic ? "Pública" : "Privada"}
             </span>
           </div>
 
-          {/* Descrição */}
           <div className="mt-3 pr-28">
             <p className="text-gray-400">{allMediaItems.length} itens</p>
-            {userList.description && (
-              <p className="text-gray-400 mt-1">{userList.description}</p>
+            {localList.description && (
+              <p className="text-gray-400 mt-1">{localList.description}</p>
             )}
           </div>
 
-          {/* 🔒 Botão de adicionar só aparece pro dono */}
           {isOwner && (
             <button
               onClick={() => setShowQuickAddModal(true)}
@@ -203,7 +212,6 @@ export default function UserList() {
           )}
         </div>
 
-        {/* Media Header */}
         <MediaHeader
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
@@ -212,7 +220,6 @@ export default function UserList() {
           itemsCount={filteredAndSortedItems.length}
         />
 
-        {/* Grid */}
         {mediaItemsToShow.length > 0 ? (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
@@ -249,12 +256,11 @@ export default function UserList() {
           </div>
         )}
 
-        {/* Modais - só abre se for o dono */}
         {isOwner && showQuickAddModal && (
           <QuickAddModal
             onClose={() => setShowQuickAddModal(false)}
             onAddItem={handleQuickAdd}
-            currentListItems={userList.items || []}
+            currentListItems={localList.items || []}
           />
         )}
         {isOwner && showEditModal && (
@@ -263,7 +269,7 @@ export default function UserList() {
             onClose={() => setShowEditModal(false)}
             onSave={handleSaveList}
             onDelete={handleDeleteList}
-            list={userList}
+            list={localList}
           />
         )}
       </div>

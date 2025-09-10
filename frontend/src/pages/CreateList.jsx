@@ -32,7 +32,7 @@ export default function CreateList() {
       };
 
       await updateUser(updatedUser);
-      navigate(`/lists/${newList.id}`);
+      navigate(`/users/${user.username}/lists/${newList.id}`);
     } catch (error) {
       console.error("Erro ao criar lista:", error);
     } finally {

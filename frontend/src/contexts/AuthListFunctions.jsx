@@ -30,7 +30,6 @@ export const deleteList = (listId, user, updateUser) => {
 
   const updatedUser = { ...user };
   
-  // Garantir que lists seja array
   if (!Array.isArray(updatedUser.lists)) {
     updatedUser.lists = [];
   }
@@ -47,7 +46,6 @@ export const createList = (listData, user, updateUser) => {
 
   const updatedUser = { ...user };
   
-  // Garantir que lists seja array
   if (!Array.isArray(updatedUser.lists)) {
     updatedUser.lists = [];
   }
