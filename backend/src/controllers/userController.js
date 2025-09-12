@@ -1,137 +1,140 @@
 const prisma = require('../utils/database');
+const imageProcessingService = require('../services/imageProcessingService');
 
 const userController = {
+
+  // Pegar todos os usuários com paginação
+  async getAllUsers(req, res) {
+    try {
+      const { page = 1, limit = 20, search } = req.query;
+      const pageNumber = parseInt(page) > 0 ? parseInt(page) : 1;
+      const limitNumber = parseInt(limit) > 0 ? parseInt(limit) : 20;
+      const skip = (pageNumber - 1) * limitNumber;
+
+      const where = {};
+      if (search) {
+        where.OR = [
+          { name: { contains: search, mode: 'insensitive' } },
+          { username: { contains: search, mode: 'insensitive' } }
+        ];
+      }
+
+      const [users, total] = await Promise.all([
+        prisma.user.findMany({
+          where,
+          skip,
+          take: limitNumber,
+          orderBy: { name: 'asc' },
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            avatar: true,
+            bio: true,
+            coverImage: true,
+            createdAt: true,
+            _count: { select: { reviews: true, lists: true, savedMedia: true, favorites: true } }
+          }
+        }),
+        prisma.user.count({ where })
+      ]);
+
+      res.json({
+        users,
+        pagination: {
+          page: pageNumber,
+          limit: limitNumber,
+          total,
+          pages: Math.ceil(total / limitNumber)
+        }
+      });
+    } catch (error) {
+      console.error('Error getting all users:', error);
+      res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+  },
+
+  // Pegar usuário por ID
   async getUserById(req, res) {
     try {
+      const userId = parseInt(req.params.id);
       const user = await prisma.user.findUnique({
-        where: { id: parseInt(req.params.id) },
+        where: { id: userId },
         select: {
           id: true,
           name: true,
           username: true,
           avatar: true,
+          coverImage: true,
           bio: true,
           createdAt: true,
           reviews: {
-            where: {
-              media: {
-                type: req.query.mediaType || undefined
-              }
-            },
             include: {
-              media: {
-                select: {
-                  id: true,
-                  title: true,
-                  type: true,
-                  image: true
-                }
-              }
+              media: { select: { id: true, title: true, type: true, image: true } }
             }
           },
           lists: {
-            where: {
-              isPublic: true
-            },
             include: {
-              items: {
-                take: 4,
-                select: {
-                  id: true,
-                  title: true,
-                  image: true
-                }
-              }
+              items: { take: 4, select: { id: true, title: true, image: true } }
             }
-          }
+          },
+          _count: { select: { reviews: true, lists: true, savedMedia: true, favorites: true } }
         }
       });
 
-      if (!user) {
-        return res.status(404).json({ error: 'Usuário não encontrado' });
-      }
+      if (!user) return res.status(404).json({ error: 'Usuário não encontrado' });
 
       res.json(user);
     } catch (error) {
+      console.error('Error getting user by ID:', error);
       res.status(500).json({ error: 'Erro interno do servidor' });
     }
   },
 
+  // Pegar usuário por username
   async getUserByUsername(req, res) {
     try {
+      const username = req.params.username;
       const user = await prisma.user.findUnique({
-        where: { username: req.params.username },
+        where: { username },
         select: {
           id: true,
           name: true,
           username: true,
           avatar: true,
-          bio: true,
           coverImage: true,
+          bio: true,
           createdAt: true,
           reviews: {
-            where: {
-              media: {
-                type: req.query.mediaType || undefined
-              }
-            },
             include: {
-              media: {
-                select: {
-                  id: true,
-                  title: true,
-                  type: true,
-                  image: true
-                }
-              }
+              media: { select: { id: true, title: true, type: true, image: true } }
             }
           },
           lists: {
-            where: {
-              isPublic: true
-            },
             include: {
-              items: {
-                take: 4,
-                select: {
-                  id: true,
-                  title: true,
-                  image: true
-                }
-              }
+              items: { take: 4, select: { id: true, title: true, image: true } }
             }
           },
-          _count: {
-            select: {
-              reviews: true,
-              lists: true,
-              savedMedia: true,
-              favorites: true
-            }
-          }
+          _count: { select: { reviews: true, lists: true, savedMedia: true, favorites: true } }
         }
       });
 
-      if (!user) {
-        return res.status(404).json({ error: 'Usuário não encontrado' });
-      }
+      if (!user) return res.status(404).json({ error: 'Usuário não encontrado' });
 
       res.json(user);
     } catch (error) {
+      console.error('Error getting user by username:', error);
       res.status(500).json({ error: 'Erro interno do servidor' });
     }
   },
 
+  // Atualizar dados do usuário
   async updateUser(req, res) {
     try {
       const { bio, privacySettings } = req.body;
-      
       const user = await prisma.user.update({
         where: { id: req.user.id },
-        data: {
-          bio,
-          ...privacySettings
-        },
+        data: { bio, ...privacySettings },
         select: {
           id: true,
           name: true,
@@ -151,174 +154,103 @@ const userController = {
 
       res.json({ message: 'Perfil atualizado com sucesso', user });
     } catch (error) {
+      console.error('Error updating user:', error);
       res.status(500).json({ error: 'Erro interno do servidor' });
     }
   },
 
+  // Upload avatar
   async uploadAvatar(req, res) {
     try {
-      if (!req.file) {
-        return res.status(400).json({ error: 'Nenhuma imagem enviada' });
-      }
+      if (!req.file) return res.status(400).json({ error: 'Nenhuma imagem enviada' });
 
-      // Processar a imagem
-      const processedImages = await imageProcessingService.processAvatar(
-        req.file.path,
-        req.user.id
-      );
+      const processedImages = await imageProcessingService.processAvatar(req.file.path, req.user.id);
+      const avatarUrl = imageProcessingService.generateImageUrl(processedImages.medium, 'avatar', 'medium');
 
-      // Gerar URL da imagem média
-      const avatarUrl = imageProcessingService.generateImageUrl(
-        processedImages.medium,
-        'avatar',
-        'medium'
-      );
+      const oldUser = await prisma.user.findUnique({ where: { id: req.user.id }, select: { avatar: true } });
 
-      // Buscar avatar antigo para deletar
-      const oldUser = await prisma.user.findUnique({
-        where: { id: req.user.id },
-        select: { avatar: true }
-      });
-
-      // Atualizar usuário
       const user = await prisma.user.update({
         where: { id: req.user.id },
         data: { avatar: avatarUrl },
-        select: {
-          id: true,
-          name: true,
-          username: true,
-          avatar: true
-        }
+        select: { id: true, name: true, username: true, avatar: true }
       });
 
-      // Deletar imagens antigas
       if (oldUser.avatar) {
         const oldFilename = oldUser.avatar.split('/').pop();
         await imageProcessingService.deleteOldImages([oldFilename], 'avatar');
       }
 
-      res.json({
-        message: 'Avatar atualizado com sucesso',
-        user,
-        images: processedImages
-      });
-
+      res.json({ message: 'Avatar atualizado com sucesso', user, images: processedImages });
     } catch (error) {
       console.error('Error uploading avatar:', error);
       res.status(500).json({ error: 'Erro ao processar imagem' });
     }
   },
 
+  // Upload cover
   async uploadCover(req, res) {
     try {
-      if (!req.file) {
-        return res.status(400).json({ error: 'Nenhuma imagem enviada' });
-      }
+      if (!req.file) return res.status(400).json({ error: 'Nenhuma imagem enviada' });
 
-      // Processar a imagem
-      const processedImages = await imageProcessingService.processCover(
-        req.file.path,
-        req.user.id
-      );
+      const processedImages = await imageProcessingService.processCover(req.file.path, req.user.id);
+      const coverUrl = imageProcessingService.generateImageUrl(processedImages.large, 'cover', 'large');
 
-      // Gerar URL da imagem grande
-      const coverUrl = imageProcessingService.generateImageUrl(
-        processedImages.large,
-        'cover',
-        'large'
-      );
+      const oldUser = await prisma.user.findUnique({ where: { id: req.user.id }, select: { coverImage: true } });
 
-      // Buscar capa antiga para deletar
-      const oldUser = await prisma.user.findUnique({
-        where: { id: req.user.id },
-        select: { coverImage: true }
-      });
-
-      // Atualizar usuário
       const user = await prisma.user.update({
         where: { id: req.user.id },
         data: { coverImage: coverUrl },
-        select: {
-          id: true,
-          name: true,
-          username: true,
-          coverImage: true
-        }
+        select: { id: true, name: true, username: true, coverImage: true }
       });
 
-      // Deletar imagens antigas
       if (oldUser.coverImage) {
         const oldFilename = oldUser.coverImage.split('/').pop();
         await imageProcessingService.deleteOldImages([oldFilename], 'cover');
       }
 
-      res.json({
-        message: 'Imagem de capa atualizada com sucesso',
-        user,
-        images: processedImages
-      });
-
+      res.json({ message: 'Imagem de capa atualizada com sucesso', user, images: processedImages });
     } catch (error) {
       console.error('Error uploading cover:', error);
       res.status(500).json({ error: 'Erro ao processar imagem' });
     }
   },
 
+  // Deletar avatar
   async deleteAvatar(req, res) {
     try {
-      const user = await prisma.user.findUnique({
-        where: { id: req.user.id },
-        select: { avatar: true }
-      });
+      const user = await prisma.user.findUnique({ where: { id: req.user.id }, select: { avatar: true } });
 
       if (user.avatar) {
-        // Deletar imagens do sistema de arquivos
         const filename = user.avatar.split('/').pop();
         await imageProcessingService.deleteOldImages([filename], 'avatar');
-
-        // Atualizar usuário
-        await prisma.user.update({
-          where: { id: req.user.id },
-          data: { avatar: null }
-        });
+        await prisma.user.update({ where: { id: req.user.id }, data: { avatar: null } });
       }
 
       res.json({ message: 'Avatar removido com sucesso' });
-
     } catch (error) {
       console.error('Error deleting avatar:', error);
       res.status(500).json({ error: 'Erro ao remover avatar' });
     }
   },
 
+  // Deletar cover
   async deleteCover(req, res) {
     try {
-      const user = await prisma.user.findUnique({
-        where: { id: req.user.id },
-        select: { coverImage: true }
-      });
+      const user = await prisma.user.findUnique({ where: { id: req.user.id }, select: { coverImage: true } });
 
       if (user.coverImage) {
-        // Deletar imagens do sistema de arquivos
         const filename = user.coverImage.split('/').pop();
         await imageProcessingService.deleteOldImages([filename], 'cover');
-
-        // Atualizar usuário
-        await prisma.user.update({
-          where: { id: req.user.id },
-          data: { coverImage: null }
-        });
+        await prisma.user.update({ where: { id: req.user.id }, data: { coverImage: null } });
       }
 
       res.json({ message: 'Imagem de capa removida com sucesso' });
-
     } catch (error) {
       console.error('Error deleting cover:', error);
       res.status(500).json({ error: 'Erro ao remover imagem de capa' });
     }
   }
-  
+
 };
 
 module.exports = userController;

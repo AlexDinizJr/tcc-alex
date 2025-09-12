@@ -10,9 +10,8 @@ async function seed() {
   try {
     console.log('🚀 Iniciando seed do banco...');
 
-    // 🔹 Limpa dados existentes
+    // 🔹 Limpa dados existentes de usuários e streaming links (mantém mídias para update)
     await prisma.streamingLink.deleteMany();
-    await prisma.media.deleteMany();
     await prisma.user.deleteMany();
 
     // 🔹 Criptografa senhas
@@ -75,14 +74,30 @@ async function seed() {
     // 🔹 Gêneros válidos do enum
     const validGenres = Object.values(MediaGenre);
 
-    // 🔹 Cria mídias
+    // 🔹 Cria ou atualiza mídias
     for (const media of ALL_MEDIA) {
       const cleanedGenres = (media.genres ?? []).filter(
         g => g != null && validGenres.includes(g)
       );
 
-      const createdMedia = await prisma.media.create({
-        data: {
+      const createdMedia = await prisma.media.upsert({
+        where: { title_type: { title: media.title, type: media.type } }, // assume que você criou um unique composite de title + type
+        update: {
+          rating: media.rating,
+          image: media.image,
+          year: media.year,
+          genres: cleanedGenres,
+          platforms: media.platforms ?? [],
+          directors: media.directors ?? [],
+          authors: media.authors ?? [],
+          artists: media.artists ?? [],
+          seasons: media.seasons ?? null,
+          duration: media.duration ?? null,
+          pages: media.pages ?? null,
+          classification: media.classification ?? null,
+          description: media.description ?? '' // atualiza a descrição
+        },
+        create: {
           title: media.title,
           type: media.type,
           rating: media.rating,
@@ -96,7 +111,8 @@ async function seed() {
           seasons: media.seasons ?? null,
           duration: media.duration ?? null,
           pages: media.pages ?? null,
-          classification: media.classification ?? null
+          classification: media.classification ?? null,
+          description: media.description ?? ''
         }
       });
 
@@ -112,7 +128,7 @@ async function seed() {
         });
       }
 
-      // 🔹 Cria links aleatórios para cada mídia se não houver links
+      // 🔹 Cria links aleatórios se não houver links
       if (!media.streamingLinks || media.streamingLinks.length === 0) {
         for (const service of streamingService.availableServices) {
           await prisma.streamingLink.create({
@@ -125,7 +141,7 @@ async function seed() {
         }
       }
 
-      console.log(`🎬 Mídia criada: ${createdMedia.title}`);
+      console.log(`🎬 Mídia criada/atualizada: ${createdMedia.title}`);
     }
 
     console.log('🎉 Seed concluído com sucesso!');

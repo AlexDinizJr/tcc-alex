@@ -6,10 +6,10 @@ require('dotenv').config();
 
 // Importar rotas
 const authRoutes = require('./routes/authRoutes');
-const userRoutes = require('./routes/userRoutes');
+const userRoutes = require('./routes/usersRoutes');
 const mediaRoutes = require('./routes/mediaRoutes');
-const reviewRoutes = require('./routes/reviewRoutes');
-const listRoutes = require('./routes/listRoutes');
+const reviewRoutes = require('./routes/reviewsRoutes');
+const listRoutes = require('./routes/listsRoutes');
 
 // Rotas de admin
 const adminMediaRoutes = require('./routes/admin/mediaAdminRoutes');
@@ -17,6 +17,10 @@ const adminStreamingRoutes = require('./routes/admin/streamingAdminRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+
+// Swagger
+const setupSwagger = require('./config/swagger');
+setupSwagger(app);
 
 // Middleware
 app.use(helmet());
@@ -51,8 +55,8 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Algo deu errado!' });
 });
 
-// Rota não encontrada
-app.use('*', (req, res) => {
+// Maneira recomendada de definir rota 404
+app.use((req, res) => {
   res.status(404).json({ error: 'Rota não encontrada' });
 });
 
@@ -61,4 +65,5 @@ app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📊 Environment: ${process.env.NODE_ENV}`);
   console.log(`🔗 Health check: http://localhost:${PORT}/health`);
+  console.log(`🔗 Swagger: http://localhost:${PORT}/api-docs`);
 });

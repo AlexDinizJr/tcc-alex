@@ -1,24 +1,57 @@
 const prisma = require('../utils/database');
 const streamingService = require('../services/streamingService');
 
+// Funções auxiliares
+const getSortOption = (sortBy) => {
+  const sortOptions = {
+    title: { title: 'asc' },
+    rating: { rating: 'desc' },
+    year: { year: 'desc' },
+    newest: { createdAt: 'desc' },
+    popular: { reviewCount: 'desc' }
+  };
+  return sortOptions[sortBy] || { title: 'asc' };
+};
+
+const getRatingDistribution = async (mediaId) => {
+  try {
+    const distribution = await prisma.review.groupBy({
+      by: ['rating'],
+      where: { mediaId },
+      _count: { rating: true },
+      orderBy: { rating: 'asc' }
+    });
+
+    return distribution.reduce((acc, item) => {
+      acc[item.rating] = item._count.rating;
+      return acc;
+    }, { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 });
+  } catch {
+    return { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+  }
+};
+
+// Controller
 const mediaController = {
   async getAllMedia(req, res) {
     try {
       const { type, search, page = 1, limit = 20, sortBy = 'title', genre } = req.query;
-      const skip = (page - 1) * limit;
 
-      const where = {
-        type: type || undefined,
-        title: search ? { contains: search, mode: 'insensitive' } : undefined,
-        genres: genre ? { has: genre } : undefined
-      };
+      const pageNumber = parseInt(page) > 0 ? parseInt(page) : 1;
+      const limitNumber = parseInt(limit) > 0 ? parseInt(limit) : 20;
+      const skip = (pageNumber - 1) * limitNumber;
+
+      const where = {};
+      if (type) where.type = type;
+      if (search) where.title = { contains: search, mode: 'insensitive' };
+      if (genre) where.genres = { has: genre };
 
       const [media, total] = await Promise.all([
         prisma.media.findMany({
           where,
           skip,
-          take: parseInt(limit),
-          orderBy: this.getSortOption(sortBy),
+          take: limitNumber,
+          orderBy: getSortOption(sortBy),
           select: {
             id: true,
             title: true,
@@ -40,14 +73,19 @@ const mediaController = {
       res.json({
         media,
         pagination: {
-          page: parseInt(page),
-          limit: parseInt(limit),
+          page: pageNumber,
+          limit: limitNumber,
           total,
-          pages: Math.ceil(total / limit)
+          pages: Math.ceil(total / limitNumber)
         }
       });
     } catch (error) {
-      res.status(500).json({ error: 'Erro interno do servidor' });
+      console.error('Erro no getAllMedia:', error);
+      res.status(500).json({
+        error: 'Erro interno do servidor',
+        details: error.message,
+        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      });
     }
   },
 
@@ -115,31 +153,18 @@ const mediaController = {
           reviews: {
             include: {
               user: {
-                select: {
-                  id: true,
-                  name: true,
-                  username: true,
-                  avatar: true
-                }
+                select: { id: true, name: true, username: true, avatar: true }
               }
             },
             orderBy: { date: 'desc' },
             take: 10
           },
-          _count: {
-            select: {
-              reviews: true,
-              savedBy: true,
-              favoritedBy: true,
-              lists: true
-            }
-          }
+          _count: { select: { reviews: true, savedBy: true, favoritedBy: true, lists: true } }
         }
       });
 
       if (!media) return res.status(404).json({ error: 'Mídia não encontrada' });
 
-      // Formatar streaming links só para referência
       const formattedStreamingLinks = media.streamingLinks.map(link => ({
         service: link.service,
         url: link.url,
@@ -147,7 +172,7 @@ const mediaController = {
         name: streamingService.availableServices[link.service] || link.service
       }));
 
-      const ratingDistribution = await this.getRatingDistribution(media.id);
+      const ratingDistribution = await getRatingDistribution(media.id);
 
       res.json({
         ...media,
@@ -170,7 +195,7 @@ const mediaController = {
           where: { type },
           skip,
           take: parseInt(limit),
-          orderBy: this.getSortOption(sortBy),
+          orderBy: getSortOption(sortBy),
           select: {
             id: true,
             title: true,
@@ -378,35 +403,6 @@ const mediaController = {
       res.status(500).json({ error: 'Erro interno do servidor' });
     }
   },
-
-  async getRatingDistribution(mediaId) {
-    try {
-      const distribution = await prisma.review.groupBy({
-        by: ['rating'],
-        where: { mediaId },
-        _count: { rating: true },
-        orderBy: { rating: 'asc' }
-      });
-
-      return distribution.reduce((acc, item) => {
-        acc[item.rating] = item._count.rating;
-        return acc;
-      }, { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 });
-    } catch {
-      return { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
-    }
-  },
-
-  getSortOption(sortBy) {
-    const sortOptions = {
-      title: { title: 'asc' },
-      rating: { rating: 'desc' },
-      year: { year: 'desc' },
-      newest: { createdAt: 'desc' },
-      popular: { reviewCount: 'desc' }
-    };
-    return sortOptions[sortBy] || { title: 'asc' };
-  }
 };
 
 module.exports = mediaController;
