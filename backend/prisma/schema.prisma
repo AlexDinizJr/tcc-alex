@@ -1,0 +1,224 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          Int      @id @default(autoincrement())
+  email       String   @unique
+  password    String
+  name        String
+  username    String   @unique
+  avatar      String?
+  coverImage  String?
+  bio         String?
+  createdAt   DateTime @default(now())
+  helpfuls    Helpful[]
+  
+  // Relacionamentos
+  reviews     Review[]
+  lists       List[]
+  savedMedia  Media[]  @relation("SavedMedia")
+  favorites   Media[]  @relation("Favorites")
+  
+  // Configurações de privacidade
+  profileVisibility String @default("public")
+  showActivity      Boolean @default(true)
+  showSavedItems    Boolean @default(true)
+  showFavorites     Boolean @default(true)
+  showReviews       Boolean @default(true)
+  showStats         Boolean @default(true)
+  dataCollection    Boolean @default(true)
+}
+
+model Media {
+  id               Int      @id @default(autoincrement())
+  title            String
+  rating           Float
+  image            String
+  year             Int
+  type             MediaType
+  classification   ClassificationRating?
+  reviewCount Int?  @default(0)
+  
+  // Relacionamentos
+  genres           MediaGenre[]
+  streamingLinks   StreamingLink[]
+  reviews          Review[]
+  savedBy          User[]     @relation("SavedMedia")
+  favoritedBy      User[]     @relation("Favorites")
+  lists            List[]
+  
+  // Campos opcionais específicos
+  artists          String[]
+  directors        String[]
+  platforms        String[]
+  authors          String[]
+  seasons          Int?
+  duration         Int?
+  pages            Int?
+  publisher        String?
+}
+
+model Review {
+  id        Int      @id @default(autoincrement())
+  rating    Int
+  comment   String
+  date      DateTime @default(now())
+  helpfuls  Helpful[]
+  
+  // Relacionamentos
+  media     Media    @relation(fields: [mediaId], references: [id])
+  mediaId   Int
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+}
+
+model List {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  isPublic    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relacionamentos
+  user        User     @relation(fields: [userId], references: [id])
+  userId      Int
+  items       Media[]
+}
+
+model StreamingLink {
+  id      Int    @id @default(autoincrement())
+  service String
+  url     String
+  
+  media   Media  @relation(fields: [mediaId], references: [id])
+  mediaId Int
+}
+
+model Helpful {
+  id       Int   @id @default(autoincrement())
+  userId   Int
+  user     User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reviewId Int
+  review   Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, reviewId])
+}
+
+enum MediaType {
+  MOVIE
+  GAME
+  MUSIC
+  SERIES
+  BOOK
+}
+
+enum ClassificationRating {
+  L
+  TEN
+  TWELVE
+  FOURTEEN
+  SIXTEEN
+  EIGHTEEN
+}
+
+enum MediaGenre {
+  ACTION
+  ADVENTURE
+  FANTASY
+  SCI_FI
+  HORROR
+  THRILLER
+  COMEDY
+  DRAMA
+  ROMANCE
+  CRIME
+  MYSTERY
+  WESTERN
+  WAR
+  HISTORICAL
+  BIOGRAPHY
+  MUSICAL
+  SPORTS
+  DOCUMENTARY
+  RPG
+  FPS
+  TPS
+  MOBA
+  RTS
+  MMORPG
+  SURVIVAL
+  OPEN_WORLD
+  SANDBOX
+  PLATFORMER
+  PUZZLE
+  ROGUELIKE
+  SIMULATION
+  STRATEGY
+  FIGHTING
+  RACING
+  BATTLE_ROYALE
+  SUPERHERO
+  DISASTER
+  MARTIAL_ARTS
+  FILM_NOIR
+  SLASHER
+  PSYCHOLOGICAL
+  ANIMATION
+  FAMILY
+  MOCKUMENTARY
+  SPACE
+  PERIOD_DRAMA
+  LEGAL_DRAMA
+  MEDICAL_DRAMA
+  POLICE_PROCEDURAL
+  TEEN_DRAMA
+  SITCOM
+  REALITY
+  TALK_SHOW
+  MINISERIES
+  EPIC
+  CHILDREN
+  YOUNG_ADULT
+  MAGICAL_REALISM
+  DYSTOPIAN
+  UTOPIAN
+  GOTHIC
+  HISTORICAL_FICTION
+  SCIENCE_FICTION
+  SELF_HELP
+  POETRY
+  ESSAY
+  TRAVEL
+  TRUE_CRIME
+  POP
+  RNB
+  DANCE
+  ROCK
+  HARD_ROCK
+  METAL
+  PUNK
+  INDIE
+  ALTERNATIVE
+  HIP_HOP
+  RAP
+  COUNTRY
+  FOLK
+  JAZZ
+  BLUES
+  CLASSICAL
+  ELECTRONIC
+  REGGAE
+  LATIN
+  K_POP
+  J_POP
+  GOSPEL
+  WORLD
+  INSTRUMENTAL
+}
