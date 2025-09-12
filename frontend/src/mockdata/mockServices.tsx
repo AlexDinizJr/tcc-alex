@@ -21,7 +21,8 @@ import {
   SiUbisoft,
   SiEa,
   SiGogdotcom,
-  SiParamountplus
+  SiParamountplus,
+  SiEpicgames
 } from 'react-icons/si';
 import { TbBrandDisney } from "react-icons/tb";
 import { FcKindle } from "react-icons/fc";
@@ -93,6 +94,12 @@ export const SERVICES: { [key: string]: Service } = {
     icon: <SiNintendoswitch className="w-5 h-5" />,
     color: "bg-[#E60012] hover:bg-[#C4000F] text-white", // Vermelho Nintendo
     baseUrl: "https://www.nintendo.com/store/products/"
+  },
+  EPIC_GAMES: {
+    name: "Epic Games",
+    icon: <SiEpicgames className="w-5 h-5" />,
+    color: "bg-[#313131] hover:bg-[#444444] text-white", // cinza escuro com texto branco (cores da Epic)
+    baseUrl: "https://store.epicgames.com/p/" // URL base para páginas de jogos na Epic Games
   },
   GOG: {
     name: "GOG",

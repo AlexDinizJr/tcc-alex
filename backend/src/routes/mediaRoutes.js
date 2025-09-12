@@ -1,17 +1,33 @@
 const express = require('express');
-const mediaController = require('../controllers/mediaController');
+const {
+  getAllMedia,
+  getMediaById,
+  getTrending,
+  getRecommendations,
+  getMediaByType,
+  searchMedia,
+  getMediaGenres,
+  getMediaByGenre,
+  getMediaStreamingLinks,
+  getAvailableStreamingServices,
+  getMediaByStreamingService
+} = require('../controllers/mediaController');
 
 const router = express.Router();
 
-// Rotas públicas
-router.get('/', mediaController.getAllMedia); // listar mídias com filtros, pesquisa e paginação
-router.get('/trending', mediaController.getTrending); // mídias em alta
-router.get('/recommendations', mediaController.getRecommendations); // recomendações simples
-router.get('/:id', mediaController.getMediaById); // detalhes de uma mídia específica
+// Rotas principais
+router.get('/', getAllMedia);
+router.get('/trending', getTrending);
+router.get('/recommendations', getRecommendations);
+router.get('/search', searchMedia);
+router.get('/genres', getMediaGenres);
+router.get('/genre/:genre', getMediaByGenre);
+router.get('/type/:type', getMediaByType);
+router.get('/:id', getMediaById);
 
-// Rotas de criação/edição/deleção de mídias, caso seja necessário;
-// router.post('/', authenticateToken, mediaController.createMedia);
-// router.put('/:id', authenticateToken, mediaController.updateMedia);
-// router.delete('/:id', authenticateToken, mediaController.deleteMedia);
+// Novas rotas para streaming links
+router.get('/:id/streaming-links', getMediaStreamingLinks);
+router.get('/services/streaming', getAvailableStreamingServices);
+router.get('/service/streaming/:service', getMediaByStreamingService);
 
 module.exports = router;

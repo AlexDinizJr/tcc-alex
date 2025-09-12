@@ -18,7 +18,10 @@ model User {
   bio         String?
   createdAt   DateTime @default(now())
   helpfuls    Helpful[]
-  
+
+  // Role
+  role        UserRole @default(USER)
+
   // Relacionamentos
   reviews     Review[]
   lists       List[]
@@ -39,7 +42,8 @@ model Media {
   id               Int      @id @default(autoincrement())
   title            String
   rating           Float
-  image            String
+  image            String?
+  description      String?
   year             Int
   type             MediaType
   classification   ClassificationRating?
@@ -93,12 +97,13 @@ model List {
 }
 
 model StreamingLink {
-  id      Int    @id @default(autoincrement())
-  service String
-  url     String
-  
-  media   Media  @relation(fields: [mediaId], references: [id])
-  mediaId Int
+  id        Int    @id @default(autoincrement())
+  service   String
+  url       String
+  mediaId   Int
+  media     Media  @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+
+  @@unique([mediaId, service])
 }
 
 model Helpful {
@@ -109,6 +114,11 @@ model Helpful {
   review   Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
 
   @@unique([userId, reviewId])
+}
+
+enum UserRole {
+  USER
+  ADMIN
 }
 
 enum MediaType {

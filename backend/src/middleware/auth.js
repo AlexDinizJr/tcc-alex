@@ -12,6 +12,7 @@ const authenticateToken = async (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
       select: {
@@ -19,7 +20,8 @@ const authenticateToken = async (req, res, next) => {
         email: true,
         name: true,
         username: true,
-        avatar: true
+        avatar: true,
+        role: true // <- importante para se é admin
       }
     });
 
@@ -34,4 +36,11 @@ const authenticateToken = async (req, res, next) => {
   }
 };
 
-module.exports = { authenticateToken };
+const isAdmin = (req, res, next) => {
+  if (req.user?.role !== 'ADMIN') {
+    return res.status(403).json({ error: 'Acesso negado: somente administradores' });
+  }
+  next();
+};
+
+module.exports = { authenticateToken, isAdmin };

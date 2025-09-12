@@ -11,6 +11,10 @@ const mediaRoutes = require('./routes/mediaRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 const listRoutes = require('./routes/listRoutes');
 
+// Rotas de admin
+const adminMediaRoutes = require('./routes/admin/mediaAdminRoutes');
+const adminStreamingRoutes = require('./routes/admin/streamingAdminRoutes');
+
 const app = express();
 const PORT = process.env.PORT || 3001;
 
@@ -21,12 +25,16 @@ app.use(morgan('combined'));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// Rotas
+// Rotas públicas e de usuários
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/media', mediaRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/lists', listRoutes);
+
+// Rotas de administração
+app.use('/api/admin/media', adminMediaRoutes);
+app.use('/api/admin/streaming', adminStreamingRoutes);
 
 // Rota de saúde
 app.get('/health', (req, res) => {
