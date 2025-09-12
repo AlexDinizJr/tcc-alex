@@ -1,65 +1,55 @@
-import { mockUsers } from "../mockdata/mockUsers";
+import { mockUsers } from "../mockdata/mockUsers"
 
-/**
- * Simula login de usuário
- * @param {Object} param0 { email, password }
- * @returns {Promise<{success: boolean, user?: Object, error?: string}>}
- */
-export async function loginUser({ email, password }) {
-  await new Promise((res) => setTimeout(res, 300));
+export async function login({ email, password }) {
+  // 🔄 Mantemos mocks por enquanto
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const user = mockUsers.find(
+        (u) => u.email === email && u.password === password
+      );
 
-  const user = mockUsers.find(
-    (u) => u.email.toLowerCase() === email.toLowerCase() && u.password === password
-  );
-
-  if (user) {
-    const { ...userData } = user;
-    return { success: true, user: userData };
-  } else {
-    return { success: false, error: "E-mail ou senha incorretos" };
-  }
+      if (user) {
+        // futuro: await api.post("/login", { email, password })
+        resolve({ success: true, user: { email: user.email } });
+      } else {
+        resolve({ success: false, error: "E-mail ou senha inválidos." });
+      }
+    }, 500);
+  });
 }
 
-/**
- * Simula recuperação de senha
- * @param {string} email
- * @returns {Promise<void>}
- */
+export async function register(newUser) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const exists = mockUsers.some(
+        (u) => u.email === newUser.email || u.username === newUser.username
+      );
+
+      if (exists) {
+        resolve({ success: false, error: "Usuário ou e-mail já cadastrados." });
+      } else {
+        mockUsers.push({ ...newUser, password: newUser.password });
+        resolve({ success: true, data: newUser });
+      }
+    }, 500);
+  });
+}
+
 export async function recoverPassword(email) {
-  await new Promise((res) => setTimeout(res, 300));
-
-  const userExists = mockUsers.some(
-    (u) => u.email.toLowerCase() === email.toLowerCase()
-  );
-
-  if (!userExists) {
-    return;
-  }
-  return;
+  // futuro: await api.post("/recover-password", { email })
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        success: true,
+        message: `Se este e-mail estiver cadastrado, enviaremos um link de recuperação para ${email}`,
+      });
+    }, 500);
+  });
 }
 
-/**
- * Simula cadastro de usuário
- * @param {Object} userData
- * @returns {Promise<{success: boolean, user?: Object, error?: string}>}
- */
-export async function signupUser(userData) {
-  await new Promise((res) => setTimeout(res, 300));
-
-  const exists = mockUsers.some(
-    (u) => u.email.toLowerCase() === userData.email.toLowerCase()
+export async function logout() {
+  // futuro: await api.post("/logout")
+  return new Promise((resolve) =>
+    setTimeout(() => resolve({ success: true }), 200)
   );
-
-  if (exists) {
-    return { success: false, error: "E-mail já cadastrado" };
-  }
-
-  const newUser = {
-    id: Date.now(),
-    ...userData,
-  };
-
-  mockUsers.push(newUser);
-  const { ...publicUser } = newUser;
-  return { success: true, user: publicUser };
 }
