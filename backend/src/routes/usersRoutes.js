@@ -4,6 +4,7 @@ const {
   getUserById,
   getUserByUsername,
   updateUser,
+  updateUserWithPassword,
   uploadAvatar,
   uploadCover,
   deleteAvatar,
@@ -128,6 +129,39 @@ router.get('/:id', getUserById);
  *         description: Dados inválidos
  */
 router.put('/profile', authenticateToken, updateUser);
+
+/**
+ * @swagger
+ * /api/users/profile/security:
+ *   put:
+ *     summary: Atualiza email, username ou senha do usuário autenticado (exige senha atual)
+ *     security:
+ *       - bearerAuth: []
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - currentPassword
+ *             properties:
+ *               currentPassword:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               username:
+ *                 type: string
+ *               newPassword:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Perfil sensível atualizado com sucesso
+ *       400:
+ *         description: Dados inválidos ou senha incorreta
+ */
+router.put('/profile/security', authenticateToken, updateUserWithPassword);
 
 /**
  * @swagger

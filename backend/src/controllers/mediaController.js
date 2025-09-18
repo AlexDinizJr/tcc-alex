@@ -143,44 +143,33 @@ const mediaController = {
       res.status(500).json({ error: 'Erro interno do servidor' });
     }
   },
-
+  
   async getMediaById(req, res) {
     try {
+      const mediaId = parseInt(req.params.id);
+
+      if (isNaN(mediaId)) {
+        return res.status(400).json({ error: "ID de mídia inválido" });
+      }
+
       const media = await prisma.media.findUnique({
-        where: { id: parseInt(req.params.id) },
+        where: { id: mediaId },
         include: {
-          streamingLinks: true,
-          reviews: {
-            include: {
-              user: {
-                select: { id: true, name: true, username: true, avatar: true }
-              }
-            },
-            orderBy: { date: 'desc' },
-            take: 10
-          },
-          _count: { select: { reviews: true, savedBy: true, favoritedBy: true, lists: true } }
-        }
+          reviews: true,       // sempre retorna array, mesmo vazio
+          savedBy: true,       // idem
+          favoritedBy: true,   // idem
+          lists: true          // idem
+        },
       });
 
-      if (!media) return res.status(404).json({ error: 'Mídia não encontrada' });
+      if (!media) {
+        return res.status(404).json({ error: "Mídia não encontrada" });
+      }
 
-      const formattedStreamingLinks = media.streamingLinks.map(link => ({
-        service: link.service,
-        url: link.url,
-        icon: streamingService.getServiceIcon(link.service),
-        name: streamingService.availableServices[link.service] || link.service
-      }));
-
-      const ratingDistribution = await getRatingDistribution(media.id);
-
-      res.json({
-        ...media,
-        streamingLinks: formattedStreamingLinks,
-        ratingDistribution
-      });
+      res.status(200).json(media);
     } catch (error) {
-      res.status(500).json({ error: 'Erro interno do servidor' });
+      console.error("Erro ao buscar mídia por ID:", error);
+      res.status(500).json({ error: "Erro interno ao buscar mídia" });
     }
   },
 
@@ -344,6 +333,98 @@ const mediaController = {
         pagination: { page: parseInt(page), limit: parseInt(limit), total, pages: Math.ceil(total / limit) }
       });
     } catch (error) {
+      res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+  },
+
+   async getAllClassifications(req, res) {
+    try {
+      const classifications = Object.values(prisma.ClassificationRating);
+      res.json({ classifications });
+    } catch (error) {
+      res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+  },
+
+  async getMediaByClassification(req, res) {
+    try {
+      const { classification } = req.params;
+      const media = await prisma.media.findMany({ where: { classification } });
+      res.json({ media, classification });
+    } catch (error) {
+      res.status(500).json({ error: 'Erro ao buscar mídias por classificação' });
+    }
+  },
+
+  async getMediaByMinRating(req, res) {
+    try {
+      const ratingParam = req.query.rating || req.query.minRating || 3.0;
+      const minRating = parseFloat(ratingParam);
+      if (isNaN(minRating) || minRating < 0 || minRating > 5) {
+        return res.status(400).json({ error: "rating inválido (0 a 5)" });
+      }
+
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 20;
+      const skip = (page - 1) * limit;
+
+      const where = { rating: { gte: minRating } };
+
+      const [media, total] = await Promise.all([
+        prisma.media.findMany({
+          where,
+          skip,
+          take: limit,
+          orderBy: { rating: 'desc' },
+          select: { id: true, title: true, rating: true, image: true, genres: true, year: true, type: true }
+        }),
+        prisma.media.count({ where })
+      ]);
+
+      res.json({
+        media,
+        minRating,
+        pagination: { page, limit, total, pages: Math.ceil(total / limit) }
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+  },
+
+  async getMediaByYearRange(req, res) {
+    try {
+      const startYear = parseInt(req.query.startYear, 10);
+      const endYear = parseInt(req.query.endYear, 10);
+
+      if (isNaN(startYear) || isNaN(endYear)) {
+        return res.status(400).json({ error: "startYear e endYear válidos são obrigatórios" });
+      }
+
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 20;
+      const skip = (page - 1) * limit;
+
+      const where = { year: { gte: startYear, lte: endYear } };
+
+      const [media, total] = await Promise.all([
+        prisma.media.findMany({
+          where,
+          skip,
+          take: limit,
+          orderBy: { rating: 'desc' },
+          select: { id: true, title: true, rating: true, image: true, genres: true, year: true, type: true }
+        }),
+        prisma.media.count({ where })
+      ]);
+
+      res.json({
+        media,
+        yearRange: `${startYear}-${endYear}`,
+        pagination: { page, limit, total, pages: Math.ceil(total / limit) }
+      });
+    } catch (error) {
+      console.error(error);
       res.status(500).json({ error: 'Erro interno do servidor' });
     }
   },

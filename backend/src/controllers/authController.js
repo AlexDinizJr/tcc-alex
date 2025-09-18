@@ -1,6 +1,8 @@
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const prisma = require('../utils/database');
+const { sendPasswordRecovery } = require('../services/emailService');
 
 const generateToken = (userId) => {
   return jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: '7d' });
@@ -11,78 +13,55 @@ const authController = {
     try {
       const { email, password, name, username } = req.body;
 
-      // Verificar se usuário já existe
+      if (!email || !password || !name || !username) {
+        return res.status(400).json({ error: 'Todos os campos obrigatórios devem ser preenchidos' });
+      }
+
       const existingUser = await prisma.user.findFirst({
-        where: {
-          OR: [{ email }, { username }]
-        }
+        where: { OR: [{ email }, { username }] }
       });
 
       if (existingUser) {
         return res.status(400).json({ error: 'Email ou username já cadastrado' });
       }
 
-      // Hash da senha
       const hashedPassword = await bcrypt.hash(password, 12);
 
-      // Criar usuário
       const user = await prisma.user.create({
         data: {
           email,
           password: hashedPassword,
           name,
           username,
-          profileVisibility: 'public',
-          showActivity: true,
-          showSavedItems: true,
-          showFavorites: true,
-          showReviews: true,
-          showStats: true,
-          dataCollection: true
+
         },
-        select: {
-          id: true,
-          email: true,
-          name: true,
-          username: true,
-          avatar: true,
-          createdAt: true
-        }
+        select: { id: true, email: true, name: true, username: true, createdAt: true }
       });
 
       const token = generateToken(user.id);
 
-      res.status(201).json({
-        message: 'Usuário criado com sucesso',
-        user,
-        token
-      });
+      res.status(201).json({ message: 'Usuário criado com sucesso', user, token });
     } catch (error) {
+      console.error('Erro no register:', error);
       res.status(500).json({ error: 'Erro interno do servidor' });
     }
   },
 
   async login(req, res) {
     try {
-      const { email, password } = req.body;
+      const { usernameOrEmail, password } = req.body;
 
-      const user = await prisma.user.findUnique({
-        where: { email },
-        include: {
-          reviews: {
-            select: {
-              id: true,
-              mediaId: true,
-              rating: true
-            }
-          },
-          lists: {
-            select: {
-              id: true,
-              name: true,
-              isPublic: true
-            }
-          }
+      if (!usernameOrEmail || !password) {
+        return res.status(400).json({ error: 'Todos os campos devem ser preenchidos' });
+      }
+
+      // Buscar por email ou username
+      const user = await prisma.user.findFirst({
+        where: {
+          OR: [
+            { email: usernameOrEmail },
+            { username: usernameOrEmail }
+          ]
         }
       });
 
@@ -91,16 +70,53 @@ const authController = {
       }
 
       const token = generateToken(user.id);
-
-      // Remover senha da resposta
       const { password: _, ...userWithoutPassword } = user;
 
-      res.json({
-        message: 'Login realizado com sucesso',
-        user: userWithoutPassword,
-        token
-      });
+      res.json({ message: 'Login realizado com sucesso', user: userWithoutPassword, token });
     } catch (error) {
+      console.error('Erro no login:', error);
+      res.status(500).json({ error: 'Erro interno do servidor', details: error.message });
+    }
+  },
+
+  // Solicitar recuperação de senha
+  async requestPasswordRecovery(req, res) {
+    try {
+      const { email } = req.body;
+      const user = await prisma.user.findUnique({ where: { email } });
+      if (!user) return res.status(404).json({ error: 'Usuário não encontrado' });
+
+      const token = crypto.randomBytes(32).toString('hex');
+      const expires = new Date(Date.now() + 3600000); // 1h de validade
+
+      await prisma.passwordRecovery.create({ data: { userId: user.id, token, expires } });
+      await sendPasswordRecovery(email, token);
+
+      res.json({ message: 'E-mail de recuperação enviado com sucesso' });
+    } catch (error) {
+      console.error('Error requesting password recovery:', error);
+      res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+  },
+
+  // Resetar senha usando token de recuperação
+  async resetPassword(req, res) {
+    try {
+      const { token, newPassword } = req.body;
+
+      const recovery = await prisma.passwordRecovery.findFirst({
+        where: { token, expiresAt: { gte: new Date() }, used: false },
+        include: { user: true }
+      });
+      if (!recovery) return res.status(400).json({ error: 'Token inválido ou expirado' });
+
+      const hashedPassword = await bcrypt.hash(newPassword, 12);
+      await prisma.user.update({ where: { id: recovery.userId }, data: { password: hashedPassword } });
+      await prisma.passwordRecovery.update({ where: { id: recovery.id }, data: { used: true } });
+
+      res.json({ message: 'Senha atualizada com sucesso' });
+    } catch (error) {
+      console.error('Error resetting password:', error);
       res.status(500).json({ error: 'Erro interno do servidor' });
     }
   },

@@ -1,0 +1,17 @@
+***REVISÃO DO BACKEND***
+
+# PRIORIDADES:
+
+1 - Mídias - Garantir que todas estão funcionais
+2 - Auth - Garantir que todas estão funcionais
+3 - Users - Garantir que todas estão funcionais
+4 - Reviews - Opcionais
+5 - Lists - Opcionais
+
+# PROBLEMAS IDENTIFICADOS:
+
+
+# ARQUIVOS A SEREM OBSERVADOS:
+
+
+

@@ -8,79 +8,82 @@ datasource db {
 }
 
 model User {
-  id          Int      @id @default(autoincrement())
-  email       String   @unique
-  password    String
-  name        String
-  username    String   @unique
-  avatar      String?
-  coverImage  String?
-  bio         String?
-  createdAt   DateTime @default(now())
-  helpfuls    Helpful[]
+  id         Int       @id @default(autoincrement())
+  email      String    @unique
+  password   String
+  name       String
+  username   String    @unique
+  avatar     String?
+  coverImage String?
+  bio        String?
+  createdAt  DateTime  @default(now())
+  helpfuls   Helpful[]
 
   // Role
-  role        UserRole @default(USER)
+  role UserRole @default(USER)
 
   // Relacionamentos
-  reviews     Review[]
-  lists       List[]
-  savedMedia  Media[]  @relation("SavedMedia")
-  favorites   Media[]  @relation("Favorites")
-  
+  reviews    Review[]
+  lists      List[]
+  savedMedia Media[]  @relation("SavedMedia")
+  favorites  Media[]  @relation("Favorites")
+
   // Configurações de privacidade
-  profileVisibility String @default("public")
-  showActivity      Boolean @default(true)
-  showSavedItems    Boolean @default(true)
-  showFavorites     Boolean @default(true)
-  showReviews       Boolean @default(true)
-  showStats         Boolean @default(true)
-  dataCollection    Boolean @default(true)
+  profileVisibility String             @default("public")
+  showActivity      Boolean            @default(true)
+  showSavedItems    Boolean            @default(true)
+  showFavorites     Boolean            @default(true)
+  showReviews       Boolean            @default(true)
+  showStats         Boolean            @default(true)
+  dataCollection    Boolean            @default(true)
+  PasswordRecovery  PasswordRecovery[]
 }
 
 model Media {
-  id               Int      @id @default(autoincrement())
-  title            String
-  rating           Float
-  image            String?
-  description      String?
-  year             Int
-  type             MediaType
-  classification   ClassificationRating?
-  reviewCount Int?  @default(0)
-  @@unique([title, type])
-  
+  id             Int                   @id @default(autoincrement())
+  title          String
+  rating         Float
+  image          String?
+  description    String?
+  year           Int
+  type           MediaType
+  classification ClassificationRating?
+  reviewCount    Int?                  @default(0)
+
   // Relacionamentos
-  genres           MediaGenre[]
-  streamingLinks   StreamingLink[]
-  reviews          Review[]
-  savedBy          User[]     @relation("SavedMedia")
-  favoritedBy      User[]     @relation("Favorites")
-  lists            List[]
-  
+  genres             MediaGenre[]
+  streamingLinks     StreamingLink[]
+  reviews            Review[]
+  savedBy            User[]             @relation("SavedMedia")
+  favoritedBy        User[]             @relation("Favorites")
+  lists              List[]
+  passwordRecoveries PasswordRecovery[]
+
   // Campos opcionais específicos
-  artists          String[]
-  directors        String[]
-  platforms        String[]
-  authors          String[]
-  seasons          Int?
-  duration         Int?
-  pages            Int?
-  publisher        String?
+  artists   String[]
+  directors String[]
+  platforms String[]
+  authors   String[]
+  seasons   Int?
+  duration  Int?
+  pages     Int?
+  publisher String?
+
+  @@unique([title, type])
 }
 
 model Review {
-  id        Int      @id @default(autoincrement())
-  rating    Int
-  comment   String
-  date      DateTime @default(now())
-  helpfuls  Helpful[]
-  
+  id       Int       @id @default(autoincrement())
+  rating   Int
+  comment  String
+  date     DateTime  @default(now())
+  helpfuls Helpful[]
+
   // Relacionamentos
-  media     Media    @relation(fields: [mediaId], references: [id])
-  mediaId   Int
-  user      User     @relation(fields: [userId], references: [id])
-  userId    Int
+  media   Media @relation(fields: [mediaId], references: [id])
+  mediaId Int
+  user    User  @relation(fields: [userId], references: [id])
+  userId  Int
 }
 
 model List {
@@ -90,31 +93,43 @@ model List {
   isPublic    Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  
+
   // Relacionamentos
-  user        User     @relation(fields: [userId], references: [id])
-  userId      Int
-  items       Media[]
+  user   User    @relation(fields: [userId], references: [id])
+  userId Int
+  items  Media[]
 }
 
 model StreamingLink {
-  id        Int    @id @default(autoincrement())
-  service   String
-  url       String
-  mediaId   Int
-  media     Media  @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  id      Int    @id @default(autoincrement())
+  service String
+  url     String
+  mediaId Int
+  media   Media  @relation(fields: [mediaId], references: [id], onDelete: Cascade)
 
   @@unique([mediaId, service])
 }
 
 model Helpful {
-  id       Int   @id @default(autoincrement())
+  id       Int    @id @default(autoincrement())
   userId   Int
-  user     User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   reviewId Int
   review   Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
 
   @@unique([userId, reviewId])
+}
+
+model PasswordRecovery {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  token     String   @unique
+  expires   DateTime
+  createdAt DateTime @default(now())
+
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Media   Media? @relation(fields: [mediaId], references: [id])
+  mediaId Int?
 }
 
 enum UserRole {
