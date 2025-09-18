@@ -7,7 +7,7 @@ const {
   deleteReview,
   markHelpful
 } = require('../controllers/reviewController');
-const { validateReview } = require('../middleware/validation');
+const { validateReview, validateReviewUpdate } = require('../middleware/validation');
 const { authenticateToken } = require('../middleware/auth');
 
 const router = express.Router();
@@ -74,7 +74,7 @@ router.get('/user/:userId', getUserReviews);
  *             required:
  *               - mediaId
  *               - rating
- *               - content
+ *               - comment
  *             properties:
  *               mediaId:
  *                 type: integer
@@ -83,7 +83,7 @@ router.get('/user/:userId', getUserReviews);
  *                 format: float
  *                 minimum: 0
  *                 maximum: 5
- *               content:
+ *               comment:
  *                 type: string
  *     responses:
  *       201:
@@ -116,24 +116,24 @@ router.post('/', authenticateToken, validateReview, createReview);
  *         application/json:
  *           schema:
  *             type: object
- *             required:
- *               - rating
- *               - content
  *             properties:
  *               rating:
  *                 type: number
  *                 format: float
  *                 minimum: 0
  *                 maximum: 5
- *               content:
+ *               comment:
  *                 type: string
+ *             example:
+ *               rating: 4
+ *               comment: "Comentário atualizado"
  *     responses:
  *       200:
  *         description: Review atualizada com sucesso
  *       404:
  *         description: Review não encontrada
  */
-router.put('/:reviewId', authenticateToken, validateReview, updateReview);
+router.put('/:reviewId', authenticateToken, validateReviewUpdate, updateReview);
 
 /**
  * @swagger

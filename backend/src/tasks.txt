@@ -10,6 +10,8 @@
 
 # PROBLEMAS IDENTIFICADOS:
 
+- adicionar funcionalide de adicionar/remover dos favoritos itens salvos;
+- ultimo teste de rotas;
 
 # ARQUIVOS A SEREM OBSERVADOS:
 

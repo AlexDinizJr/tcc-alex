@@ -22,8 +22,20 @@ const validateReview = [
   handleValidationErrors
 ];
 
+const validateReviewUpdate = [
+  body('rating').optional().isInt({ min: 1, max: 5 }),
+  body('comment').optional().trim().isLength({ max: 1000 }),
+  (req, res, next) => {
+    if (!req.body.rating && !req.body.comment) {
+      return res.status(400).json({ error: 'É necessário enviar rating ou comment para atualizar' });
+    }
+    next();
+  }
+];
+
 module.exports = {
   validateUserRegistration,
   validateReview,
+  validateReviewUpdate,
   handleValidationErrors
 };

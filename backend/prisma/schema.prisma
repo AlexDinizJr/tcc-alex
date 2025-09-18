@@ -77,13 +77,15 @@ model Review {
   rating   Int
   comment  String
   date     DateTime  @default(now())
+  helpful  Int       @default(0)       // contador de "úteis"
   helpfuls Helpful[]
 
-  // Relacionamentos
   media   Media @relation(fields: [mediaId], references: [id])
   mediaId Int
   user    User  @relation(fields: [userId], references: [id])
   userId  Int
+
+  @@unique([userId, mediaId]) // <- índice único combinando usuário + mídia
 }
 
 model List {
