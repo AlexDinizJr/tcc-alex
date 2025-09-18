@@ -5,13 +5,14 @@
 1 - Mídias - Garantir que todas estão funcionais
 2 - Auth - Garantir que todas estão funcionais
 3 - Users - Garantir que todas estão funcionais
-4 - Reviews - Opcionais
-5 - Lists - Opcionais
+4 - Reviews - Garantir que todas estão funcionais
+5 - Lists - Opcionais?
+6 - Admin - Opcionais
 
 # PROBLEMAS IDENTIFICADOS:
 
-- adicionar funcionalide de adicionar/remover dos favoritos itens salvos;
-- ultimo teste de rotas;
+- verificar integridade das rotas de admin;
+- ultimo teste de rotas.
 
 # ARQUIVOS A SEREM OBSERVADOS:
 

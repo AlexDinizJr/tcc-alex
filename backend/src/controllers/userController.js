@@ -1,4 +1,5 @@
 const prisma = require('../utils/database');
+const bcrypt = require('bcrypt');
 const imageProcessingService = require('../services/imageProcessingService');
 
 const userController = {
@@ -128,13 +129,37 @@ const userController = {
     }
   },
 
-  // Atualizar dados do usuário
-   async updateUser(req, res) {
+  // Atualizar nome, bio e configurações de privacidade
+  async updateUser(req, res) {
     try {
-      const { bio, privacySettings } = req.body;
-      const user = await prisma.user.update({
+      const { name, bio, privacySettings } = req.body;
+
+      const dataToUpdate = {};
+      if (name !== undefined) dataToUpdate.name = name;
+      if (bio !== undefined) dataToUpdate.bio = bio;
+
+      if (privacySettings && typeof privacySettings === 'object') {
+        const allowedFields = [
+          'profileVisibility',
+          'showActivity',
+          'showSavedItems',
+          'showFavorites',
+          'showReviews',
+          'showStats',
+          'dataCollection'
+        ];
+        allowedFields.forEach(field => {
+          if (privacySettings[field] !== undefined) dataToUpdate[field] = privacySettings[field];
+        });
+      }
+
+      if (Object.keys(dataToUpdate).length === 0) {
+        return res.status(400).json({ error: 'Nenhum dado válido para atualizar' });
+      }
+
+      const updatedUser = await prisma.user.update({
         where: { id: req.user.id },
-        data: { bio, ...privacySettings },
+        data: dataToUpdate,
         select: {
           id: true,
           name: true,
@@ -152,7 +177,7 @@ const userController = {
         }
       });
 
-      res.json({ message: 'Perfil atualizado com sucesso', user });
+      res.json({ message: 'Perfil atualizado com sucesso', user: updatedUser });
     } catch (error) {
       console.error('Error updating user:', error);
       res.status(500).json({ error: 'Erro interno do servidor' });
@@ -163,18 +188,23 @@ const userController = {
   async updateUserWithPassword(req, res) {
     try {
       const { currentPassword, newPassword, newEmail, newUsername } = req.body;
-      const user = await prisma.user.findUnique({ where: { id: req.user.id } });
 
+      if (!currentPassword) return res.status(400).json({ error: 'Senha atual é obrigatória' });
+
+      const user = await prisma.user.findUnique({ where: { id: req.user.id } });
       if (!user) return res.status(404).json({ error: 'Usuário não encontrado' });
 
-      if (!(await bcrypt.compare(currentPassword, user.password))) {
-        return res.status(401).json({ error: 'Senha atual incorreta' });
-      }
+      const isMatch = await bcrypt.compare(currentPassword, user.password);
+      if (!isMatch) return res.status(401).json({ error: 'Senha atual incorreta' });
 
       const dataToUpdate = {};
       if (newPassword) dataToUpdate.password = await bcrypt.hash(newPassword, 12);
       if (newEmail) dataToUpdate.email = newEmail;
       if (newUsername) dataToUpdate.username = newUsername;
+
+      if (Object.keys(dataToUpdate).length === 0) {
+        return res.status(400).json({ error: 'Nenhum dado para atualizar' });
+      }
 
       const updatedUser = await prisma.user.update({
         where: { id: req.user.id },
@@ -185,6 +215,11 @@ const userController = {
       res.json({ message: 'Dados atualizados com sucesso', user: updatedUser });
     } catch (error) {
       console.error('Error updating user with password:', error);
+
+      if (error.code === 'P2002') { // Unique constraint fail
+        return res.status(400).json({ error: 'Email ou username já está em uso' });
+      }
+
       res.status(500).json({ error: 'Erro interno do servidor' });
     }
   },

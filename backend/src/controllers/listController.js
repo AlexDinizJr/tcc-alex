@@ -108,6 +108,96 @@ const listController = {
     }
   },
 
+ async getUserSavedMedia(req, res) {
+  try {
+    const { userId } = req.params;
+    const { page = 1, limit = 10 } = req.query;
+    const skip = (page - 1) * limit;
+
+    const user = await prisma.user.findUnique({
+      where: { id: parseInt(userId) },
+      select: {
+        profileVisibility: true,
+        showSavedItems: true,
+        savedMedia: {
+          skip,
+          take: parseInt(limit),
+          select: {
+            id: true,
+            title: true,
+            image: true,
+            type: true,
+            year: true,
+            rating: true,
+            genres: true
+          }
+        }
+      }
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: 'Usuário não encontrado' });
+    }
+
+    if (user.profileVisibility !== 'public' || !user.showSavedItems) {
+      return res.status(403).json({ error: 'Não é permitido acessar os itens salvos deste usuário' });
+    }
+
+    res.json({
+      savedMedia: user.savedMedia
+    });
+
+  } catch (error) {
+    console.error('Error getting saved media:', error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+},
+
+async getUserFavorites(req, res) {
+  try {
+    const { userId } = req.params;
+    const { page = 1, limit = 10 } = req.query;
+    const skip = (page - 1) * limit;
+
+    const user = await prisma.user.findUnique({
+      where: { id: parseInt(userId) },
+      select: {
+        profileVisibility: true,
+        showFavorites: true,
+        favorites: {
+          skip,
+          take: parseInt(limit),
+          select: {
+            id: true,
+            title: true,
+            image: true,
+            type: true,
+            year: true,
+            rating: true,
+            genres: true
+          }
+        }
+      }
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: 'Usuário não encontrado' });
+    }
+
+    if (user.profileVisibility !== 'public' || !user.showFavorites) {
+      return res.status(403).json({ error: 'Não é permitido acessar os favoritos deste usuário' });
+    }
+
+    res.json({
+      favorites: user.favorites
+    });
+
+  } catch (error) {
+    console.error('Error getting favorite media:', error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+},
+
   async createList(req, res) {
     try {
       const { name, description, isPublic = false } = req.body;
@@ -465,7 +555,8 @@ const listController = {
       console.error('Error toggling favorite media:', error);
       res.status(500).json({ error: 'Erro interno do servidor' });
     }
-  }
+  },
+
 };
 
 module.exports = listController;

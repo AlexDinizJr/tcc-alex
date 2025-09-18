@@ -8,7 +8,9 @@ const {
   addItemToList,
   removeItemFromList,
   toggleSaveMedia,
-  toggleFavoriteMedia
+  toggleFavoriteMedia,
+  getUserSavedMedia,
+  getUserFavorites
 } = require('../controllers/listController');
 const { authenticateToken } = require('../middleware/auth');
 
@@ -31,7 +33,7 @@ const router = express.Router();
  *       - in: path
  *         name: userId
  *         schema:
- *           type: string
+ *           type: integer
  *         required: true
  *         description: ID do usuário
  *     responses:
@@ -52,7 +54,7 @@ router.get('/user/:userId', getUserLists);
  *       - in: path
  *         name: listId
  *         schema:
- *           type: string
+ *           type: integer
  *         required: true
  *         description: ID da lista
  *     responses:
@@ -62,6 +64,50 @@ router.get('/user/:userId', getUserLists);
  *         description: Lista não encontrada
  */
 router.get('/:listId', getListById);
+
+/**
+ * @swagger
+ * /api/lists/user/{userId}/saved:
+ *   get:
+ *     summary: Retorna todas as mídias salvas de um usuário (se permitido)
+ *     tags: [Lists]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         schema:
+ *           type: integer
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: Lista de mídias salvas
+ *       403:
+ *         description: Não autorizado
+ *       404:
+ *         description: Usuário não encontrado
+ */
+router.get('/user/:userId/saved', getUserSavedMedia);
+
+/**
+ * @swagger
+ * /api/lists/user/{userId}/favorites:
+ *   get:
+ *     summary: Retorna todas as mídias favoritas de um usuário (se permitido)
+ *     tags: [Lists]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         schema:
+ *           type: integer
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: Lista de mídias favoritas
+ *       403:
+ *         description: Não autorizado
+ *       404:
+ *         description: Usuário não encontrado
+ */
+router.get('/user/:userId/favorites', getUserFavorites);
 
 /**
  * @swagger
@@ -82,6 +128,8 @@ router.get('/:listId', getListById);
  *                 type: string
  *               description:
  *                 type: string
+ *               isPublic:
+ *                 type: boolean
  *     responses:
  *       201:
  *         description: Lista criada com sucesso
@@ -102,7 +150,7 @@ router.post('/', authenticateToken, createList);
  *       - in: path
  *         name: listId
  *         schema:
- *           type: string
+ *           type: integer
  *         required: true
  *         description: ID da lista
  *     requestBody:
@@ -116,6 +164,8 @@ router.post('/', authenticateToken, createList);
  *                 type: string
  *               description:
  *                 type: string
+ *               isPublic:
+ *                 type: boolean
  *     responses:
  *       200:
  *         description: Lista atualizada
@@ -138,7 +188,7 @@ router.put('/:listId', authenticateToken, updateList);
  *       - in: path
  *         name: listId
  *         schema:
- *           type: string
+ *           type: integer
  *         required: true
  *         description: ID da lista
  *     responses:
@@ -165,9 +215,9 @@ router.delete('/:listId', authenticateToken, deleteList);
  *             type: object
  *             properties:
  *               listId:
- *                 type: string
+ *                 type: integer
  *               mediaId:
- *                 type: string
+ *                 type: integer
  *     responses:
  *       200:
  *         description: Item adicionado à lista
@@ -186,12 +236,12 @@ router.post('/items', authenticateToken, addItemToList);
  *       - in: path
  *         name: listId
  *         schema:
- *           type: string
+ *           type: integer
  *         required: true
  *       - in: path
  *         name: mediaId
  *         schema:
- *           type: string
+ *           type: integer
  *         required: true
  *     responses:
  *       200:
@@ -217,7 +267,7 @@ router.delete('/:listId/items/:mediaId', authenticateToken, removeItemFromList);
  *             type: object
  *             properties:
  *               mediaId:
- *                 type: string
+ *                 type: integer
  *     responses:
  *       200:
  *         description: Mídia salva ou removida com sucesso
@@ -240,7 +290,7 @@ router.post('/save-media', authenticateToken, toggleSaveMedia);
  *             type: object
  *             properties:
  *               mediaId:
- *                 type: string
+ *                 type: integer
  *     responses:
  *       200:
  *         description: Mídia favoritada ou desfavoritada com sucesso

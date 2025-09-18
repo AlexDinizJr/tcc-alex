@@ -94,7 +94,7 @@ router.get('/:id', getUserById);
  * @swagger
  * /api/users/profile:
  *   put:
- *     summary: Atualiza perfil do usuário autenticado
+ *     summary: Atualiza nome, bio e configurações de privacidade do usuário autenticado
  *     security:
  *       - bearerAuth: []
  *     tags: [Users]
@@ -107,26 +107,31 @@ router.get('/:id', getUserById);
  *             properties:
  *               name:
  *                 type: string
- *               username:
- *                 type: string
  *               bio:
  *                 type: string
- *               profileVisibility:
- *                 type: string
- *                 enum: [public, private]
- *               showSavedItems:
- *                 type: boolean
- *               showFavorites:
- *                 type: boolean
- *               showReviews:
- *                 type: boolean
- *               showStats:
- *                 type: boolean
+ *               privacySettings:
+ *                 type: object
+ *                 properties:
+ *                   profileVisibility:
+ *                     type: string
+ *                     enum: [public, private]
+ *                   showActivity:
+ *                     type: boolean
+ *                   showSavedItems:
+ *                     type: boolean
+ *                   showFavorites:
+ *                     type: boolean
+ *                   showReviews:
+ *                     type: boolean
+ *                   showStats:
+ *                     type: boolean
+ *                   dataCollection:
+ *                     type: boolean
  *     responses:
  *       200:
  *         description: Perfil atualizado com sucesso
  *       400:
- *         description: Dados inválidos
+ *         description: Nenhum dado válido enviado para atualização
  */
 router.put('/profile', authenticateToken, updateUser);
 
@@ -149,11 +154,11 @@ router.put('/profile', authenticateToken, updateUser);
  *             properties:
  *               currentPassword:
  *                 type: string
- *               email:
- *                 type: string
- *               username:
- *                 type: string
  *               newPassword:
+ *                 type: string
+ *               newEmail:
+ *                 type: string
+ *               newUsername:
  *                 type: string
  *     responses:
  *       200:

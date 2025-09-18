@@ -59,22 +59,57 @@ router.get('/:id', authenticateToken, isAdmin, getMediaForEdit);
  *                 type: string
  *               type:
  *                 type: string
+ *                 enum: [MOVIE, SERIES, MUSIC, GAME, BOOK]
+ *               classification:
+ *                 type: string
+ *                 nullable: true
  *               description:
  *                 type: string
+ *                 nullable: true
  *               year:
  *                 type: integer
+ *                 nullable: true
  *               rating:
  *                 type: number
+ *                 nullable: true
+ *               reviewCount:
+ *                 type: integer
+ *                 nullable: true
  *               genres:
  *                 type: array
  *                 items:
  *                   type: string
+ *               platforms:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               artists:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               authors:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               directors:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               seasons:
+ *                 type: integer
+ *                 nullable: true
+ *               duration:
+ *                 type: integer
+ *                 nullable: true
+ *               pages:
+ *                 type: integer
+ *                 nullable: true
+ *               publisher:
+ *                 type: string
+ *                 nullable: true
  *               image:
  *                 type: string
- *               bannerImage:
- *                 type: string
- *               thumbnail:
- *                 type: string
+ *                 nullable: true
  *               streamingLinks:
  *                 type: array
  *                 items:
@@ -118,22 +153,57 @@ router.post('/', authenticateToken, isAdmin, validateMediaUrls, createMedia);
  *                 type: string
  *               type:
  *                 type: string
+ *                 enum: [MOVIE, SERIES, MUSIC, GAME, BOOK]
+ *               classification:
+ *                 type: string
+ *                 nullable: true
  *               description:
  *                 type: string
+ *                 nullable: true
  *               year:
  *                 type: integer
+ *                 nullable: true
  *               rating:
  *                 type: number
+ *                 nullable: true
+ *               reviewCount:
+ *                 type: integer
+ *                 nullable: true
  *               genres:
  *                 type: array
  *                 items:
  *                   type: string
+ *               platforms:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               artists:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               authors:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               directors:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               seasons:
+ *                 type: integer
+ *                 nullable: true
+ *               duration:
+ *                 type: integer
+ *                 nullable: true
+ *               pages:
+ *                 type: integer
+ *                 nullable: true
+ *               publisher:
+ *                 type: string
+ *                 nullable: true
  *               image:
  *                 type: string
- *               bannerImage:
- *                 type: string
- *               thumbnail:
- *                 type: string
+ *                 nullable: true
  *               streamingLinks:
  *                 type: array
  *                 items:
