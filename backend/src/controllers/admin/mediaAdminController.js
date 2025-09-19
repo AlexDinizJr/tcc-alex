@@ -1,6 +1,6 @@
 const prisma = require('../../utils/database');
 
-// Validação simples para o body da mídia
+// Validação simplificada para o body da mídia
 const validateMediaData = (data) => {
   const errors = [];
 
@@ -16,39 +16,38 @@ const validateMediaData = (data) => {
   }
 
   // Classification opcional (enum do Prisma)
-  const validClassifications = ['L', 'TEN', 'TWELVE', 'FOURTEEN', 'SIXTEEN', 'EIGHTEEN']; // ajustar conforme enum real
+  const validClassifications = ['L', 'TEN', 'TWELVE', 'FOURTEEN', 'SIXTEEN', 'EIGHTEEN'];
   if (data.classification && !validClassifications.includes(data.classification)) {
     errors.push(`Classification inválida. Valores válidos: ${validClassifications.join(', ')}.`);
   }
 
-  // Ano
-  if (data.year && isNaN(parseInt(data.year))) {
-    errors.push('Ano deve ser um número válido.');
+  // Ano obrigatório
+  if (!data.year || isNaN(parseInt(data.year))) {
+    errors.push('Ano é obrigatório e deve ser um número válido.');
   }
 
-  // Rating
+  // Rating (opcional, mas deve ser válido se fornecido)
   if (data.rating && (isNaN(parseFloat(data.rating)) || data.rating < 0 || data.rating > 5)) {
     errors.push('Rating deve ser um número entre 0 e 5.');
   }
 
   // Arrays
-  ['genres','platforms','artists','authors','directors'].forEach((field) => {
+  ['genres', 'platforms', 'artists', 'authors', 'directors'].forEach((field) => {
     if (data[field] && !Array.isArray(data[field])) {
       errors.push(`${field} deve ser um array de strings.`);
     }
   });
 
-  // StreamingLinks
-  if (data.streamingLinks) {
-    if (!Array.isArray(data.streamingLinks)) {
-      errors.push('streamingLinks deve ser um array.');
-    } else {
-      data.streamingLinks.forEach((link, idx) => {
-        if (!link.service || !link.url) {
-          errors.push(`Streaming link na posição ${idx} precisa de service e url.`);
-        }
-      });
+  // Campos numéricos opcionais
+  ['seasons', 'duration', 'pages'].forEach((field) => {
+    if (data[field] && isNaN(parseInt(data[field]))) {
+      errors.push(`${field} deve ser um número válido.`);
     }
+  });
+
+  // Validação para developer (opcional, mas deve ser string se existir)
+  if (data.developer && typeof data.developer !== 'string') {
+    errors.push('developer deve ser uma string.');
   }
 
   return errors;
@@ -60,10 +59,13 @@ const adminMediaController = {
       const { id } = req.params;
       const media = await prisma.media.findUnique({
         where: { id: parseInt(id) },
-        include: { streamingLinks: true }
+        include: { 
+          streamingLinks: true 
+        }
       });
 
       if (!media) return res.status(404).json({ message: 'Mídia não encontrada.' });
+      
       res.json(media);
     } catch (error) {
       console.error(error);
@@ -77,6 +79,20 @@ const adminMediaController = {
       const errors = validateMediaData(data);
       if (errors.length) return res.status(400).json({ errors });
 
+      // Verificar se já existe mídia com mesmo título e tipo
+      const existingMedia = await prisma.media.findFirst({
+        where: {
+          title: data.title,
+          type: data.type
+        }
+      });
+
+      if (existingMedia) {
+        return res.status(409).json({ 
+          message: 'Já existe uma mídia com este título e tipo.' 
+        });
+      }
+
       const media = await prisma.media.create({
         data: {
           title: data.title,
@@ -84,26 +100,37 @@ const adminMediaController = {
           classification: data.classification || null,
           description: data.description || null,
           image: data.image || null,
-          year: data.year ? parseInt(data.year) : null,
+          year: parseInt(data.year),
           rating: data.rating ? parseFloat(data.rating) : 0,
-          reviewCount: data.reviewCount || 0,
-          genres: data.genres ? { set: data.genres } : undefined,
-          platforms: data.platforms ? { set: data.platforms } : undefined,
-          artists: data.artists ? { set: data.artists } : undefined,
-          authors: data.authors ? { set: data.authors } : undefined,
-          directors: data.directors ? { set: data.directors } : undefined,
-          seasons: data.seasons || null,
-          duration: data.duration || null,
-          pages: data.pages || null,
-          publisher: data.publisher || null,
-          streamingLinks: data.streamingLinks ? { create: data.streamingLinks } : undefined
-        },
-        include: { streamingLinks: true }
+          reviewCount: 0,
+          developer: data.developer || null,
+          // AGORA É ARRAY DE STRINGS SIMPLES:
+          genres: data.genres || [],
+          platforms: data.platforms || [],
+          artists: data.artists || [],
+          authors: data.authors || [],
+          directors: data.directors || [],
+          seasons: data.seasons ? parseInt(data.seasons) : null,
+          duration: data.duration ? parseInt(data.duration) : null,
+          pages: data.pages ? parseInt(data.pages) : null,
+          publisher: data.publisher || null
+        }
+        // REMOVIDO include - arrays já vêm na resposta
       });
 
-      res.status(201).json({ message: 'Mídia criada com sucesso!', media });
+      res.status(201).json({ 
+        message: 'Mídia criada com sucesso!', 
+        media  // Já inclui todos os arrays
+      });
     } catch (error) {
-      console.error(error);
+      console.error('Erro ao criar mídia:', error);
+      
+      if (error.code === 'P2002') {
+        return res.status(409).json({ 
+          message: 'Já existe uma mídia com este título e tipo.' 
+        });
+      }
+      
       res.status(500).json({ message: 'Erro interno do servidor' });
     }
   },
@@ -115,6 +142,14 @@ const adminMediaController = {
       const errors = validateMediaData(data);
       if (errors.length) return res.status(400).json({ errors });
 
+      const existingMedia = await prisma.media.findUnique({
+        where: { id: parseInt(id) }
+      });
+
+      if (!existingMedia) {
+        return res.status(404).json({ message: 'Mídia não encontrada.' });
+      }
+
       const media = await prisma.media.update({
         where: { id: parseInt(id) },
         data: {
@@ -123,28 +158,37 @@ const adminMediaController = {
           classification: data.classification || null,
           description: data.description || null,
           image: data.image || null,
-          year: data.year ? parseInt(data.year) : null,
-          rating: data.rating ? parseFloat(data.rating) : undefined,
-          reviewCount: data.reviewCount || undefined,
-          genres: data.genres ? { set: data.genres } : undefined,
-          platforms: data.platforms ? { set: data.platforms } : undefined,
-          artists: data.artists ? { set: data.artists } : undefined,
-          authors: data.authors ? { set: data.authors } : undefined,
-          directors: data.directors ? { set: data.directors } : undefined,
-          seasons: data.seasons || null,
-          duration: data.duration || null,
-          pages: data.pages || null,
-          publisher: data.publisher || null,
-          streamingLinks: data.streamingLinks
-            ? { deleteMany: {}, create: data.streamingLinks }
-            : undefined
-        },
-        include: { streamingLinks: true }
+          year: parseInt(data.year),
+          rating: data.rating !== undefined ? parseFloat(data.rating) : existingMedia.rating,
+          reviewCount: data.reviewCount !== undefined ? parseInt(data.reviewCount) : existingMedia.reviewCount,
+          developer: data.developer !== undefined ? data.developer : existingMedia.developer,
+          // AGORA É ARRAY SIMPLES:
+          genres: data.genres !== undefined ? data.genres : existingMedia.genres,
+          platforms: data.platforms !== undefined ? data.platforms : existingMedia.platforms,
+          artists: data.artists !== undefined ? data.artists : existingMedia.artists,
+          authors: data.authors !== undefined ? data.authors : existingMedia.authors,
+          directors: data.directors !== undefined ? data.directors : existingMedia.directors,
+          seasons: data.seasons !== undefined ? (data.seasons ? parseInt(data.seasons) : null) : existingMedia.seasons,
+          duration: data.duration !== undefined ? (data.duration ? parseInt(data.duration) : null) : existingMedia.duration,
+          pages: data.pages !== undefined ? (data.pages ? parseInt(data.pages) : null) : existingMedia.pages,
+          publisher: data.publisher !== undefined ? data.publisher : existingMedia.publisher
+        }
+        // REMOVIDO include
       });
 
-      res.json({ message: 'Mídia atualizada com sucesso!', media });
+      res.json({ 
+        message: 'Mídia atualizada com sucesso!', 
+        media
+      });
     } catch (error) {
-      console.error(error);
+      console.error('Erro ao atualizar mídia:', error);
+      
+      if (error.code === 'P2002') {
+        return res.status(409).json({ 
+          message: 'Já existe uma mídia com este título e tipo.' 
+        });
+      }
+      
       res.status(500).json({ message: 'Erro interno do servidor' });
     }
   },
@@ -152,7 +196,20 @@ const adminMediaController = {
   async deleteMedia(req, res) {
     try {
       const { id } = req.params;
-      await prisma.media.delete({ where: { id: parseInt(id) } });
+      
+      // Verificar se a mídia existe
+      const media = await prisma.media.findUnique({
+        where: { id: parseInt(id) }
+      });
+
+      if (!media) {
+        return res.status(404).json({ message: 'Mídia não encontrada.' });
+      }
+
+      await prisma.media.delete({ 
+        where: { id: parseInt(id) } 
+      });
+      
       res.json({ message: 'Mídia deletada com sucesso!' });
     } catch (error) {
       console.error(error);

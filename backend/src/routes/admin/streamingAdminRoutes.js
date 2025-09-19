@@ -2,7 +2,8 @@ const express = require('express');
 const {
   updateMediaStreamingLinks,
   addStreamingLink,
-  removeStreamingLink
+  removeStreamingLink,
+  getAllStreamingLinks
 } = require('../../controllers/admin/streamingAdminController');
 const { authenticateToken, isAdmin } = require('../../middleware/auth');
 
@@ -17,19 +18,33 @@ const router = express.Router();
 
 /**
  * @swagger
- * /api/admin/streaming/media/{mediaId}/streaming-links:
+ * /api/admin/streaming/streaming-links:
+ *   get:
+ *     summary: Retorna todos os links de streaming cadastrados
+ *     tags: [AdminStreaming]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Lista de links de streaming
+ */
+router.get('/streaming-links', authenticateToken, isAdmin, getAllStreamingLinks);
+
+/**
+ * @swagger
+ * /api/admin/streaming/links/{linkId}:
  *   put:
- *     summary: Atualiza todos os links de streaming de uma mídia
+ *     summary: Atualiza um link de streaming específico
  *     tags: [AdminStreaming]
  *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
- *         name: mediaId
+ *         name: linkId
  *         schema:
  *           type: integer
  *         required: true
- *         description: ID da mídia
+ *         description: ID do link de streaming
  *     requestBody:
  *       required: true
  *       content:
@@ -37,24 +52,24 @@ const router = express.Router();
  *           schema:
  *             type: object
  *             properties:
- *               streamingLinks:
- *                 type: array
- *                 items:
- *                   type: object
- *                   properties:
- *                     service:
- *                       type: string
- *                     url:
- *                       type: string
+ *               service:
+ *                 type: string
+ *               url:
+ *                 type: string
  *     responses:
  *       200:
- *         description: Links de streaming atualizados com sucesso
+ *         description: Link de streaming atualizado com sucesso
  *       400:
  *         description: Dados inválidos
  *       404:
- *         description: Mídia não encontrada
+ *         description: Link de streaming não encontrado
  */
-router.put('/media/:mediaId/streaming-links', authenticateToken, isAdmin, updateMediaStreamingLinks);
+router.put(
+  '/links/:linkId',
+  authenticateToken,
+  isAdmin,
+  updateMediaStreamingLinks // método que atualiza link pelo ID
+);
 
 /**
  * @swagger
@@ -90,35 +105,39 @@ router.put('/media/:mediaId/streaming-links', authenticateToken, isAdmin, update
  *       404:
  *         description: Mídia não encontrada
  */
-router.post('/media/:mediaId/streaming-links', authenticateToken, isAdmin, addStreamingLink);
+router.post(
+  '/media/:mediaId/streaming-links',
+  authenticateToken,
+  isAdmin,
+  addStreamingLink
+);
 
 /**
  * @swagger
- * /api/admin/streaming/media/{mediaId}/streaming-links/{service}:
+ * /api/admin/streaming/links/{linkId}:
  *   delete:
- *     summary: Remove um link de streaming de uma mídia
+ *     summary: Remove um link de streaming pelo ID
  *     tags: [AdminStreaming]
  *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
- *         name: mediaId
+ *         name: linkId
  *         schema:
  *           type: integer
  *         required: true
- *         description: ID da mídia
- *       - in: path
- *         name: service
- *         schema:
- *           type: string
- *         required: true
- *         description: Nome do serviço de streaming
+ *         description: ID do link de streaming
  *     responses:
  *       200:
  *         description: Link de streaming removido com sucesso
  *       404:
- *         description: Link ou mídia não encontrado
+ *         description: Link não encontrado
  */
-router.delete('/media/:mediaId/streaming-links/:service', authenticateToken, isAdmin, removeStreamingLink);
+router.delete(
+  '/links/:linkId',
+  authenticateToken,
+  isAdmin,
+  removeStreamingLink
+);
 
 module.exports = router;

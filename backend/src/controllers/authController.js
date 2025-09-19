@@ -104,17 +104,35 @@ const authController = {
     try {
       const { token, newPassword } = req.body;
 
+      // Busca o token válido e não usado
       const recovery = await prisma.passwordRecovery.findFirst({
-        where: { token, expiresAt: { gte: new Date() }, used: false },
+        where: {
+          token,
+          expires: { gte: new Date() }, // garante que não expirou
+          used: false
+        },
         include: { user: true }
       });
-      if (!recovery) return res.status(400).json({ error: 'Token inválido ou expirado' });
 
+      if (!recovery) {
+        return res.status(400).json({ error: 'Token inválido ou expirado' });
+      }
+
+      // Atualiza a senha do usuário
       const hashedPassword = await bcrypt.hash(newPassword, 12);
-      await prisma.user.update({ where: { id: recovery.userId }, data: { password: hashedPassword } });
-      await prisma.passwordRecovery.update({ where: { id: recovery.id }, data: { used: true } });
+      await prisma.user.update({
+        where: { id: recovery.userId },
+        data: { password: hashedPassword }
+      });
+
+      // Marca o token como usado
+      await prisma.passwordRecovery.update({
+        where: { id: recovery.id },
+        data: { used: true }
+      });
 
       res.json({ message: 'Senha atualizada com sucesso' });
+
     } catch (error) {
       console.error('Error resetting password:', error);
       res.status(500).json({ error: 'Erro interno do servidor' });

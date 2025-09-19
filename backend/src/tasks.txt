@@ -2,19 +2,24 @@
 
 # PRIORIDADES:
 
-1 - Mídias - Garantir que todas estão funcionais
-2 - Auth - Garantir que todas estão funcionais
-3 - Users - Garantir que todas estão funcionais
-4 - Reviews - Garantir que todas estão funcionais
-5 - Lists - Opcionais?
-6 - Admin - Opcionais
+1 - Mídias - Testar Integridade das Rotas
+2 - Auth - Testar Integridade das Rotas
+3 - Users - Testar Integridade das Rotas
+4 - Reviews - Testar Integridade das Rotas
+5 - Lists - Testar Integridade das Rotas
+6 - Admin Mídias - Testar Integridade das Rotas
+7 - Admin StreamingLinks - Testar Integridade das Rotas
+8 - Revisão do Código e Comentários
 
 # PROBLEMAS IDENTIFICADOS:
 
-- verificar integridade das rotas de admin;
-- ultimo teste de rotas.
+X
 
 # ARQUIVOS A SEREM OBSERVADOS:
 
+X
 
+# PRÓXIMO PASSO
+
+Iniciar Integração entre o frontend e backend - trocar o uso de dados e funções do mock para o backend.
 
