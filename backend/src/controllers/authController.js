@@ -2,7 +2,7 @@ const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const prisma = require('../utils/database');
-const { sendPasswordRecovery } = require('../services/emailService');
+const { sendPasswordRecovery, sendWelcomeEmail } = require('../services/emailService');
 
 const generateToken = (userId) => {
   return jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: '7d' });
@@ -39,6 +39,7 @@ const authController = {
       });
 
       const token = generateToken(user.id);
+      await sendWelcomeEmail(user.email, user.name);
 
       res.status(201).json({ message: 'Usuário criado com sucesso', user, token });
     } catch (error) {

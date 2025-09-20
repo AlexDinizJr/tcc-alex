@@ -9,10 +9,22 @@ const handleValidationErrors = (req, res, next) => {
 };
 
 const validateUserRegistration = [
-  body('email').isEmail().normalizeEmail(),
-  body('password').isLength({ min: 6 }),
-  body('name').trim().isLength({ min: 2 }),
-  body('username').isAlphanumeric().isLength({ min: 3 }),
+  body('email')
+    .trim()
+    .isEmail().withMessage('E-mail inválido'),
+
+  body('password')
+    .isLength({ min: 6 }).withMessage('A senha deve ter no mínimo 6 caracteres'),
+
+  body('name')
+    .trim()
+    .isLength({ min: 2 }).withMessage('O nome deve ter no mínimo 2 caracteres'),
+
+  body('username')
+    .trim()
+    .matches(/^[a-zA-Z0-9._-]+$/).withMessage('O username só pode conter letras, números, ponto, underline e hífen')
+    .isLength({ min: 3 }).withMessage('O username deve ter no mínimo 3 caracteres'),
+
   handleValidationErrors
 ];
 

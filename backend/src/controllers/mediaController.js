@@ -13,24 +13,6 @@ const getSortOption = (sortBy) => {
   return sortOptions[sortBy] || { title: 'asc' };
 };
 
-const getRatingDistribution = async (mediaId) => {
-  try {
-    const distribution = await prisma.review.groupBy({
-      by: ['rating'],
-      where: { mediaId },
-      _count: { rating: true },
-      orderBy: { rating: 'asc' }
-    });
-
-    return distribution.reduce((acc, item) => {
-      acc[item.rating] = item._count.rating;
-      return acc;
-    }, { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 });
-  } catch {
-    return { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
-  }
-};
-
 // Controller
 const mediaController = {
   async getAllMedia(req, res) {
@@ -428,6 +410,8 @@ const mediaController = {
       res.status(500).json({ error: 'Erro interno do servidor' });
     }
   },
+
+// Ajustar essa funções conforme o algoritmo de recomendações crescer
 
   async getTrending(req, res) {
     try {

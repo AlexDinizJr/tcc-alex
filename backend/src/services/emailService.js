@@ -13,6 +13,21 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+async function sendWelcomeEmail(to, name) {
+  const mailOptions = {
+    from: `"No Reply" <${process.env.SMTP_USER}>`,
+    to,
+    subject: 'Bem-vindo(a) ao MediaHub!',
+    html: `
+      <h2>Olá, ${name}!</h2>
+      <p>Obrigado por se cadastrar em nossa plataforma 🎉</p>
+      <p>Aproveite para explorar conteúdos e fazer novas descobertas!</p>
+      <p>Equipe ${process.env.APP_NAME ?? 'MediaHub'}</p>
+    `
+  };
+  await transporter.sendMail(mailOptions);
+}
+
 async function sendPasswordRecovery(to, token) {
   const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
   const mailOptions = {
@@ -36,4 +51,4 @@ async function sendPasswordRecovery(to, token) {
   }
 }
 
-module.exports = { sendPasswordRecovery };
+module.exports = { sendPasswordRecovery, sendWelcomeEmail };

@@ -27,6 +27,7 @@ model User {
   lists      List[]
   savedMedia Media[]  @relation("SavedMedia")
   favorites  Media[]  @relation("Favorites")
+  excludedMedia      UserExcludedMedia[]
 
   // Configurações de privacidade
   profileVisibility String             @default("public")
@@ -57,6 +58,7 @@ model Media {
   savedBy            User[]             @relation("SavedMedia")
   favoritedBy        User[]             @relation("Favorites")
   lists              List[]
+  excludedBy         UserExcludedMedia[]
 
   // Campos opcionais específicos
   artists   String[]
@@ -131,6 +133,19 @@ model PasswordRecovery {
   createdAt DateTime @default(now())
 
   user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model UserExcludedMedia {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  mediaId   Int
+  expireAt  DateTime
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
+  media     Media    @relation(fields: [mediaId], references: [id])
+
+  @@unique([userId, mediaId])
 }
 
 enum UserRole {
