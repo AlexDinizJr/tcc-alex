@@ -28,6 +28,7 @@ model User {
   savedMedia Media[]  @relation("SavedMedia")
   favorites  Media[]  @relation("Favorites")
   excludedMedia      UserExcludedMedia[]
+  recommendationEngagements RecommendationEngagement[]
 
   // Configurações de privacidade
   profileVisibility String             @default("public")
@@ -59,6 +60,7 @@ model Media {
   favoritedBy        User[]             @relation("Favorites")
   lists              List[]
   excludedBy         UserExcludedMedia[]
+  recommendationEngagements RecommendationEngagement[]
 
   // Campos opcionais específicos
   artists   String[]
@@ -133,6 +135,23 @@ model PasswordRecovery {
   createdAt DateTime @default(now())
 
   user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model RecommendationEngagement {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  mediaId   Int
+  action    String   // 'page_view', 'saved', 'favorited', etc.
+  score     Float
+  timestamp DateTime @default(now())
+  metadata  Json?
+
+  user User @relation(fields: [userId], references: [id])
+  media Media @relation(fields: [mediaId], references: [id])
+
+  @@index([userId])
+  @@index([mediaId])
+  @@index([timestamp])
 }
 
 model UserExcludedMedia {
