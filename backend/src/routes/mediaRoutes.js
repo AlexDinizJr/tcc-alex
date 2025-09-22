@@ -2,8 +2,6 @@ const express = require('express');
 const {
   getAllMedia,
   getMediaById,
-  getTrending,
-  getRecommendations,
   getMediaByType,
   searchMedia,
   getMediaGenres,
@@ -37,30 +35,6 @@ const router = express.Router();
  *         description: Lista de mídias retornada com sucesso
  */
 router.get('/', getAllMedia);
-
-/**
- * @swagger
- * /api/media/trending:
- *   get:
- *     summary: Retorna as mídias em alta (trending)
- *     tags: [Media]
- *     responses:
- *       200:
- *         description: Lista de mídias em alta retornada com sucesso
- */
-router.get('/trending', getTrending);
-
-/**
- * @swagger
- * /api/media/recommendations:
- *   get:
- *     summary: Retorna recomendações de mídia personalizadas
- *     tags: [Media]
- *     responses:
- *       200:
- *         description: Lista de recomendações
- */
-router.get('/recommendations', getRecommendations);
 
 /**
  * @swagger

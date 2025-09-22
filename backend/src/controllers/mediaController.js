@@ -410,64 +410,6 @@ const mediaController = {
       res.status(500).json({ error: 'Erro interno do servidor' });
     }
   },
-
-// Ajustar essa funções conforme o algoritmo de recomendações crescer
-
-  async getTrending(req, res) {
-    try {
-      const { type, limit = 10 } = req.query;
-      const where = type ? { type } : {};
-
-      const trending = await prisma.media.findMany({
-        where,
-        take: parseInt(limit),
-        orderBy: [{ rating: 'desc' }, { reviewCount: 'desc' }],
-        select: {
-          id: true,
-          title: true,
-          rating: true,
-          image: true,
-          genres: true,
-          description: true,
-          _count: { select: { reviews: true, savedBy: true } }
-        }
-      });
-
-      res.json({ trending, type: type || 'all', limit: parseInt(limit) });
-    } catch (error) {
-      res.status(500).json({ error: 'Erro interno do servidor' });
-    }
-  },
-
-  async getRecommendations(req, res) {
-    try {
-      const { excludeId, limit = 5, type } = req.query;
-      const where = { id: excludeId ? { not: parseInt(excludeId) } : undefined, type: type || undefined };
-
-      const recommendations = await prisma.media.findMany({
-        where,
-        take: parseInt(limit),
-        orderBy: { rating: 'desc' },
-        select: {
-          id: true,
-          title: true,
-          rating: true,
-          image: true,
-          genres: true,
-          description: true,
-          _count: { select: { reviews: true } }
-        }
-      });
-
-      res.json({
-        recommendations,
-        count: recommendations.length,
-        filters: { excludeId: excludeId ? parseInt(excludeId) : null, type: type || 'all' }
-      });
-    } catch (error) {
-      res.status(500).json({ error: 'Erro interno do servidor' });
-    }
-  },
 };
 
 module.exports = mediaController;
