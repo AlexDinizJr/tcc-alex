@@ -2,18 +2,15 @@
 
 # PRIORIDADES:
 
-2 - CRUD de Reviews:
-    - OBS1: Exclusão de Reviews não funciona at all;
-    - OBS2: Edição de Reviews não funciona na página de Reviews
-3 - CRUD DE Lists:
-    - OBS1: O Item não é adicionado se a lista é criada na hora;
-    - OBS2: não há controle se o item já está na listas;
+1 - CRUD DE Lists:
     - OBS3: Quando deletada a lista, voltar para página de listas; 
     - OBS4: Existem problemas de visibilidade: o próprio usuário não está conseguindo ver listas privadas - Possível problema no ProtectedContentRoute;
-6 - Users Settings Profile - Edit Name, Bio, Avatar, Cover;
-7 - Users Settings Account - Email, Senha, Username e Delete Account;
-8 - Users Settings Privacy - Show or Not Information;
-9 - Algoritmos - SimiliarMedia, HomePageRecommendations, Trending, UserInitialPreferences, CustomRecommendations e Não Recomendar mais;
+    - OBS1: O Item não é adicionado se a lista é criada na hora;
+    - OBS2: não há controle se o item já está na listas;
+2 - Users Settings Profile - Edit Name, Bio, Avatar, Cover;
+3 - Users Settings Account - Email, Senha, Username e Delete Account;
+4 - Users Settings Privacy - Show or Not Information;
+5 - Algoritmos - SimiliarMedia, HomePageRecommendations, Trending, UserInitialPreferences, CustomRecommendations e Não Recomendar mais;
     - OBS: Enxutar o Algoritmo de Recomendações para Apenas CustomRecommendations e HomePageRecommendations usando abordagens hibridas;
     - OBS2: Alterar o Trending para gerar 5 recomendações;
     - OBS3: Alterar o SimiliarMedia para gerar 4 recomendações e Ajustar ele;
@@ -22,9 +19,12 @@
 
 - Adicionar nova seção de alterar username no Settings Account;
 - Ajustes no campo de Metadados - Publisher -> Publisher, adicionar developer;
-- Criar novas seções no frontend além de recomendado para você;
-- Adicionar página de All Lists;
-- Disparar o Toast caso o usuário esteja tentado marcar a própria review como útil;
-- Ajustar o ícone de MarkedHelpful para ficar verde caso o usuário já tenha avaliado como útil;
 - Trocar emojis por icons;
 - Largura padrão das páginas;
+- Ajusta o Toast caso o usuário esteja tentado marcar a própria review como útil;
+- Ajustar o ícone de MarkedHelpful para ficar verde caso o usuário já tenha avaliado como útil;
+
+Bônus:
+
+- Adicionar página de All Lists - todas as listas do site;
+- Criar novas seções no frontend além de recomendado para você;

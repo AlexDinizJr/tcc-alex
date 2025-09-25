@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import ReviewGrid from "../../components/reviews/ReviewGrid";
 import Pagination from "../../components/Pagination";
 import { useAuth } from "../../hooks/useAuth";
-import { fetchReviewsByUserId, toggleHelpful } from "../../services/reviewService"; 
+import { fetchReviewsByUserId, toggleHelpful, deleteReview, editReview } from "../../services/reviewService"; 
 import { fetchMediaById } from "../../services/mediaService";
 import { fetchUserByUsername } from "../../services/userService";
 import { BackToProfile } from "../../components/profile/BackToProfile";
@@ -12,6 +12,7 @@ import { useToast } from "../../hooks/useToast";
 export default function MyReviews() {
   const { username } = useParams();
   const { user: loggedInUser } = useAuth();
+  const { showToast } = useToast();
 
   const isOwner = loggedInUser?.username === username;
   const [user, setUser] = useState(null);
@@ -20,13 +21,11 @@ export default function MyReviews() {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("");
   const itemsPerPage = 5;
-  const { showToast } = useToast();
 
   useEffect(() => {
     async function loadUserAndReviews() {
       try {
         let selectedUser = isOwner ? loggedInUser : null;
-
         if (!selectedUser && username) {
           selectedUser = await fetchUserByUsername(username);
         }
@@ -36,19 +35,16 @@ export default function MyReviews() {
           setReviews([]);
           return;
         }
-
         setUser(selectedUser);
 
         const response = await fetchReviewsByUserId(selectedUser.id);
-
         const enrichedReviews = await Promise.all(
           (response.reviews || []).map(async (r) => {
             let mediaData = {};
             if (r.mediaId) {
               try {
                 mediaData = await fetchMediaById(r.mediaId);
-              } catch (err) {
-                console.error("Erro ao buscar mídia:", err);
+              } catch {
                 mediaData = { title: "Mídia desconhecida" };
               }
             }
@@ -88,7 +84,6 @@ export default function MyReviews() {
 
     try {
       const result = await toggleHelpful(reviewId);
-
       setReviews((prev) =>
         prev.map((r) =>
           r.id === reviewId
@@ -106,45 +101,56 @@ export default function MyReviews() {
     }
   };
 
-  const handleEditClick = (reviewId, newComment, newRating) => {
-    setReviews((reviews) =>
-      reviews.map((r) =>
-        r.id === reviewId
-          ? {
-              ...r,
-              comment: newComment,
-              rating: newRating,
-              date: new Date().toLocaleDateString("pt-BR"),
-            }
-          : r
-      )
-    );
+  const handleEditClick = async (reviewId, newComment, newRating) => {
+    try {
+      await editReview(reviewId, newRating, newComment);
+
+      setReviews((prev) =>
+        prev.map((r) =>
+          r.id === reviewId
+            ? {
+                ...r,
+                comment: newComment,
+                rating: newRating,
+                date: new Date().toLocaleDateString("pt-BR"),
+              }
+            : r
+        )
+      );
+
+      showToast("Avaliação atualizada!", "success");
+    } catch (err) {
+      console.error("Erro ao editar avaliação:", err);
+      showToast("Erro ao atualizar avaliação.", "error");
+    }
+  };
+
+  const handleDeleteClick = async (reviewId) => {
+    try {
+      await deleteReview(reviewId);
+      setReviews((prev) => prev.filter((r) => r.id !== reviewId));
+      showToast("Avaliação removida.", "success");
+    } catch (err) {
+      console.error("Erro ao deletar review:", err);
+      showToast("Erro ao remover avaliação.", "error");
+    }
   };
 
   const filteredAndSortedReviews = useMemo(() => {
     let list = [...reviews];
-
-    if (searchQuery.trim() !== "") {
+    if (searchQuery.trim()) {
       list = list.filter((r) =>
         r.media?.title?.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
-
-    if (sortBy === "mediaTitle") {
-      list.sort((a, b) => a.media?.title.localeCompare(b.media?.title));
-    } else if (sortBy === "rating") {
-      list.sort((a, b) => b.rating - a.rating);
-    } else if (sortBy === "helpful") {
-      list.sort((a, b) => (b.helpfulCount || 0) - (a.helpfulCount || 0));
-    }
+    if (sortBy === "mediaTitle") list.sort((a, b) => a.media?.title.localeCompare(b.media?.title));
+    else if (sortBy === "rating") list.sort((a, b) => b.rating - a.rating);
+    else if (sortBy === "helpful") list.sort((a, b) => (b.helpfulCount || 0) - (a.helpfulCount || 0));
 
     return list;
   }, [reviews, searchQuery, sortBy]);
 
-  const totalPages = Math.max(
-    1,
-    Math.ceil(filteredAndSortedReviews.length / itemsPerPage)
-  );
+  const totalPages = Math.max(1, Math.ceil(filteredAndSortedReviews.length / itemsPerPage));
   const startIdx = (currentPage - 1) * itemsPerPage;
   const endIdx = startIdx + itemsPerPage;
   const reviewsToShow = filteredAndSortedReviews.slice(startIdx, endIdx);
@@ -196,8 +202,8 @@ export default function MyReviews() {
 
         <ReviewGrid
           reviews={reviewsToShow}
-          showUserInfo={false}        
-          showMediaTitle={true}  
+          showUserInfo={false}
+          showMediaTitle={true}
           currentUserId={loggedInUser?.id}
           showViewAll={false}
           emptyMessage={
@@ -207,6 +213,7 @@ export default function MyReviews() {
           }
           onHelpfulClick={handleHelpfulClick}
           onEditClick={handleEditClick}
+          onDeleteClick={handleDeleteClick}
         />
 
         {totalPages > 1 && (
