@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { fetchMediaById } from "../../services/mediaService";
 import { fetchSimilarMedia } from "../../services/recommendationService";
-import { MediaType } from "../../models/MediaType";
 import { useAuth } from "../../hooks/useAuth";
 
 import MediaGrid from "../../components/contents/MediaGrid";
@@ -80,17 +79,6 @@ export default function MediaPage() {
         {similarMedia.length > 0 && (
           <div className="bg-gray-800/80 rounded-2xl shadow-md border border-gray-700/50 p-8 mb-8">
             <h2 className="text-2xl font-bold text-white mb-6">
-              {mediaItem.type === MediaType.MOVIE
-                ? "Filmes"
-                : mediaItem.type === MediaType.GAME
-                ? "Jogos"
-                : mediaItem.type === MediaType.BOOK
-                ? "Livros"
-                : mediaItem.type === MediaType.SERIES
-                ? "Séries"
-                : mediaItem.type === MediaType.MUSIC
-                ? "Álbuns"
-                : "Mídias"}{" "}
               Similares
             </h2>
             <MediaGrid items={similarMedia} />

@@ -16,10 +16,10 @@ export default function ReviewCard({
   const [editedRating, setEditedRating] = useState(review.rating || 0);
 
   const helpfulCount = review.helpfulCount ?? 0;
-  const userMarkedHelpful = !!review.userMarkedHelpful;
 
   const handleHelpful = () => {
     if (!onHelpfulClick) return;
+    if (review.userId === currentUserId) return;
     onHelpfulClick(review.id);
   };
 
@@ -119,12 +119,18 @@ export default function ReviewCard({
           <button
             onClick={handleHelpful}
             className={`flex items-center gap-2 text-sm px-3 py-1 rounded-lg transition-colors border border-gray-600/30 ${
-              userMarkedHelpful
+              review.userMarkedHelpful
                 ? "text-green-400 bg-gray-700/50 border-green-400/30"
                 : "text-gray-400 hover:text-green-400 hover:bg-gray-700/50"
             }`}
-            disabled={review.userId === currentUserId}
-            title={review.userId === currentUserId ? "Você não pode marcar sua própria avaliação" : "Marcar como útil"}
+            disabled={review.userId === currentUserId || !currentUserId}
+            title={
+              !currentUserId 
+                ? "Faça login para marcar como útil" 
+                : review.userId === currentUserId 
+                  ? "Você não pode marcar sua própria avaliação" 
+                  : "Marcar como útil"
+            }
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905a3.61 3.61 0 01-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />

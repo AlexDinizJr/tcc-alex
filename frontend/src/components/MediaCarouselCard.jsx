@@ -1,49 +1,70 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
-import { 
-  isMediaSaved, saveMediaForUser, unsaveMediaForUser,
-  isMediaFavorited, addMediaToFavorites, removeMediaFromFavorites
-} from "../utils/saveMedia";
 import { useState, useRef, useEffect } from "react";
 import ShareMediaModal from "./ShareMediaModal";
+import { toggleSaveMedia, toggleFavoriteMedia, fetchUserFavorites, fetchUserSavedMedia } from "../services/listsService";
 
 export default function MediaCarouselCard({ media }) {
   const { user, updateUser } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
+  const [isSaved, setIsSaved] = useState(user?.savedMedia?.some(m => m.id === media.id));
+  const [isFavorited, setIsFavorited] = useState(user?.favorites?.some(m => m.id === media.id));
   const menuRef = useRef(null);
 
-  const isSaved = user ? isMediaSaved(user, media.id) : false;
-  const isFavorited = user ? isMediaFavorited(user, media.id) : false;
+  useEffect(() => {
+  setIsSaved(user?.savedMedia?.some(m => m.id === media.id) || false);
+  setIsFavorited(user?.favorites?.some(m => m.id === media.id) || false);
+  }, [user, media.id]);
 
-  // Salvar para depois
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
     e.stopPropagation();
     if (!user) return;
-    const updatedUser = isSaved
-      ? unsaveMediaForUser(user, media.id)
-      : saveMediaForUser(user, media.id);
-    updateUser(updatedUser);
+
+    try {
+      await toggleSaveMedia(media.id);
+
+      // Atualiza estado local imediatamente
+      setIsSaved(prev => !prev);
+
+      // Atualiza listas do usuário global
+      const savedMedia = await fetchUserSavedMedia(user.id);
+      const favorites = await fetchUserFavorites(user.id);
+      updateUser({ ...user, savedMedia, favorites });
+
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  // Favoritos
-  const handleAddToFavorites = (e) => {
+  const handleAddToFavorites = async (e) => {
     e.preventDefault();
     e.stopPropagation();
     if (!user) return;
-    const updatedUser = isFavorited
-      ? removeMediaFromFavorites(user, media.id)
-      : addMediaToFavorites(user, media.id);
-    updateUser(updatedUser);
-    setMenuOpen(false);
+
+    try {
+      await toggleFavoriteMedia(media.id);
+
+      // Atualiza estado local imediatamente
+      setIsFavorited(prev => !prev);
+
+      // Atualiza listas do usuário global
+      const savedMedia = await fetchUserSavedMedia(user.id);
+      const favorites = await fetchUserFavorites(user.id);
+      updateUser({ ...user, savedMedia, favorites });
+
+      setMenuOpen(false);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   // Menu
   const toggleMenu = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    setMenuOpen(!menuOpen);
+    setMenuOpen(prev => !prev);
   };
 
   // Compartilhar

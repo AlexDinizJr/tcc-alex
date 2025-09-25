@@ -2,15 +2,21 @@
 
 # PRIORIDADES:
 
-3 - Ajustar Botões de Actions Toggle de Helpful, Favorite e Saved - Criação de Campos Booleanos para verificação de estado;
-4 - CRUD DE Lists:
-    - OBS: Aparentemente a Criação, Edição e Deleção das Listas já está funcional bem como a Adição e Remoção de Itens;
-    - OBS2: Resposta no frontend está incosistente com o backend - os itens estão sendo adicionados tanto no AddItemToList tanto QuickAddtoList mas o frontend dispara um toast de erro;
-    - OBS3: Existem problemas de visibilidade: o próprio usuário não está conseguindo ver listas privadas - Possível problema no ProtectedContentRoute;
+2 - CRUD de Reviews:
+    - OBS1: Exclusão de Reviews não funciona at all;
+    - OBS2: Edição de Reviews não funciona na página de Reviews
+3 - CRUD DE Lists:
+    - OBS1: O Item não é adicionado se a lista é criada na hora;
+    - OBS2: não há controle se o item já está na listas;
+    - OBS3: Quando deletada a lista, voltar para página de listas; 
+    - OBS4: Existem problemas de visibilidade: o próprio usuário não está conseguindo ver listas privadas - Possível problema no ProtectedContentRoute;
 6 - Users Settings Profile - Edit Name, Bio, Avatar, Cover;
 7 - Users Settings Account - Email, Senha, Username e Delete Account;
 8 - Users Settings Privacy - Show or Not Information;
 9 - Algoritmos - SimiliarMedia, HomePageRecommendations, Trending, UserInitialPreferences, CustomRecommendations e Não Recomendar mais;
+    - OBS: Enxutar o Algoritmo de Recomendações para Apenas CustomRecommendations e HomePageRecommendations usando abordagens hibridas;
+    - OBS2: Alterar o Trending para gerar 5 recomendações;
+    - OBS3: Alterar o SimiliarMedia para gerar 4 recomendações e Ajustar ele;
 
 # POSSÍVEIS AJUSTES:
 
@@ -19,5 +25,6 @@
 - Criar novas seções no frontend além de recomendado para você;
 - Adicionar página de All Lists;
 - Disparar o Toast caso o usuário esteja tentado marcar a própria review como útil;
+- Ajustar o ícone de MarkedHelpful para ficar verde caso o usuário já tenha avaliado como útil;
 - Trocar emojis por icons;
 - Largura padrão das páginas;

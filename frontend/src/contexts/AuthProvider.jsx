@@ -27,7 +27,6 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Função para recarregar o usuário logado
   const reloadUser = async () => {
     try {
       const currentUser = await fetchCurrentUser();
@@ -35,14 +34,12 @@ export function AuthProvider({ children }) {
       return currentUser;
     } catch (error) {
       console.error("Erro ao recarregar usuário:", error);
-      // Se não conseguir carregar o usuário, faz logout
       localStorage.removeItem("authToken");
       setUser(null);
       return null;
     }
   };
 
-  // Carregar usuário ao inicializar - CORRIGIDO
   useEffect(() => {
     const initAuth = async () => {
       setLoading(true);
@@ -50,10 +47,8 @@ export function AuthProvider({ children }) {
         const token = localStorage.getItem("authToken");
         
         if (token) {
-          // Tem token, tenta carregar o usuário
           await reloadUser();
         } else {
-          // Não tem token, garante que está deslogado
           setUser(null);
         }
       } catch (error) {
@@ -73,16 +68,12 @@ export function AuthProvider({ children }) {
     try {
       const result = await loginService({ usernameOrEmail, password });
 
-      // Se houver token, considerar login bem-sucedido
       if (result?.token) {
         localStorage.setItem("authToken", result.token);
-
         const currentUser = await fetchCurrentUser();
         setUser(currentUser);
-
         return true;
       }
-
       return false;
     } catch (error) {
       console.error("Erro no login:", error);
@@ -117,7 +108,6 @@ export function AuthProvider({ children }) {
     if (!user) return { success: false, error: "Usuário não autenticado" };
     
     try {
-      // Aqui você implementaria a chamada API para atualizar perfil
       const updatedUser = { ...user, ...profileData };
       setUser(updatedUser);
       return { success: true, user: updatedUser };
@@ -188,23 +178,34 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const addMediaToList = async (mediaItem, listId, listName = null) => {
+  const addMediaToList = async (mediaItem, listId, listName = null, isPublic = false) => {
     if (!user) return { success: false, error: "Usuário não autenticado" };
     
     try {
       if (listName) {
+        // 1. Primeiro cria a lista
         const newList = await createListService({ 
           name: listName, 
-          description: "" 
+          description: "",
+          isPublic: isPublic
         });
+        
+        // 🔥 PEQUENA PAUSA para garantir que a lista foi criada
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        // 2. Depois adiciona o item à lista
         await addItemToListService(newList.id, mediaItem.id);
+        
+        // 3. Recarrega o usuário
         await reloadUser();
+        
         return { 
           success: true, 
           list: newList,
           message: `Lista "${listName}" criada com sucesso!`
         };
       } else {
+        // Para lista existente
         await addItemToListService(listId, mediaItem.id);
         await reloadUser();
         return { 
@@ -213,7 +214,24 @@ export function AuthProvider({ children }) {
         };
       }
     } catch (error) {
-      return { success: false, error: error.message };
+      console.error("Erro detalhado em addMediaToList:", error);
+      
+      // 🔥 CORREÇÃO: Captura mais tipos de erro de duplicação
+      const errorMessage = error.message || error.response?.data?.message || "Erro desconhecido";
+      
+      if (errorMessage.includes("já está") || 
+          errorMessage.includes("already exists") ||
+          errorMessage.includes("duplicate") ||
+          errorMessage.includes("já foi adicionado") ||
+          errorMessage.includes("already in list")) {
+        return { 
+          success: false, 
+          error: `"${mediaItem.title}" já está nesta lista!`,
+          isDuplicate: true
+        };
+      }
+      
+      return { success: false, error: errorMessage };
     }
   };
 

@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import ReviewGrid from "../../components/reviews/ReviewGrid";
 import Pagination from "../../components/Pagination";
 import { useAuth } from "../../hooks/useAuth";
-import { fetchReviewsByUserId } from "../../services/reviewService"; 
+import { fetchReviewsByUserId, toggleHelpful } from "../../services/reviewService"; 
 import { fetchMediaById } from "../../services/mediaService";
 import { fetchUserByUsername } from "../../services/userService";
 import { BackToProfile } from "../../components/profile/BackToProfile";
@@ -41,20 +41,30 @@ export default function MyReviews() {
 
         const response = await fetchReviewsByUserId(selectedUser.id);
 
-      const enrichedReviews = await Promise.all(
-        (response.reviews || []).map(async (r) => {
-          console.log("Review:", r);
-          if (!r.mediaId) return r;
-          try {
-            const media = await fetchMediaById(r.mediaId);
-            console.log("Media fetched:", media);
-            return { ...r, media };
-          } catch (err) {
-            console.error("Erro ao buscar mídia:", err);
-            return { ...r, media: { title: "Mídia desconhecida" } };
-          }
-        })
-      );
+        const enrichedReviews = await Promise.all(
+          (response.reviews || []).map(async (r) => {
+            let mediaData = {};
+            if (r.mediaId) {
+              try {
+                mediaData = await fetchMediaById(r.mediaId);
+              } catch (err) {
+                console.error("Erro ao buscar mídia:", err);
+                mediaData = { title: "Mídia desconhecida" };
+              }
+            }
+
+            const userMarkedHelpful = r.helpfuls?.some(
+              (h) => h.userId === loggedInUser?.id
+            ) || false;
+
+            return {
+              ...r,
+              media: mediaData,
+              helpfulCount: r.helpful || 0,
+              userMarkedHelpful
+            };
+          })
+        );
 
         setReviews(enrichedReviews);
       } catch (err) {
@@ -67,19 +77,33 @@ export default function MyReviews() {
     loadUserAndReviews();
   }, [username, loggedInUser, isOwner]);
 
-  const handleHelpfulClick = (reviewId) => {
+  const handleHelpfulClick = async (reviewId) => {
+    if (!loggedInUser) return showToast("Faça login para marcar como útil.", "warning");
+
     const review = reviews.find((r) => r.id === reviewId);
     if (!review) return;
-
     if (review.userId === loggedInUser?.id) {
       return showToast("Você não pode marcar sua própria avaliação como útil.", "warning");
     }
 
-    setReviews((reviews) =>
-      reviews.map((r) =>
-        r.id === reviewId ? { ...r, helpful: (r.helpful || 0) + 1 } : r
-      )
-    );
+    try {
+      const result = await toggleHelpful(reviewId);
+
+      setReviews((prev) =>
+        prev.map((r) =>
+          r.id === reviewId
+            ? {
+                ...r,
+                helpfulCount: result.helpfulCount,
+                userMarkedHelpful: result.userMarkedHelpful
+              }
+            : r
+        )
+      );
+    } catch (err) {
+      console.error("Erro ao marcar como útil:", err);
+      showToast("Erro ao marcar como útil.", "error");
+    }
   };
 
   const handleEditClick = (reviewId, newComment, newRating) => {
@@ -111,7 +135,7 @@ export default function MyReviews() {
     } else if (sortBy === "rating") {
       list.sort((a, b) => b.rating - a.rating);
     } else if (sortBy === "helpful") {
-      list.sort((a, b) => (b.helpful || 0) - (a.helpful || 0));
+      list.sort((a, b) => (b.helpfulCount || 0) - (a.helpfulCount || 0));
     }
 
     return list;
@@ -172,7 +196,7 @@ export default function MyReviews() {
 
         <ReviewGrid
           reviews={reviewsToShow}
-          showUserInfo={false}        // não mostra info do usuário
+          showUserInfo={false}        
           showMediaTitle={true}  
           currentUserId={loggedInUser?.id}
           showViewAll={false}

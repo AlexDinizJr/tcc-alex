@@ -4,9 +4,8 @@ import {
   createReview,
   editReview,
   deleteReview,
-  toggleHelpful as toggleHelpfulService
+  toggleHelpful
 } from "../../services/reviewService";
-import { fetchUserById } from "../../services/userService";
 import { useToast } from "../../hooks/useToast";
 
 import ReviewGrid from "../reviews/ReviewGrid";
@@ -18,44 +17,31 @@ export default function ReviewSection({ mediaId, currentUser }) {
   const [reviews, setReviews] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // 🆕 Estado controlado do formulário
   const [newReview, setNewReview] = useState({
     rating: 0,
     comment: "",
   });
 
-  // controle de quantos carregar
   const PAGE_SIZE = 5;
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
   useEffect(() => {
-    setVisibleCount(PAGE_SIZE); // reset quando muda a mídia
     async function loadReviews() {
       try {
         const res = await fetchReviewsByMediaId(mediaId);
+
         const reviewsData = Array.isArray(res)
           ? res
           : Array.isArray(res?.reviews)
           ? res.reviews
           : [];
 
-        const enriched = await Promise.all(
-          reviewsData.map(async (r) => {
-            if (r.userName && r.avatar !== undefined) return r;
-            try {
-              const user = await fetchUserById(r.userId);
-              return { ...r, userName: user.name, avatar: user.avatar };
-            } catch {
-              return { ...r, userName: "Usuário", avatar: null };
-            }
-          })
-        );
-
-        const normalized = enriched.map((r) => ({
+        const normalized = reviewsData.map((r) => ({
           ...r,
-          helpfulCount: r.helpfulCount ?? r.helpful ?? 0,
-          userMarkedHelpful: !!r.userMarkedHelpful,
-          userName: r.userName ?? (r.user ?? "Usuário"),
+          helpfulCount: r.helpfulCount ?? 0,
+          userMarkedHelpful: currentUser ? !!r.userMarkedHelpful : false, 
+          userName: r.userName ?? (r.user?.name || "Usuário"),
+          avatar: r.avatar ?? (r.user?.avatar || null),
         }));
 
         setReviews(normalized);
@@ -65,15 +51,13 @@ export default function ReviewSection({ mediaId, currentUser }) {
     }
 
     loadReviews();
-  }, [mediaId]);
+  }, [mediaId, currentUser]);
 
-  // verifica se o usuário já avaliou essa mídia
   const userReview = useMemo(
     () => reviews.find((r) => currentUser && r.userId === currentUser.id),
     [reviews, currentUser]
   );
 
-  // 🆕 Handlers para rating e input
   const handleRatingChange = (rating) => {
     setNewReview((prev) => ({ ...prev, rating }));
   };
@@ -83,67 +67,52 @@ export default function ReviewSection({ mediaId, currentUser }) {
     setNewReview((prev) => ({ ...prev, [name]: value }));
   };
 
-  // criar review
   const handleSubmitReview = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  if (!currentUser) return showToast("Faça login para enviar uma avaliação.", "warning");
+    if (!currentUser) return showToast("Faça login para enviar uma avaliação.", "warning");
+    if (userReview) return showToast("Você já avaliou esta mídia.", "warning");
 
-  // Se já existe review do usuário, não permitir novo
-  if (userReview) {
-    return showToast(
-      "Você já avaliou esta mídia. Tente editar sua avaliação existente.",
-      "warning"
-    );
-  }
+    const { rating, comment } = newReview;
+    if (!rating || rating <= 0) return showToast("Selecione uma nota.", "warning");
+    if (!comment || !comment.trim()) return showToast("Escreva um comentário.", "warning");
 
-  const { rating, comment } = newReview;
+    setIsSubmitting(true);
+    try {
+      const tempId = `temp-${Date.now()}`;
+      const tempReview = {
+        id: tempId,
+        mediaId,
+        userId: currentUser.id,
+        userName: currentUser.name,
+        avatar: currentUser.avatar,
+        rating,
+        comment,
+        date: new Date().toISOString(),
+        helpfulCount: 0,
+        userMarkedHelpful: false,
+      };
 
-  if (!rating || rating <= 0) return showToast("Selecione uma nota.", "warning");
-  if (!comment || !comment.trim()) return showToast("Escreva um comentário.", "warning");
+      setReviews((prev) => [tempReview, ...prev]);
+      showToast("Enviando avaliação...", "info");
 
-  setIsSubmitting(true);
-  try {
-    const tempId = `temp-${Date.now()}`;
-    const tempReview = {
-      id: tempId,
-      mediaId,
-      userId: currentUser.id,
-      userName: currentUser.name,
-      avatar: currentUser.avatar,
-      rating,
-      comment,
-      date: new Date().toISOString(),
-      helpfulCount: 0,
-      userMarkedHelpful: false,
-    };
+      const created = await createReview({ mediaId, userId: currentUser.id, rating, comment });
 
-    setReviews((prev) => [tempReview, ...prev]);
-    showToast("Enviando avaliação...", "info");
+      setReviews((prev) =>
+        prev.map((r) => (r.id === tempId ? { ...r, ...created.review } : r))
+      );
 
-    const created = await createReview({
-      mediaId,
-      userId: currentUser.id,
-      rating,
-      comment,
-    });
+      setNewReview({ rating: 0, comment: "" });
+      showToast("Avaliação enviada com sucesso!", "success");
+    } catch (err) {
+      console.error("Erro ao enviar avaliação:", err);
+      setReviews((prev) => prev.filter((r) => !String(r.id).startsWith("temp-")));
+      showToast("Erro ao enviar avaliação.", "error");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
-    setReviews((prev) =>
-      prev.map((r) => (r.id === tempId ? { ...r, ...created } : r))
-    );
-
-    setNewReview({ rating: 0, comment: "" });
-    showToast("Avaliação enviada com sucesso!", "success");
-  } catch (err) {
-    console.error("Erro ao enviar avaliação:", err);
-    setReviews((prev) => prev.filter((r) => !String(r.id).startsWith("temp-")));
-    showToast("Erro ao enviar avaliação.", "error");
-  } finally {
-    setIsSubmitting(false);
-  }
-};
-
-  // editar review
   const handleEdit = async (reviewId, newComment, newRating) => {
     if (!currentUser) return showToast("Faça login.", "warning");
     setIsSubmitting(true);
@@ -156,7 +125,7 @@ export default function ReviewSection({ mediaId, currentUser }) {
 
       const updated = await editReview(reviewId, { comment: newComment, rating: newRating });
       setReviews((prev) =>
-        prev.map((r) => (r.id === reviewId ? { ...r, ...updated } : r))
+        prev.map((r) => (r.id === reviewId ? { ...r, ...updated.review } : r))
       );
       showToast("Avaliação editada com sucesso!", "success");
     } catch (err) {
@@ -167,7 +136,6 @@ export default function ReviewSection({ mediaId, currentUser }) {
     }
   };
 
-  // deletar review
   const handleDelete = async (reviewId) => {
     if (!currentUser) return showToast("Faça login.", "warning");
     try {
@@ -180,35 +148,23 @@ export default function ReviewSection({ mediaId, currentUser }) {
     }
   };
 
-  // toggle helpful
   const handleHelpfulToggle = async (reviewId) => {
     if (!currentUser) return showToast("Faça login para marcar como útil.", "warning");
-    const review = reviews.find((r) => r.id === reviewId);
-    if (!review) return;
-
-    if (review.userId === currentUser.id) {
-    return showToast("Você não pode marcar sua própria avaliação como útil.", "warning");
-    }
-
-    setReviews((prev) =>
-      prev.map((r) =>
-        r.id === reviewId
-          ? {
-              ...r,
-              userMarkedHelpful: !r.userMarkedHelpful,
-              helpfulCount: (r.helpfulCount ?? 0) + (r.userMarkedHelpful ? -1 : 1),
-            }
-          : r
-      )
-    );
 
     try {
-      const updated = await toggleHelpfulService(reviewId);
-      if (updated) {
-        setReviews((prev) =>
-          prev.map((r) => (r.id === reviewId ? { ...r, ...updated } : r))
-        );
-      }
+      const result = await toggleHelpful(reviewId);
+
+      setReviews((prev) =>
+        prev.map((r) =>
+          r.id === reviewId
+            ? {
+                ...r,
+                helpfulCount: result.helpfulCount,
+                userMarkedHelpful: result.userMarkedHelpful,
+              }
+            : r
+        )
+      );
     } catch (err) {
       console.error("Erro ao marcar útil:", err);
       showToast("Erro ao marcar como útil.", "error");
@@ -224,8 +180,8 @@ export default function ReviewSection({ mediaId, currentUser }) {
       <ReviewGrid
         reviews={reviews.slice(0, visibleCount)}
         totalReviews={reviews.length}
-        showUserInfo={true}        // mostra quem fez
-        showMediaTitle={false} 
+        showUserInfo={true}
+        showMediaTitle={false}
         onHelpfulClick={handleHelpfulToggle}
         onEditClick={handleEdit}
         onDeleteClick={handleDelete}

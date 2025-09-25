@@ -7,6 +7,7 @@ export default function ReviewGrid({
   showViewAll = true,
   onHelpfulClick,
   onEditClick,
+  onDeleteClick, 
   currentUserId = null,
   showContainer = true,
   showMediaTitle = false,
@@ -36,6 +37,7 @@ export default function ReviewGrid({
               review={review} 
               onHelpfulClick={onHelpfulClick}
               onEditClick={onEditClick}
+              onDeleteClick={onDeleteClick}
               canEdit={currentUserId ? review.userId === currentUserId : false}
               currentUserId={currentUserId}
               showMediaTitle={showMediaTitle}

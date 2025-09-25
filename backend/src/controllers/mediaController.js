@@ -28,22 +28,21 @@ const mediaController = {
       if (search) where.title = { contains: search, mode: 'insensitive' };
       if (genre) where.genres = { has: genre };
 
+      const currentUserId = req.user?.id || null;
+
       const [media, total] = await Promise.all([
         prisma.media.findMany({
           where,
           skip,
           take: limitNumber,
           orderBy: getSortOption(sortBy),
-          select: {
-            id: true,
-            title: true,
-            type: true,
-            rating: true,
-            image: true,
-            year: true,
-            genres: true,
-            description: true,
-            platforms: true,
+          include: {
+            savedBy: currentUserId
+              ? { where: { id: currentUserId }, select: { id: true } }
+              : false,
+            favoritedBy: currentUserId
+              ? { where: { id: currentUserId }, select: { id: true } }
+              : false,
             _count: {
               select: { reviews: true, savedBy: true, favoritedBy: true }
             }
@@ -52,8 +51,15 @@ const mediaController = {
         prisma.media.count({ where })
       ]);
 
+      // Mapeia e adiciona os flags
+      const mediaWithFlags = media.map((item) => ({
+        ...item,
+        isSavedByUser: currentUserId ? item.savedBy?.length > 0 : false,
+        isFavoritedByUser: currentUserId ? item.favoritedBy?.length > 0 : false
+      }));
+
       res.json({
-        media,
+        media: mediaWithFlags,
         pagination: {
           page: pageNumber,
           limit: limitNumber,
@@ -89,30 +95,35 @@ const mediaController = {
         ] : undefined
       };
 
+      const currentUserId = req.user?.id || null;
+
       const [media, total] = await Promise.all([
         prisma.media.findMany({
           where,
           skip,
           take: parseInt(limit),
           orderBy: { title: 'asc' },
-          select: {
-            id: true,
-            title: true,
-            type: true,
-            rating: true,
-            image: true,
-            year: true,
-            genres: true,
-            description: true,
-            platforms: true,
+          include: {
+            savedBy: currentUserId
+              ? { where: { id: currentUserId }, select: { id: true } }
+              : false,
+            favoritedBy: currentUserId
+              ? { where: { id: currentUserId }, select: { id: true } }
+              : false,
             _count: { select: { reviews: true } }
           }
         }),
         prisma.media.count({ where })
       ]);
 
+      const mediaWithFlags = media.map((item) => ({
+        ...item,
+        isSavedByUser: currentUserId ? item.savedBy?.length > 0 : false,
+        isFavoritedByUser: currentUserId ? item.favoritedBy?.length > 0 : false
+      }));
+
       res.json({
-        results: media,
+        results: mediaWithFlags,
         pagination: {
           page: parseInt(page),
           limit: parseInt(limit),
@@ -129,18 +140,23 @@ const mediaController = {
   async getMediaById(req, res) {
     try {
       const mediaId = parseInt(req.params.id);
-
       if (isNaN(mediaId)) {
         return res.status(400).json({ error: "ID de mídia inválido" });
       }
 
+      const currentUserId = req.user?.id || null;
+
       const media = await prisma.media.findUnique({
         where: { id: mediaId },
         include: {
-          reviews: true,       // sempre retorna array, mesmo vazio
-          savedBy: true,       // idem
-          favoritedBy: true,   // idem
-          lists: true          // idem
+          reviews: true,
+          savedBy: currentUserId
+            ? { where: { id: currentUserId }, select: { id: true } }
+            : false,
+          favoritedBy: currentUserId
+            ? { where: { id: currentUserId }, select: { id: true } }
+            : false,
+          lists: true
         },
       });
 
@@ -148,7 +164,13 @@ const mediaController = {
         return res.status(404).json({ error: "Mídia não encontrada" });
       }
 
-      res.status(200).json(media);
+      const mediaWithFlags = {
+        ...media,
+        isSavedByUser: currentUserId ? media.savedBy?.length > 0 : false,
+        isFavoritedByUser: currentUserId ? media.favoritedBy?.length > 0 : false
+      };
+
+      res.status(200).json(mediaWithFlags);
     } catch (error) {
       console.error("Erro ao buscar mídia por ID:", error);
       res.status(500).json({ error: "Erro interno ao buscar mídia" });

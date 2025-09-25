@@ -37,6 +37,7 @@ const reviewController = {
       const limit = Math.max(1, parseInt(req.query.limit) || 10);
       const sortBy = req.query.sortBy || 'recent';
       const skip = (page - 1) * limit;
+      const currentUserId = req.user?.id || null;
 
       const [reviews, total, stats] = await Promise.all([
         prisma.review.findMany({
@@ -45,7 +46,8 @@ const reviewController = {
           take: limit,
           orderBy: REVIEW_SORT_OPTIONS[sortBy] || REVIEW_SORT_OPTIONS.recent,
           include: {
-            user: { select: { id: true, name: true, username: true, avatar: true } }
+            user: { select: { id: true, name: true, username: true, avatar: true } },
+            helpfuls: true // pega todos os helpfuls
           }
         }),
         prisma.review.count({ where: { mediaId } }),
@@ -56,8 +58,23 @@ const reviewController = {
         })
       ]);
 
+      const reviewsWithUserFlag = reviews.map(r => ({
+        id: r.id,
+        mediaId: r.mediaId,
+        userId: r.userId,
+        userName: r.user.name,
+        avatar: r.user.avatar,
+        rating: r.rating,
+        comment: r.comment,
+        date: r.date,
+        helpfulCount: r.helpfuls.length,
+        userMarkedHelpful: currentUserId
+          ? r.helpfuls.some(h => h.userId === currentUserId)
+          : false
+      }));
+
       res.json({
-        reviews,
+        reviews: reviewsWithUserFlag,
         pagination: {
           page,
           limit,
@@ -82,6 +99,7 @@ const reviewController = {
       const page = Math.max(1, parseInt(req.query.page) || 1);
       const limit = Math.max(1, parseInt(req.query.limit) || 10);
       const skip = (page - 1) * limit;
+      const currentUserId = req.user?.id || null;
 
       const [reviews, total] = await Promise.all([
         prisma.review.findMany({
@@ -89,13 +107,23 @@ const reviewController = {
           skip,
           take: limit,
           orderBy: { date: 'desc' },
-          include: { media: { select: { id: true, title: true, type: true, image: true, year: true } } }
+          include: {
+            media: { select: { id: true, title: true, type: true, image: true, year: true } },
+            helpfuls: currentUserId
+              ? { where: { userId: currentUserId }, select: { id: true } }
+              : false
+          }
         }),
         prisma.review.count({ where: { userId } })
       ]);
 
+      const reviewsWithUserFlag = reviews.map(r => ({
+        ...r,
+        userMarkedHelpful: r.helpfuls?.length > 0
+      }));
+
       res.json({
-        reviews,
+        reviews: reviewsWithUserFlag,
         pagination: {
           page,
           limit,
@@ -196,17 +224,18 @@ const reviewController = {
   },
 
   // Marcar avaliação como útil
-  async markHelpful(req, res) {
+    async markHelpful(req, res) {
     try {
       const reviewId = parseInt(req.params.reviewId);
       const userId = req.user.id;
 
-      // Busca a review
-      const review = await prisma.review.findUnique({ where: { id: reviewId } });
+      const review = await prisma.review.findUnique({
+        where: { id: reviewId },
+        include: { helpfuls: true } // pega todos os helpfuls
+      });
       if (!review) return res.status(404).json({ error: 'Avaliação não encontrada' });
       if (review.userId === userId) return res.status(403).json({ error: 'Você não pode marcar sua própria avaliação como útil' });
 
-      // Verifica se já existe registro no Helpful
       const existing = await prisma.helpful.findUnique({
         where: { userId_reviewId: { userId, reviewId } }
       });
@@ -214,39 +243,39 @@ const reviewController = {
       let updatedReview;
 
       if (existing) {
-        // Se já marcou, desmarca
-        const [reviewUpdate, helpfulDelete] = await prisma.$transaction([
+        // desmarcar
+        const [reviewUpdate] = await prisma.$transaction([
           prisma.review.update({
             where: { id: reviewId },
-            data: { helpful: { decrement: 1 } },
-            include: { user: { select: { id: true, name: true, username: true, avatar: true } } }
+            data: { helpful: { decrement: 1 } }
           }),
           prisma.helpful.delete({ where: { userId_reviewId: { userId, reviewId } } })
         ]);
         updatedReview = reviewUpdate;
       } else {
-        // Se ainda não marcou, marca
-        const [reviewUpdate, helpfulCreate] = await prisma.$transaction([
+        // marcar
+        const [reviewUpdate] = await prisma.$transaction([
           prisma.review.update({
             where: { id: reviewId },
-            data: { helpful: { increment: 1 } },
-            include: { user: { select: { id: true, name: true, username: true, avatar: true } } }
+            data: { helpful: { increment: 1 } }
           }),
           prisma.helpful.create({ data: { userId, reviewId } })
         ]);
         updatedReview = reviewUpdate;
       }
 
-      res.json({
-        message: existing ? 'Avaliação desmarcada como útil' : 'Avaliação marcada como útil',
-        review: updatedReview
-      });
+      // ✅ Retornar o estado correto do usuário
+      const userMarkedHelpful = !existing;
 
+      res.json({
+        helpfulCount: updatedReview.helpful,
+        userMarkedHelpful
+      });
     } catch (error) {
       console.error('Erro ao marcar/desmarcar avaliação como útil:', error);
       res.status(500).json({ error: 'Erro interno do servidor' });
     }
-}
+  }
 };
 
 module.exports = reviewController;
