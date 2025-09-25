@@ -1,28 +1,33 @@
 import { useState, useEffect } from "react";
 import MediaCarousel from "../MediaCarousel";
 import { IoMdTrendingUp } from "react-icons/io";
-import { fetchTrending } from "../../services/mediaService";
+import { fetchTrending } from "../../services/recommendationService";
 
 export default function TrendingSection() {
   const [trendingItems, setTrendingItems] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const loadTrending = async () => {
+    let isMounted = true;
+
+    async function loadTrending() {
       try {
-        setIsLoading(true);
         setError(null);
         const data = await fetchTrending();
-        setTrendingItems(data);
+        console.log("Trending API response:", data);
+        if (isMounted) setTrendingItems(Array.isArray(data) ? data : data?.data || []);
       } catch {
-        setError("Não foi possível carregar os trending items.");
+        if (isMounted) setError("Não foi possível carregar os trending items.");
       } finally {
-        setIsLoading(false);
+        if (isMounted) setIsLoading(false);
       }
-    };
+    }
 
     loadTrending();
+    return () => {
+      isMounted = false; 
+    };
   }, []);
 
   return (
@@ -32,11 +37,15 @@ export default function TrendingSection() {
         Trendings
       </h2>
 
+      {isLoading && <p className="text-gray-400">Carregando...</p>}
       {error && <p className="text-red-500">{error}</p>}
+      {!isLoading && !error && trendingItems.length > 0 && (
+        <MediaCarousel items={trendingItems} />
+      )}
 
-      <MediaCarousel items={trendingItems} />
-
-      {isLoading && <p className="text-gray-400 mt-2">Carregando...</p>}
+      {!isLoading && !error && trendingItems.length === 0 && (
+        <p className="text-gray-400">Nenhum item encontrado.</p>
+      )}
     </div>
   );
 }

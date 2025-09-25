@@ -1,17 +1,30 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ALL_MEDIA } from "../../mockdata/mockMedia";
+import { searchMediaByQuery } from "../../services/mediaService";
 
 export default function SearchBar() {
   const [query, setQuery] = useState("");
+  const [results, setResults] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const searchRef = useRef(null);
   const navigate = useNavigate();
-  
-  const filteredResults = ALL_MEDIA.filter((media) =>
-    media.title.toLowerCase().includes(query.toLowerCase())
-  );
+
+  // Buscar resultados do backend sempre que query mudar
+  useEffect(() => {
+    if (!query.trim()) {
+      setResults([]);
+      return;
+    }
+
+    const fetchResults = async () => {
+      const data = await searchMediaByQuery(query);
+      // garante que results seja sempre array
+      setResults(Array.isArray(data) ? data : []);
+    };
+
+    fetchResults();
+  }, [query]);
 
   // Fechar ao clicar fora
   useEffect(() => {
@@ -84,6 +97,7 @@ export default function SearchBar() {
               setIsExpanded(false);
               setIsOpen(false);
               setQuery("");
+              setResults([]);
             }}
             className="ml-2 p-2 rounded-full hover:bg-gray-700 transition-colors cursor-pointer"
             title="Fechar busca"
@@ -107,6 +121,7 @@ export default function SearchBar() {
                 setIsOpen(false);
                 setIsExpanded(false);
                 setQuery("");
+                setResults([]);
               }}
               className="text-xs text-blue-400 hover:text-blue-500 font-medium"
             >
@@ -114,9 +129,9 @@ export default function SearchBar() {
             </Link>
           </div>
           
-          {filteredResults.slice(0, 5).length > 0 ? (
+          {results.slice(0, 5).length > 0 ? (
             <ul className="space-y-2">
-              {filteredResults.slice(0, 5).map((media) => (
+              {results.slice(0, 5).map((media) => (
                 <li key={media.id}>
                   <Link
                     to={`/media/${media.id}`}
@@ -124,6 +139,7 @@ export default function SearchBar() {
                       setQuery("");
                       setIsOpen(false);
                       setIsExpanded(false);
+                      setResults([]);
                     }}
                     className="block p-3 rounded-lg hover:bg-gray-700 transition-colors cursor-pointer border border-gray-700"
                   >

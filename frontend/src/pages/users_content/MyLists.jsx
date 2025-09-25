@@ -3,84 +3,131 @@ import { Link, useParams } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import ListCard from "../../components/lists/ListCard";
 import EmptyListsState from "../../components/lists/EmptyListsState";
-import { ensureArray, getListsByUserId } from "../../utils/MediaHelpers";
 import Pagination from "../../components/Pagination";
-import { mockUsers } from "../../mockdata/mockUsers";
+import { fetchUserByUsername } from "../../services/userService";
+import { fetchUserLists } from "../../services/listsService";
 import { BackToProfile } from "../../components/profile/BackToProfile";
 
 export default function MyLists() {
-  const { username } = useParams(); // username da URL
+  const { username } = useParams();
   const { user: loggedInUser } = useAuth();
-  
-  // verifica se é o dono da página
-  const isOwner = loggedInUser?.username === username;
-  const user = isOwner ? loggedInUser : mockUsers.find(u => u.username === username);
 
+  const [profileUser, setProfileUser] = useState(null);
   const [allLists, setAllLists] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
 
-  // Carregar listas
+  const isOwner = loggedInUser?.username === username;
+
+  // 🔹 Carregar usuário e listas
   useEffect(() => {
-    if (user) {
-      const userLists = ensureArray(user?.lists);
-      if (userLists.length > 0) {
-        setAllLists(userLists);
-      } else {
-        const storedLists = getListsByUserId(user.id);
-        setAllLists(storedLists);
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        let userData = null;
+        if (isOwner) {
+          userData = loggedInUser;
+        } else {
+          userData = await fetchUserByUsername(username);
+        }
+
+        if (!userData) throw new Error(`Usuário "${username}" não encontrado`);
+
+        setProfileUser(userData);
+
+        const listsResponse = await fetchUserLists(userData.id);
+        const listsArray = Array.isArray(listsResponse?.lists)
+          ? listsResponse.lists
+          : Array.isArray(listsResponse)
+          ? listsResponse
+          : [];
+
+        setAllLists(listsArray);
+      } catch (err) {
+        setError(err.message);
+        setProfileUser(null);
+        setAllLists([]);
+      } finally {
+        setLoading(false);
       }
-    } else {
-      setAllLists([]);
+    };
+
+    if (username) loadData();
+    else {
+      setError("Username não especificado na URL");
+      setLoading(false);
     }
-  }, [user]);
+  }, [username, isOwner, loggedInUser]);
 
-  // 🔹 Filtrar listas privadas (só o dono pode ver)
-  const visibleLists = allLists.filter((list) => {
-    if (isOwner) return true;     // dono vê todas
-    return list.isPublic;         // visitante só vê públicas
-  });
-
-  // Paginação
+  // 🔹 Ajustar página caso total de páginas mude
+  const visibleLists = allLists.filter((list) => isOwner || list.isPublic);
   const totalPages = Math.max(1, Math.ceil(visibleLists.length / itemsPerPage));
-  const startIdx = (currentPage - 1) * itemsPerPage;
-  const endIdx = startIdx + itemsPerPage;
-  const listsToShow = visibleLists.slice(startIdx, endIdx);
 
-  // Resetar página se necessário
   useEffect(() => {
     if (currentPage > totalPages && totalPages > 0) {
       setCurrentPage(totalPages);
     }
   }, [totalPages, currentPage]);
 
-  if (!user) {
+  const startIdx = (currentPage - 1) * itemsPerPage;
+  const listsToShow = visibleLists.slice(startIdx, startIdx + itemsPerPage);
+
+  // 🔹 Render Loading
+  if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <p className="text-lg font-semibold text-gray-600">
-          Usuário não encontrado.
-        </p>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <p className="text-lg font-semibold text-gray-300">Carregando...</p>
+        </div>
       </div>
     );
   }
 
+  // 🔹 Render Error
+  if (error) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="text-center bg-gray-800 p-8 rounded-lg">
+          <h2 className="text-2xl font-bold text-red-400 mb-4">Erro</h2>
+          <p className="text-gray-300 mb-2">{error}</p>
+          <Link to="/" className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
+            Voltar
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // 🔹 Render se usuário não encontrado
+  if (!profileUser) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <p className="text-lg font-semibold text-gray-600">Usuário não encontrado.</p>
+      </div>
+    );
+  }
+
+  // 🔹 Render principal
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-6xl mx-auto">
-        {/* Botão de voltar para o perfil */}
-          <div className="mb-4">
-            <BackToProfile username={username} />
-          </div>
-        {/* Header */}
+        <div className="mb-4">
+          <BackToProfile username={username} />
+        </div>
+
         <div className="bg-gray-800/80 rounded-2xl shadow-md border border-gray-700/50 p-6 mb-8 flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold text-white mb-2">
-              {isOwner ? "Minhas Listas" : `Listas de ${user.name}`}
+              {isOwner ? "Minhas Listas" : `Listas de ${profileUser.name}`}
             </h1>
             <p className="text-gray-400">{visibleLists.length} listas visíveis</p>
           </div>
-          
-          {/* Botão criar lista só pro dono */}
+
           {isOwner && (
             <Link
               to="/lists/create"
@@ -93,14 +140,17 @@ export default function MyLists() {
 
         {listsToShow.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {listsToShow.map((list) => (
+          {listsToShow.map((list) => {
+            console.log("📤 Passando lista para ListCard:", list);
+            return (
               <ListCard 
                 key={list.id} 
                 list={list} 
-                username={user.username} 
-                isOwner={isOwner}
+                username={profileUser.username} 
+                isOwner={isOwner} 
               />
-            ))}
+            );
+          })}
           </div>
         ) : (
           <EmptyListsState isOwner={isOwner} />
@@ -108,11 +158,7 @@ export default function MyLists() {
 
         {totalPages > 1 && (
           <div className="mt-8">
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={setCurrentPage}
-            />
+            <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
           </div>
         )}
       </div>

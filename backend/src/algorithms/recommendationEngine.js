@@ -37,9 +37,9 @@ const calculateDecayFactor = (date) => {
 
 // --- Funções de Engajamento e Métricas ---
 const calculateEngagementScore = (media) => {
-  if (!media.recommendationEngagement || media.recommendationEngagement.length === 0) return 0;
+  if (!media.recommendationEngagements || media.recommendationEngagements.length === 0) return 0;
   
-  return media.recommendationEngagement.reduce((score, engagement) => {
+  return media.recommendationEngagements.reduce((score, engagement) => {
     const weight = ENGAGEMENT_WEIGHTS[engagement.action] || 0;
     const decay = calculateDecayFactor(engagement.timestamp);
     return score + (weight * decay);
@@ -47,11 +47,11 @@ const calculateEngagementScore = (media) => {
 };
 
 const calculateMediaMetrics = (media) => {
-  if (!media.recommendationEngagement || media.recommendationEngagement.length === 0) {
+  if (!media.recommendationEngagements || media.recommendationEngagements.length === 0) {
     return { click_through_rate: 0, save_rate: 0, page_views: 0, engagement_score: 0 };
   }
 
-  const engagements = media.recommendationEngagement;
+  const engagements = media.recommendationEngagements;
   const pageViews = engagements.filter(e => e.action === 'page_view').length;
   const saves = engagements.filter(e => e.action === 'saved').length;
   const otherActions = engagements.filter(e => e.action !== 'page_view').length;
@@ -115,7 +115,7 @@ const getUserPreferences = async (userId) => {
       where: { savedBy: { some: { id: userId } } }, 
       select: { id: true, createdAt: true } 
     }),
-    prisma.recommendationEngagement.findMany({
+    prisma.recommendationEngagements.findMany({
       where: { userId },
       select: { mediaId: true, action: true, timestamp: true }
     })
@@ -172,7 +172,7 @@ const calculateSimilarity = (mediaA, mediaB) => {
 const getTrendingMedia = async (limit = 10) => {
   const media = await prisma.media.findMany({
     include: {
-      recommendationEngagement: true,
+      recommendationEngagements: true,
       _count: {
         select: {
           savedBy: true,
@@ -220,7 +220,7 @@ const getUserRecommendations = async (userId, limit = 5) => {
   const allMedia = await prisma.media.findMany({
     where: { id: { notIn: [...userMediaIds, ...excludedIds] } },
     include: {
-      recommendationEngagement: true
+      recommendationEngagements: true
     }
   });
 
@@ -286,7 +286,7 @@ const getCustomRecommendations = async (userId, filters = {}, referenceMediaIds 
       id: { notIn: [...userMediaIds, ...excludedIds] }
     },
     include: {
-      recommendationEngagement: true
+      recommendationEngagements: true
     }
   });
 
@@ -327,7 +327,7 @@ const getColdStartRecommendations = async (userId, limit = 5) => {
   // 1. Conteúdos populares globalmente com engajamento
   const popularMedia = await prisma.media.findMany({
     include: {
-      recommendationEngagement: true
+      recommendationEngagements: true
     },
     take: limit * 3
   });
@@ -380,7 +380,7 @@ const getHybridRecommendations = async (userId, limit = 5) => {
 };
 
 // --- Track user engagement ---
-const trackRecommendationEngagement = async (userId, mediaId, action, additionalData = {}) => {
+const trackRecommendationEngagements = async (userId, mediaId, action, additionalData = {}) => {
   const baseScore = ENGAGEMENT_WEIGHTS[action] || 0;
   let finalScore = baseScore;
   
@@ -393,7 +393,7 @@ const trackRecommendationEngagement = async (userId, mediaId, action, additional
     finalScore += 0.2; // Salvou nos favoritos
   }
 
-  await prisma.recommendationEngagement.create({
+  await prisma.recommendationEngagements.create({
     data: { 
       userId, 
       mediaId, 
@@ -414,7 +414,7 @@ const updateMediaMetrics = async (mediaId) => {
 };
 
 const getEngagementBasedRecommendations = async (userId, limit = 5) => {
-  const recentEngaged = await prisma.recommendationEngagement.findMany({
+  const recentEngaged = await prisma.recommendationEngagements.findMany({
     where: { 
       userId, 
       score: { gte: ENGAGEMENT_WEIGHTS.saved } // Engajamentos significativos
@@ -459,13 +459,13 @@ const getRecommendationMetrics = async (timeRange = 30) => {
   startDate.setDate(startDate.getDate() - timeRange);
 
   const [successfulEngagements, engagementStats, topGenres] = await Promise.all([
-    prisma.recommendationEngagement.count({
+    prisma.recommendationEngagements.count({
       where: { 
         score: { gte: 2 },
         timestamp: { gte: startDate }
       }
     }),
-    prisma.recommendationEngagement.aggregate({
+    prisma.recommendationEngagements.aggregate({
       where: { timestamp: { gte: startDate } },
       _avg: { score: true },
       _max: { score: true },
@@ -475,7 +475,7 @@ const getRecommendationMetrics = async (timeRange = 30) => {
     prisma.media.groupBy({
       by: ['type'],
       where: {
-        recommendationEngagement: {
+        recommendationEngagements: {
           some: {
             timestamp: { gte: startDate },
             score: { gte: ENGAGEMENT_WEIGHTS.page_view }
@@ -488,7 +488,7 @@ const getRecommendationMetrics = async (timeRange = 30) => {
     })
   ]);
 
-  const engagementsByAction = await prisma.recommendationEngagement.groupBy({
+  const engagementsByAction = await prisma.recommendationEngagements.groupBy({
     by: ['action'],
     where: { timestamp: { gte: startDate } },
     _count: { id: true },
@@ -528,14 +528,14 @@ const getRecommendationMetrics = async (timeRange = 30) => {
 const getSimilarMedia = async (mediaId, limit = 4) => {
   const media = await prisma.media.findUnique({ 
     where: { id: mediaId },
-    include: { recommendationEngagement: true }
+    include: { recommendationEngagements: true }
   });
   
   if (!media) return [];
 
   const allMedia = await prisma.media.findMany({ 
     where: { NOT: { id: mediaId } },
-    include: { recommendationEngagement: true }
+    include: { recommendationEngagements: true }
   });
 
   const scoredMedia = allMedia
@@ -636,7 +636,7 @@ module.exports = {
   getSimilarMedia,
   getColdStartRecommendations,
   getHybridRecommendations,
-  trackRecommendationEngagement,
+  trackRecommendationEngagements,
   getEngagementBasedRecommendations,
   getRecommendationMetrics,
   getOptimizedRecommendations,

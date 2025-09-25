@@ -1,63 +1,137 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import MediaPageHeader from "../../components/contents/MediaPageHeader";
 import MediaGrid from "../../components/contents/MediaGrid";
 import Pagination from "../../components/Pagination";
-import { convertMediaIdsToObjects } from "../../utils/MediaHelpers";
-import { mockUsers } from "../../mockdata/mockUsers";
 import { BackToProfile } from "../../components/profile/BackToProfile";
+import { fetchUserByUsername } from "../../services/userService";
+import { fetchUserFavorites } from "../../services/listsService";
+
+// normaliza diferentes formatos de dados que a API pode retornar
+function normalizeMediaList(data) {
+  if (!data) return [];
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(data.favorites)) return data.favorites;
+  if (Array.isArray(data.savedMedia)) return data.savedMedia;
+  if (Array.isArray(data.items)) return data.items;
+  // se a API devolver objeto com chave 'media' ou similar
+  if (Array.isArray(data.media)) return data.media;
+  return [];
+}
 
 export default function MyFavorites() {
-  const { username } = useParams(); // pega o username da URL
+  const { username } = useParams();
   const { user: loggedInUser } = useAuth();
 
   const isOwner = loggedInUser?.username === username;
-  const user = isOwner
-    ? loggedInUser
-    : mockUsers.find((u) => u.username === username);
 
-  const allFavorites = convertMediaIdsToObjects(user?.favorites || []);
+  const [profileUser, setProfileUser] = useState(isOwner ? loggedInUser : null);
+  const [favorites, setFavorites] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   const itemsPerPage = 12;
-
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("");
 
+  useEffect(() => {
+    let active = true;
+    const load = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        // 1) Obter o objeto de usuário (profileUser) se não for dono com dados já disponíveis.
+        let userData = profileUser;
+        if (!isOwner) {
+          userData = await fetchUserByUsername(username);
+          if (!userData) {
+            throw new Error("Usuário não encontrado");
+          }
+          if (!active) return;
+          setProfileUser(userData);
+        } else {
+          // caso seja owner, garantimos que profileUser esteja sincronizado com loggedInUser
+          if (!profileUser && loggedInUser) setProfileUser(loggedInUser);
+          userData = loggedInUser || profileUser;
+        }
+
+        const userId = userData?.id;
+        if (!userId) {
+          throw new Error("ID do usuário não disponível");
+        }
+
+        // 2) Buscar favoritos da rota específica (usa seu service)
+        const favResp = await fetchUserFavorites(userId);
+        if (!active) return;
+
+        const favs = normalizeMediaList(favResp);
+        setFavorites(favs);
+      } catch (err) {
+        console.error("Erro ao carregar favoritos:", err);
+        setError(err.message || "Erro ao carregar favoritos");
+        setFavorites([]);
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
+
+    load();
+    return () => { active = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [username, isOwner, loggedInUser]);
+
+  // filtering / sorting
   const filteredAndSortedFavorites = useMemo(() => {
-    let items = [...allFavorites];
+    let items = [...favorites];
 
     if (searchQuery.trim() !== "") {
       items = items.filter((m) =>
-        m.title.toLowerCase().includes(searchQuery.toLowerCase())
+        (m.title || "").toString().toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
     if (sortBy === "title") {
-      items.sort((a, b) => a.title.localeCompare(b.title));
+      items.sort((a, b) => (a.title || "").localeCompare(b.title || ""));
     } else if (sortBy === "rating") {
-      items.sort((a, b) => b.rating - a.rating);
+      items.sort((a, b) => (b.rating || 0) - (a.rating || 0));
     } else if (sortBy === "year") {
-      items.sort((a, b) => b.year - a.year);
+      items.sort((a, b) => (b.year || 0) - (a.year || 0));
     }
 
     return items;
-  }, [allFavorites, searchQuery, sortBy]);
+  }, [favorites, searchQuery, sortBy]);
 
-  const totalPages = Math.max(
-    1,
-    Math.ceil(filteredAndSortedFavorites.length / itemsPerPage)
-  );
+  const totalPages = Math.max(1, Math.ceil(filteredAndSortedFavorites.length / itemsPerPage));
   const startIdx = (currentPage - 1) * itemsPerPage;
   const endIdx = startIdx + itemsPerPage;
   const favoritesToShow = filteredAndSortedFavorites.slice(startIdx, endIdx);
 
-  if (!user) {
+  if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <p className="text-lg font-semibold text-gray-600">
-          Usuário não encontrado.
-        </p>
+        <p className="text-lg font-semibold text-gray-400">Carregando favoritos...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="max-w-6xl mx-auto px-4 py-8">
+        <div className="bg-red-900/50 border border-red-700 rounded-2xl p-6 text-center">
+          <h3 className="text-white font-medium text-lg mb-2">Erro</h3>
+          <p className="text-gray-300">{error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!profileUser) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <p className="text-lg font-semibold text-gray-600">Usuário não encontrado.</p>
       </div>
     );
   }
@@ -65,15 +139,15 @@ export default function MyFavorites() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-6xl mx-auto">
-        {/* Botão de voltar para o perfil */}
         <div className="mb-4">
           <BackToProfile username={username} />
         </div>
+
         <div className="bg-gray-800/80 rounded-2xl shadow-md border border-gray-700/50 p-6 mb-8">
           <h1 className="text-3xl font-bold text-white mb-2">
-            {isOwner ? "Meus Favoritos" : `Favoritos de ${user.name}`}
+            {isOwner ? "Meus Favoritos" : `Favoritos de ${profileUser.name}`}
           </h1>
-          <p className="text-gray-400">{allFavorites.length} favoritos</p>
+          <p className="text-gray-400">{favorites.length} favoritos</p>
         </div>
 
         <MediaPageHeader
@@ -90,7 +164,7 @@ export default function MyFavorites() {
           emptyMessage={
             isOwner
               ? "Você ainda não favoritou nenhum item."
-              : `${user.name} ainda não favoritou nenhum item.`
+              : `${profileUser.name} ainda não favoritou nenhum item.`
           }
         />
 

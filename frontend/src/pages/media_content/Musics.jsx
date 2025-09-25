@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
-import { fetchMedia } from "../../services/mediaService";
+import { fetchMediaFiltered } from "../../services/mediaService";
 import MediaGrid from "../../components/contents/MediaGrid";
 import MediaPageHeader from "../../components/contents/MediaPageHeader";
 import Pagination from "../../components/Pagination";
-import { MediaType } from "../../models/MediaType";
 
 export default function MusicsPage() {
   const itemsPerPage = 20;
@@ -15,29 +14,32 @@ export default function MusicsPage() {
 
   useEffect(() => {
     async function loadMusics() {
-      const { items, total } = await fetchMedia({
-        type: MediaType.MUSIC,
-        searchQuery,
+      const data = await fetchMediaFiltered({
+        type: "MUSIC",
+        search: searchQuery,
         sortBy,
         page: currentPage,
-        itemsPerPage
+        limit: itemsPerPage,
       });
-      setMusics(items);
-      setTotalPages(Math.ceil(total / itemsPerPage));
+      setMusics(data.media || []);
+      setTotalPages(data.pagination?.pages || 1);
     }
     loadMusics();
-  }, [searchQuery, sortBy, currentPage]);
+  }, [currentPage, searchQuery, sortBy]);
 
   return (
-    <div>
+    <div className="px-4 py-8 max-w-6xl mx-auto">
       <h2 className="text-2xl font-bold mb-4">Músicas</h2>
+
       <MediaPageHeader
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
         sortBy={sortBy}
         setSortBy={setSortBy}
       />
+
       <MediaGrid items={musics} />
+
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}

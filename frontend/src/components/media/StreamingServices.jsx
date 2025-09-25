@@ -1,19 +1,37 @@
 import { useEffect, useState } from "react";
-import { fetchStreamingLinks } from "../../services/streamingService";
+import { SERVICES } from "./StreamingMap";
+import { fetchStreamingLinksByMediaId } from "../../services/mediaService";
 
 export default function StreamingServices({ mediaItem }) {
   const [streamingLinks, setStreamingLinks] = useState([]);
 
   useEffect(() => {
     async function loadLinks() {
-      const links = await fetchStreamingLinks(mediaItem);
-      setStreamingLinks(links);
+      if (!mediaItem?.id) return;
+
+      const response = await fetchStreamingLinksByMediaId(mediaItem.id);
+      const links = response?.streamingLinks || [];
+
+      const mappedLinks = links
+        .map(link => {
+          const serviceData = SERVICES[link.service];
+          if (!serviceData) return null;
+          return {
+            ...link,
+            ...serviceData,           // pega icon, color, name etc.
+            url: link.url             // mantém a URL que veio do backend
+          };
+        })
+        .filter(Boolean);
+
+      setStreamingLinks(mappedLinks);
     }
+
     loadLinks();
   }, [mediaItem]);
 
   const handleStreamingClick = (url) => {
-    window.open(url, '_blank', 'noopener,noreferrer');
+    window.open(url, "_blank", "noopener,noreferrer");
   };
 
   if (streamingLinks.length === 0) return null;

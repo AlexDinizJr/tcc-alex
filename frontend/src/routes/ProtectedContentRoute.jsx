@@ -1,16 +1,39 @@
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
-import { mockUsers } from "../mockdata/mockUsers";
+import { fetchUserByUsername } from "../services/userService";
 import { BackToProfile } from "../components/profile/BackToProfile";
 import { FaLock } from "react-icons/fa";
 
 export default function ProtectedContentRoute({ children, contentType }) {
-  const params = useParams();
-  const { username } = params;
+  const { username, id } = useParams();
   const { user: loggedInUser } = useAuth();
 
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
   const isOwner = loggedInUser?.username === username;
-  const user = isOwner ? loggedInUser : mockUsers.find(u => u.username === username);
+
+  useEffect(() => {
+    async function loadUser() {
+      if (isOwner) {
+        setUser(loggedInUser);
+        setLoading(false);
+      } else {
+        try {
+          const data = await fetchUserByUsername(username);
+          setUser(data);
+        } catch {
+          setUser(null);
+        } finally {
+          setLoading(false);
+        }
+      }
+    }
+    loadUser();
+  }, [username, isOwner, loggedInUser]);
+
+  if (loading) return <p>Carregando...</p>;
 
   if (!user) {
     return (
@@ -22,30 +45,24 @@ export default function ProtectedContentRoute({ children, contentType }) {
     );
   }
 
-  // Função que verifica se o usuário pode ver o conteúdo
   const canViewContent = () => {
-    if (isOwner) return true; // dono sempre vê
+    if (isOwner) return true;
 
     switch (contentType) {
       case "lists":
-        // Rota de todas as listas: libera se houver pelo menos uma pública
         return (user.lists || []).some(list => list.isPublic);
-
-      case "list": {
-        // Lista individual: permite se for pública
-        const targetListId = parseInt(params.id);
+      case "list":
+        const targetListId = parseInt(id);
         const targetList = (user.lists || []).find(l => l.id === targetListId);
         return targetList ? targetList.isPublic : false;
-      }
-
       case "reviews":
-        return user.privacy?.showReviews === true;
+        return user.showReviews === true;
       case "favorites":
-        return user.privacy?.showFavorites === true;
+        return user.showFavorites === true;
       case "saved":
-        return user.privacy?.showSavedItems === true;
+        return user.showSavedItems === true;
       case "stats":
-        return user.privacy?.showStats === true;
+        return user.showStats === true;
       default:
         return false;
     }

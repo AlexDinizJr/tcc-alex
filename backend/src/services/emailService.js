@@ -29,7 +29,7 @@ async function sendWelcomeEmail(to, name) {
 }
 
 async function sendPasswordRecovery(to, token) {
-  const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
+  const resetUrl = `${process.env.FRONTEND_URL}/recovery-password?token=${token}`;
   const mailOptions = {
     from: `"No Reply" <${process.env.SMTP_USER}>`,
     to,

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import MediaCarousel from "../MediaCarousel";
 import { SlLike } from "react-icons/sl";
-import { fetchRecommendations } from "../../services/mediaService";
+import { fetchHomepageRecommendations } from "../../services/recommendationService";
 
 export default function RecommendationGrid() {
   const [recommendations, setRecommendations] = useState([]);
@@ -12,8 +12,8 @@ export default function RecommendationGrid() {
     try {
       setIsLoading(true);
       setError(null);
-      const data = await fetchRecommendations();
-      setRecommendations(data);
+      const data = await fetchHomepageRecommendations();
+      setRecommendations(Array.isArray(data) ? data : data?.data || []);
     } catch {
       setError("Não foi possível carregar as recomendações.");
     } finally {

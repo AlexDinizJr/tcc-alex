@@ -131,6 +131,9 @@ const listController = {
             rating: true,
             genres: true
           }
+        },
+        _count: {
+          select: { savedMedia: true }
         }
       }
     });
@@ -144,7 +147,8 @@ const listController = {
     }
 
     res.json({
-      savedMedia: user.savedMedia
+      savedMedia: user.savedMedia,
+      totalSaved: user._count.savedMedia
     });
 
   } catch (error) {
@@ -176,6 +180,10 @@ async getUserFavorites(req, res) {
             rating: true,
             genres: true
           }
+          
+        },
+        _count: {
+          select: { favorites: true }
         }
       }
     });
@@ -189,7 +197,8 @@ async getUserFavorites(req, res) {
     }
 
     res.json({
-      favorites: user.favorites
+      favorites: user.favorites,
+      totalSaved: user._count.favorites
     });
 
   } catch (error) {

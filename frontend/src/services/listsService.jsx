@@ -1,100 +1,134 @@
-import { MOCK_LISTS } from "../mockdata/mockLists";
-import { ALL_MEDIA } from "../mockdata/mockMedia";
+import api from "./api";
 
 /**
  * Busca todas as listas de um usuário
  */
-export async function fetchUserLists(username) {
-  await new Promise(res => setTimeout(res, 200));
-
-  const userLists = MOCK_LISTS.filter(list => list.username === username);
-
-  const populatedLists = userLists.map(list => ({
-    ...list,
-    items: list.items.map(mediaId => ALL_MEDIA.find(m => m.id === mediaId))
-  }));
-
-  return populatedLists;
+export async function fetchUserLists(userId, includeItems = true) {
+  try {
+    const params = { includeItems }; 
+    const response = await api.get(`/lists/user/${userId}`, { params });
+    return response.data;
+  } catch (err) {
+    throw new Error(err.response?.data?.message || "Erro ao buscar listas do usuário");
+  }
 }
 
 /**
- * Cria uma nova lista para o usuário
+ * Retorna uma lista específica pelo ID
  */
-export async function createList(username, listName) {
-  await new Promise(res => setTimeout(res, 200));
-
-  if (!listName.trim()) {
-    throw new Error("Nome da lista não pode estar vazio");
+export async function fetchListById(listId) {
+  try {
+    const response = await api.get(`/lists/${listId}`);
+    return response.data;
+  } catch (err) {
+    throw new Error(err.response?.data?.message || "Lista não encontrada");
   }
-
-  const newList = {
-    id: MOCK_LISTS.length + 1,
-    username,
-    name: listName.trim(),
-    items: []
-  };
-
-  MOCK_LISTS.push(newList);
-  return newList;
 }
 
 /**
- * Adiciona um item à lista
+ * Cria uma nova lista para o usuário autenticado
  */
-export async function addItemToList(listId, mediaId) {
-  await new Promise(res => setTimeout(res, 200));
-
-  const list = MOCK_LISTS.find(l => l.id === listId);
-  if (!list) {
-    throw new Error("Lista não encontrada");
+export async function createList({ name, description = "", isPublic = false }) {
+  try {
+    const response = await api.post("/lists", { name, description, isPublic });
+    return response.data;
+  } catch (err) {
+    throw new Error(err.response?.data?.message || "Erro ao criar lista");
   }
-
-  // Verifica se a mídia existe
-  const mediaExists = ALL_MEDIA.some(m => m.id === mediaId);
-  if (!mediaExists) {
-    throw new Error("Mídia não encontrada");
-  }
-
-  if (list.items.includes(mediaId)) {
-    throw new Error("Mídia já está na lista");
-  }
-
-  list.items.push(mediaId);
-  return list;
 }
 
 /**
- * Remove um item da lista
+ * Atualiza uma lista existente
  */
-export async function removeItemFromList(listId, mediaId) {
-  await new Promise(res => setTimeout(res, 200));
-
-  const list = MOCK_LISTS.find(l => l.id === listId);
-  if (!list) {
-    throw new Error("Lista não encontrada");
+export async function updateList(listId, { name, description, isPublic }) {
+  try {
+    const response = await api.put(`/lists/${listId}`, { name, description, isPublic });
+    return response.data;
+  } catch (err) {
+    throw new Error(err.response?.data?.message || "Erro ao atualizar lista");
   }
-
-  const initialLength = list.items.length;
-  list.items = list.items.filter(id => id !== mediaId);
-
-  if (list.items.length === initialLength) {
-    throw new Error("Mídia não encontrada na lista");
-  }
-
-  return list;
 }
 
 /**
- * Deleta uma lista do usuário
+ * Deleta uma lista
  */
 export async function deleteList(listId) {
-  await new Promise(res => setTimeout(res, 200));
-
-  const index = MOCK_LISTS.findIndex(l => l.id === listId);
-  if (index === -1) {
-    throw new Error("Lista não encontrada");
+  try {
+    await api.delete(`/lists/${listId}`);
+    return true;
+  } catch (err) {
+    throw new Error(err.response?.data?.message || "Erro ao deletar lista");
   }
+}
 
-  MOCK_LISTS.splice(index, 1);
-  return true;
+/**
+ * Adiciona um item a uma lista
+ */
+export async function addItemToList(listId, mediaId) {
+  try {
+    const response = await api.post("/lists/items", { listId, mediaId });
+    return response.data;
+  } catch (err) {
+    throw new Error(err.response?.data?.message || "Erro ao adicionar item à lista");
+  }
+}
+
+/**
+ * Remove um item de uma lista
+ */
+export async function removeItemFromList(listId, mediaId) {
+  try {
+    const response = await api.delete(`/lists/${listId}/items/${mediaId}`);
+    return response.data;
+  } catch (err) {
+    throw new Error(err.response?.data?.message || "Erro ao remover item da lista");
+  }
+}
+
+/**
+ * Salva ou remove uma mídia da lista "salvos" do usuário
+ */
+export async function toggleSaveMedia(mediaId) {
+  try {
+    const response = await api.post("/lists/save-media", { mediaId });
+    return response.data;
+  } catch (err) {
+    throw new Error(err.response?.data?.message || "Erro ao salvar mídia");
+  }
+}
+
+/**
+ * Marca ou desmarca uma mídia como favorita
+ */
+export async function toggleFavoriteMedia(mediaId) {
+  try {
+    const response = await api.post("/lists/favorite-media", { mediaId });
+    return response.data;
+  } catch (err) {
+    throw new Error(err.response?.data?.message || "Erro ao favoritar mídia");
+  }
+}
+
+/**
+ * Retorna todas as mídias salvas do usuário
+ */
+export async function fetchUserSavedMedia(userId) {
+  try {
+    const response = await api.get(`/lists/user/${userId}/saved`);
+    return response.data;
+  } catch (err) {
+    throw new Error(err.response?.data?.message || "Erro ao buscar mídias salvas");
+  }
+}
+
+/**
+ * Retorna todas as mídias favoritas do usuário
+ */
+export async function fetchUserFavorites(userId) {
+  try {
+    const response = await api.get(`/lists/user/${userId}/favorites`);
+    return response.data;
+  } catch (err) {
+    throw new Error(err.response?.data?.message || "Erro ao buscar mídias favoritas");
+  }
 }

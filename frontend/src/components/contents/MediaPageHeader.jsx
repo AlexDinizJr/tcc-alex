@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export default function MediaPageHeader({ searchQuery, setSearchQuery, sortBy, setSortBy }) {
+export default function MediaPageHeader({ searchQuery, setSearchQuery, sortBy, setSortBy, onSearchOrSortChange }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const sortOptions = [
@@ -12,20 +12,25 @@ export default function MediaPageHeader({ searchQuery, setSearchQuery, sortBy, s
   const handleOptionClick = (value) => {
     setSortBy(value);
     setIsDropdownOpen(false);
+    if (onSearchOrSortChange) onSearchOrSortChange(searchQuery, value);
+  };
+
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+    setSearchQuery(value);
+    if (onSearchOrSortChange) onSearchOrSortChange(value, sortBy);
   };
 
   return (
     <div className="bg-gray-800/80 rounded-2xl shadow-md border border-gray-700/50 p-6 mb-8 flex flex-col md:flex-row items-center gap-4">
-      {/* Barra de pesquisa escura */}
       <input
         type="text"
         placeholder="Pesquisar..."
         value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
+        onChange={handleSearchChange}
         className="flex-1 px-3 py-2 bg-gray-800/80 text-white placeholder-gray-400 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
       />
 
-      {/* Botão Pin com dropdown escuro */}
       <div className="relative">
         <button
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}

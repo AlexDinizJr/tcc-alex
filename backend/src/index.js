@@ -10,6 +10,7 @@ const userRoutes = require('./routes/usersRoutes');
 const mediaRoutes = require('./routes/mediaRoutes');
 const reviewRoutes = require('./routes/reviewsRoutes');
 const listRoutes = require('./routes/listsRoutes');
+const recommendationRoutes = require('./routes/recommendationRoutes');
 
 // Rotas de admin
 const adminMediaRoutes = require('./routes/admin/mediaAdminRoutes');
@@ -24,7 +25,10 @@ setupSwagger(app);
 
 // Middleware
 app.use(helmet());
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:5173', // URL do seu frontend
+  credentials: true
+}));
 app.use(morgan('combined'));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
@@ -35,6 +39,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/media', mediaRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/lists', listRoutes);
+app.use('/api/recommendations', recommendationRoutes);
 
 // Rotas de administração
 app.use('/api/admin/media', adminMediaRoutes);

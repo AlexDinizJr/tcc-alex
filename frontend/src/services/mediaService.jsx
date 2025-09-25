@@ -1,83 +1,185 @@
-import { ALL_MEDIA } from "../mockdata/mockMedia";
+import api from "./api";
 
 /**
- * Simula uma chamada de API para buscar recomendações.
- * @returns {Promise<Array>} Lista de itens de mídia recomendados
+ * Busca todas as mídias com filtros de pesquisa e paginação
  */
-
-export async function fetchRecommendations() {
-  // Simula delay de rede
-  await new Promise((resolve) => setTimeout(resolve, 500));
-
-  // Retorna 5 itens aleatórios como recomendação
-  const shuffled = [...ALL_MEDIA].sort(() => 0.5 - Math.random());
-  return shuffled.slice(0, 5);
+export async function fetchMedia({
+  type,
+  searchQuery = "",
+  sortBy = "",
+  page = 1,
+  itemsPerPage = 20,
+}) {
+  try {
+    const response = await api.get("/media", {
+      params: {
+        type,
+        search: searchQuery,
+        sortBy,
+        page,
+        limit: itemsPerPage,
+      },
+    });
+    return {
+      items: response.data.items,
+      total: response.data.total,
+    };
+  } catch (error) {
+    console.error("Erro ao buscar mídias:", error.response?.data || error);
+    return { items: [], total: 0 };
+  }
 }
 
 /**
- * Simula uma chamada de API para buscar trending media
+ * Busca mídia por ID
  */
-export async function fetchTrending() {
-  await new Promise((resolve) => setTimeout(resolve, 500));
-
-  // Ordena por rating e retorna top 5
-  return [...ALL_MEDIA].sort((a, b) => b.rating - a.rating).slice(0, 5);
-}
-
-export async function fetchMedia({ type, searchQuery = "", sortBy = "", page = 1, itemsPerPage = 20 }) {
-  // Simular delay
-  await new Promise((res) => setTimeout(res, 200));
-
-  // Filtrar por tipo
-  let items = ALL_MEDIA.filter((m) => m.type === type);
-
-  // Filtro de pesquisa
-  if (searchQuery.trim() !== "") {
-    items = items.filter((m) =>
-      m.title.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }
-
-  // Ordenação
-  if (sortBy === "title") {
-    items = [...items].sort((a, b) => a.title.localeCompare(b.title));
-  } else if (sortBy === "rating") {
-    items = [...items].sort((a, b) => b.rating - a.rating);
-  } else if (sortBy === "year") {
-    items = [...items].sort((a, b) => b.year - a.year);
-  }
-
-  const total = items.length;
-
-  // Paginação
-  const start = (page - 1) * itemsPerPage;
-  const end = start + itemsPerPage;
-  const pagedItems = items.slice(start, end);
-
-  return { items: pagedItems, total };
-}
-
 export async function fetchMediaById(id) {
-  // Simula delay de fetch
-  return new Promise(resolve => {
-    const media = ALL_MEDIA.find(m => m.id === id);
-    setTimeout(() => resolve(media || null), 200);
-  });
+  try {
+    const response = await api.get(`/media/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Erro ao buscar mídia com id ${id}:`, error.response?.data || error);
+    return null;
+  }
 }
 
 /**
- * Retorna mídias por tipo, com opções de exclusão e limite
- * @param {string} type MediaType
- * @param {Object} options { excludeId: number, limit: number }
+ * Busca mídias por tipo (ex: movie, game, music)
  */
 export async function fetchMediaByType(type, options = {}) {
   const { excludeId = null, limit = null } = options;
+  try {
+    const response = await api.get(`/media/type/${type}`, {
+      params: { excludeId, limit },
+    });
+    return response.data;
+  } catch (error) {
+    console.error(`Erro ao buscar mídias do tipo ${type}:`, error.response?.data || error);
+    return [];
+  }
+}
 
-  return new Promise(resolve => {
-    let medias = ALL_MEDIA.filter(m => m.type === type);
-    if (excludeId) medias = medias.filter(m => m.id !== excludeId);
-    if (limit) medias = medias.slice(0, limit);
+export async function fetchStreamingLinksByMediaId(mediaId) {
+  if (!mediaId) return [];
+  try {
+    const response = await api.get(`/media/${mediaId}/streaming-links`);
+    return response.data;
+  } catch (error) {
+    console.error(`Erro ao buscar links de streaming da mídia ${mediaId}:`, error.response?.data || error);
+    return [];
+  }
+}
 
-    setTimeout(() => resolve(medias), 200);
-  });
+/**
+ * Busca todas as classificações
+ */
+export async function fetchAllClassifications() {
+  try {
+    const response = await api.get("/media/classifications");
+    return response.data;
+  } catch (error) {
+    console.error("Erro ao buscar classificações:", error.response?.data || error);
+    return [];
+  }
+}
+
+/**
+ * Busca mídias por classificação indicativa
+ */
+export async function fetchMediaByClassification(classification) {
+  try {
+    const response = await api.get(`/media/classification/${classification}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Erro ao buscar mídias da classificação ${classification}:`, error.response?.data || error);
+    return [];
+  }
+}
+
+/**
+ * Busca mídias por intervalo de anos
+ */
+export async function fetchMediaByYearRange(startYear, endYear) {
+  try {
+    const response = await api.get("/media/year-range", { params: { startYear, endYear } });
+    return response.data;
+  } catch (error) {
+    console.error("Erro ao buscar mídias por ano:", error.response?.data || error);
+    return [];
+  }
+}
+
+/**
+ * Busca mídias por nota mínima
+ */
+export async function fetchMediaByMinRating(rating) {
+  try {
+    const response = await api.get("/media/min-rating", { params: { rating } });
+    return response.data;
+  } catch (error) {
+    console.error("Erro ao buscar mídias por rating:", error.response?.data || error);
+    return [];
+  }
+}
+
+/**
+ * Busca as midias com filtros de pesquisa, ordenação e paginação
+ */
+export async function fetchMediaFiltered({ type, search = "", sortBy = "title", page = 1, limit = 20 }) {
+  try {
+    const response = await api.get("/media", {
+      params: {
+        type,
+        search,   // deve bater com o query do backend
+        sortBy,   // deve bater com getSortOption do backend
+        page,
+        limit,
+      },
+    });
+    return response.data; // { media, pagination }
+  } catch (error) {
+    console.error(`Erro ao buscar mídias (${type}):`, error.response?.data || error);
+    return { media: [], pagination: { pages: 1 } };
+  }
+}
+
+/**
+ * Busca serviços de streaming disponíveis
+ */
+export async function fetchAvailableStreamingServices() {
+  try {
+    const response = await api.get("/media/services/streaming");
+    return response.data;
+  } catch (error) {
+    console.error("Erro ao buscar serviços de streaming:", error.response?.data || error);
+    return [];
+  }
+}
+
+/**
+ * Busca mídias disponíveis em um serviço de streaming específico
+ */
+export async function fetchMediaByStreamingService(service) {
+  try {
+    const response = await api.get(`/media/service/streaming/${service}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Erro ao buscar mídias no serviço ${service}:`, error.response?.data || error);
+    return [];
+  }
+}
+
+/**
+ * Busca mídias por um termo q
+ */
+export async function searchMediaByQuery(query) {
+  if (!query.trim()) return [];
+  try {
+    const response = await api.get("/media/search", { params: { q: query } });
+    // Retorna o array correto
+    return Array.isArray(response.data.results) ? response.data.results : [];
+  } catch (error) {
+    console.error("Erro ao buscar mídias:", error.response?.data || error);
+    return [];
+  }
 }

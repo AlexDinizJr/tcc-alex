@@ -1,55 +1,57 @@
-import { mockUsers } from "../mockdata/mockUsers"
+import api from "./api";
 
-export async function login({ email, password }) {
-  // 🔄 Mantemos mocks por enquanto
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const user = mockUsers.find(
-        (u) => u.email === email && u.password === password
-      );
+export async function fetchCurrentUser() {
+  try {
+    const response = await api.get("/auth/profile", { withCredentials: true });
+    return response.data;
+  } catch (err) {
+    console.error("Erro ao buscar usuário logado:", err.response?.data || err);
+    return null;
+  }
+}
 
-      if (user) {
-        // futuro: await api.post("/login", { email, password })
-        resolve({ success: true, user: { email: user.email } });
-      } else {
-        resolve({ success: false, error: "E-mail ou senha inválidos." });
-      }
-    }, 500);
-  });
+export async function login({ usernameOrEmail, password }) {
+  try {
+    const response = await api.post("/auth/login", { usernameOrEmail, password });
+    return response.data;
+  } catch (error) {
+    console.error("Erro no login:", error.response?.data || error);
+    return {};
+  }
 }
 
 export async function register(newUser) {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const exists = mockUsers.some(
-        (u) => u.email === newUser.email || u.username === newUser.username
-      );
-
-      if (exists) {
-        resolve({ success: false, error: "Usuário ou e-mail já cadastrados." });
-      } else {
-        mockUsers.push({ ...newUser, password: newUser.password });
-        resolve({ success: true, data: newUser });
-      }
-    }, 500);
-  });
+  try {
+    const response = await api.post("/auth/register", newUser);
+    return { success: true, data: response.data };
+  } catch (err) {
+    return { success: false, error: err.response?.data?.message || "Erro ao registrar" };
+  }
 }
 
 export async function recoverPassword(email) {
-  // futuro: await api.post("/recover-password", { email })
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({
-        success: true,
-        message: `Se este e-mail estiver cadastrado, enviaremos um link de recuperação para ${email}`,
-      });
-    }, 500);
-  });
+  try {
+    const response = await api.post("/auth/password/recovery", { email });
+    return { success: true, message: response.data.message };
+  } catch (err) {
+    return { success: false, error: err.response?.data?.message || "Erro ao recuperar senha" };
+  }
+}
+
+export async function resetPassword(token, newPassword) {
+  try {
+    const response = await api.post("/auth/password/reset", { token, newPassword });
+    return { success: true, message: response.data.message };
+  } catch (err) {
+    return { success: false, error: err.response?.data?.message || "Erro ao redefinir senha" };
+  }
 }
 
 export async function logout() {
-  // futuro: await api.post("/logout")
-  return new Promise((resolve) =>
-    setTimeout(() => resolve({ success: true }), 200)
-  );
+  try {
+    await api.post("/auth/logout");
+    return { success: true };
+  } catch {
+    return { success: false, error: "Erro ao fazer logout" };
+  }
 }

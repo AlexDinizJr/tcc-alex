@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
-import { fetchMedia } from "../../services/mediaService";
+import { fetchMediaFiltered } from "../../services/mediaService";
 import MediaGrid from "../../components/contents/MediaGrid";
 import MediaPageHeader from "../../components/contents/MediaPageHeader";
 import Pagination from "../../components/Pagination";
-import { MediaType } from "../../models/MediaType";
 
 export default function BooksPage() {
   const itemsPerPage = 20;
@@ -11,33 +10,36 @@ export default function BooksPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortBy, setSortBy] = useState("");
+  const [sortBy, setSortBy] = useState("title");
 
   useEffect(() => {
     async function loadBooks() {
-      const { items, total } = await fetchMedia({
-        type: MediaType.BOOK,
-        searchQuery,
+      const data = await fetchMediaFiltered({
+        type: "BOOK",
+        search: searchQuery,
         sortBy,
         page: currentPage,
-        itemsPerPage
+        limit: itemsPerPage,
       });
-      setBooks(items);
-      setTotalPages(Math.ceil(total / itemsPerPage));
+      setBooks(data.media || []);
+      setTotalPages(data.pagination?.pages || 1);
     }
     loadBooks();
-  }, [searchQuery, sortBy, currentPage]);
+  }, [currentPage, searchQuery, sortBy]);
 
   return (
-    <div>
+    <div className="px-4 py-8 max-w-6xl mx-auto">
       <h2 className="text-2xl font-bold mb-4">Livros</h2>
+
       <MediaPageHeader
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
         sortBy={sortBy}
         setSortBy={setSortBy}
       />
+
       <MediaGrid items={books} />
+
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}

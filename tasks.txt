@@ -1,0 +1,23 @@
+***REVISÃO DA APLICAÇÃO***
+
+# PRIORIDADES:
+
+3 - Ajustar Botões de Actions Toggle de Helpful, Favorite e Saved - Criação de Campos Booleanos para verificação de estado;
+4 - CRUD DE Lists:
+    - OBS: Aparentemente a Criação, Edição e Deleção das Listas já está funcional bem como a Adição e Remoção de Itens;
+    - OBS2: Resposta no frontend está incosistente com o backend - os itens estão sendo adicionados tanto no AddItemToList tanto QuickAddtoList mas o frontend dispara um toast de erro;
+    - OBS3: Existem problemas de visibilidade: o próprio usuário não está conseguindo ver listas privadas - Possível problema no ProtectedContentRoute;
+6 - Users Settings Profile - Edit Name, Bio, Avatar, Cover;
+7 - Users Settings Account - Email, Senha, Username e Delete Account;
+8 - Users Settings Privacy - Show or Not Information;
+9 - Algoritmos - SimiliarMedia, HomePageRecommendations, Trending, UserInitialPreferences, CustomRecommendations e Não Recomendar mais;
+
+# POSSÍVEIS AJUSTES:
+
+- Adicionar nova seção de alterar username no Settings Account;
+- Ajustes no campo de Metadados - Publisher -> Publisher, adicionar developer;
+- Criar novas seções no frontend além de recomendado para você;
+- Adicionar página de All Lists;
+- Disparar o Toast caso o usuário esteja tentado marcar a própria review como útil;
+- Trocar emojis por icons;
+- Largura padrão das páginas;

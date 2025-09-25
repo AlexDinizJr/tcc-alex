@@ -1,61 +1,69 @@
 import { useState, useRef, useEffect } from "react";
-import { ALL_MEDIA } from "../../mockdata/mockMedia";
+import api from "../../services/api";
 
 export default function ListSearchBar({ onSearchResults, modalMode = false }) {
   const [query, setQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(false);
   const searchRef = useRef(null);
-  
-  const filteredResults = ALL_MEDIA.filter((media) =>
-    media.title.toLowerCase().includes(query.toLowerCase())
-  );
 
-  // Notificar resultados quando em modal mode
+  // Busca no backend sempre que a query mudar
   useEffect(() => {
-    if (modalMode && onSearchResults) {
-      onSearchResults(filteredResults);
-    }
-  }, [query, modalMode, onSearchResults, filteredResults]);
+    const fetchResults = async () => {
+      if (!query.trim()) {
+        setResults([]);
+        if (modalMode && onSearchResults) onSearchResults([]);
+        return;
+      }
+
+      setLoading(true);
+      try {
+        const response = await api.get("/media/search", { params: { q: query } });
+        const searchResults = Array.isArray(response.data.results) ? response.data.results : [];
+        setResults(searchResults);
+
+        if (modalMode && onSearchResults) {
+          onSearchResults(searchResults);
+        }
+      } catch (error) {
+        console.error("Erro ao buscar mídias:", error);
+        setResults([]);
+        if (modalMode && onSearchResults) onSearchResults([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchResults();
+  }, [query, modalMode, onSearchResults]);
 
   // Fechar ao clicar fora
   useEffect(() => {
     function handleClickOutside(event) {
       if (searchRef.current && !searchRef.current.contains(event.target)) {
         setIsOpen(false);
-        if (!modalMode) {
-          setIsExpanded(false);
-        }
+        if (!modalMode) setIsExpanded(false);
       }
     }
 
     document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [modalMode]);
 
-  const handleInputFocus = () => {
-    setIsOpen(true);
-  };
+  const handleInputFocus = () => setIsOpen(true);
 
   const handleKeyPress = (e) => {
-    if (e.key === 'Enter' && query.trim()) {
-      e.preventDefault(); // Prevenir submit em forms
-    }
+    if (e.key === 'Enter' && query.trim()) e.preventDefault();
   };
 
-  // No modal mode, o input está sempre visível e expandido
   const showInput = modalMode || isExpanded;
-  
-  // No modal mode, NÃO mostrar resultados próprios
   const showResults = !modalMode && isOpen && query;
 
   return (
     <div className="relative" ref={searchRef}>
-      {/* Container da busca */}
       <div className="flex items-center">
-        {/* Input de busca - aparece quando expandido ou no modal */}
         {showInput && (
           <div className="relative mr-2">
             <input
@@ -71,8 +79,6 @@ export default function ListSearchBar({ onSearchResults, modalMode = false }) {
                   : "w-64 px-4 py-2 rounded-full border border-gray-600 bg-gray-800 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
               }`}
             />
-            
-            {/* Ícone de pesquisa dentro do input no modal mode */}
             {modalMode && (
               <div className="absolute right-3 top-3">
                 <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -82,8 +88,6 @@ export default function ListSearchBar({ onSearchResults, modalMode = false }) {
             )}
           </div>
         )}
-
-        {/* Botão de pesquisa (apenas quando não modal e não expandido) */}
         {!modalMode && !isExpanded && (
           <button
             onClick={() => setIsExpanded(true)}
@@ -97,7 +101,6 @@ export default function ListSearchBar({ onSearchResults, modalMode = false }) {
         )}
       </div>
 
-      {/* Resultados da busca - APENAS quando NÃO for modal mode */}
       {showResults && (
         <div className="absolute top-full left-0 right-0 mt-2 bg-gray-800 shadow-xl rounded-xl p-4 text-left max-h-80 overflow-y-auto z-50 border border-gray-700">
           <div className="flex justify-between items-center mb-3">
@@ -105,13 +108,15 @@ export default function ListSearchBar({ onSearchResults, modalMode = false }) {
               Resultados da busca
             </h2>
             <span className="text-xs text-gray-400 bg-gray-700 px-2 py-1 rounded-full">
-              {filteredResults.length} encontrados
+              {results.length} encontrados
             </span>
           </div>
-          
-          {filteredResults.slice(0, 5).length > 0 ? (
+
+          {loading ? (
+            <p className="text-center text-gray-400">Carregando...</p>
+          ) : results.length > 0 ? (
             <ul className="space-y-2">
-              {filteredResults.slice(0, 5).map((media) => (
+              {results.slice(0, 5).map((media) => (
                 <li key={media.id}>
                   <a
                     href={`/media/${media.id}`}
@@ -132,18 +137,10 @@ export default function ListSearchBar({ onSearchResults, modalMode = false }) {
                       />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between">
-                          <span className="text-white font-medium truncate">
-                            {media.title}
-                          </span>
-                          <span className="text-xs px-2 py-1 bg-blue-500/20 text-blue-400 rounded-full whitespace-nowrap border border-blue-500/30">
-                            {media.type}
-                          </span>
+                          <span className="text-white font-medium truncate">{media.title}</span>
+                          <span className="text-xs px-2 py-1 bg-blue-500/20 text-blue-400 rounded-full whitespace-nowrap border border-blue-500/30">{media.type}</span>
                         </div>
-                        {media.year && (
-                          <p className="text-sm text-gray-400 mt-1">
-                            {media.year}
-                          </p>
-                        )}
+                        {media.year && <p className="text-sm text-gray-400 mt-1">{media.year}</p>}
                         {media.rating && (
                           <div className="flex items-center mt-1">
                             <span className="text-yellow-400 text-xs">⭐</span>

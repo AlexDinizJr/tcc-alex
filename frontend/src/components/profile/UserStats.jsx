@@ -1,9 +1,9 @@
 export default function UserStats({ user }) {
   const stats = {
-    savedItems: user?.savedMedia?.length || 0,
-    reviews: user?.reviews?.length || 0,
-    lists: user?.lists?.length || 0,
-    favorites: user?.favorites?.length || 0,
+    savedItems: user?._count?.savedMedia || 0,
+    reviews: user?._count?.reviews || 0, 
+    lists: user?._count?.lists || 0,      
+    favorites: user?._count?.favorites || 0,
   };
 
   const { privacy } = user || {};

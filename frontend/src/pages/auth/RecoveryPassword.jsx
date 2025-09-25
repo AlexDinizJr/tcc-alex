@@ -1,6 +1,8 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useSearchParams, Link, useNavigate } from "react-router-dom";
+import { Eye, EyeOff } from "lucide-react";
 import AuthContainer from "../../components/auth/AuthContainer";
+import api from "../../services/api";
 
 export default function RecoveryPassword() {
   const [password, setPassword] = useState("");
@@ -10,54 +12,68 @@ export default function RecoveryPassword() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setLoading(true);
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get("token"); // pega token da URL
+  const navigate = useNavigate();
 
-    if (password !== confirmPassword) {
-      setMessage("As senhas não coincidem!");
-      setLoading(false);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setMessage("");
+
+    if (!token) {
+      setMessage("Token ausente na URL.");
       return;
     }
 
-    setTimeout(() => {
-      setMessage("Senha redefinida com sucesso! Agora você já pode fazer login.");
+    if (password !== confirmPassword) {
+      setMessage("As senhas não coincidem!");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const response = await api.post("/auth/password/reset", {
+        token,
+        newPassword: password
+      });
+
+      setMessage(response.data.message);
       setPassword("");
       setConfirmPassword("");
+
+      // redireciona após 2s
+      setTimeout(() => navigate("/login"), 2000);
+
+    } catch (err) {
+      console.error(err);
+      setMessage(err.response?.data?.error || "Erro ao redefinir senha");
+    } finally {
       setLoading(false);
-    }, 1500);
+    }
   };
 
   const renderInput = (value, setValue, placeholder, show, setShow) => (
     <div className="relative">
-    <input
-      type={show ? "text" : "password"}
-      placeholder={placeholder}
-      className="w-full p-4 pr-12 rounded-lg bg-gray-700/60 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 border border-gray-600 transition-all duration-200"
-      value={value}
-      onChange={(e) => setValue(e.target.value)}
-      required
-      minLength={6}
-      disabled={loading}
-    />
-    <button
-      type="button"
-      className="absolute right-3 top-1/2 -translate-y-1/2 h-6 w-6 flex items-center justify-center text-gray-400 hover:text-gray-300 focus:outline-none"
-      onClick={() => setShow(!show)}
-      disabled={loading}
-    >
-      {show ? (
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.97 0-9.23-3.888-10.95-8 1.73-4.112 6.01-8 10.95-8 1.659 0 3.24.417 4.63 1.15m1.525 1.75a9.985 9.985 0 013.18 4.1M1 1l22 22"/>
-        </svg>
-      ) : (
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M1.05 12C2.78 16.11 7.08 20 12 20s9.22-3.89 10.95-8c-1.73-4.11-6.03-8-10.95-8S2.78 7.89 1.05 12z"/>
-          <circle cx="12" cy="12" r="3"/>
-        </svg>
-      )}
-    </button>
-  </div>
+      <input
+        type={show ? "text" : "password"}
+        placeholder={placeholder}
+        className="w-full p-4 pr-12 rounded-lg bg-gray-700/60 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 border border-gray-600 transition-all duration-200"
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        required
+        minLength={6}
+        disabled={loading}
+      />
+      <button
+        type="button"
+        className="absolute right-3 top-1/2 -translate-y-1/2 h-6 w-6 flex items-center justify-center text-gray-400 hover:text-gray-300 focus:outline-none"
+        onClick={() => setShow(!show)}
+        disabled={loading}
+      >
+        {show ? <EyeOff size={20} /> : <Eye size={20} />}
+      </button>
+    </div>
   );
 
   return (

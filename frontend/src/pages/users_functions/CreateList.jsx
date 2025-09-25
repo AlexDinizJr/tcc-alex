@@ -3,7 +3,7 @@ import { useAuth } from "../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 
 export default function CreateList() {
-  const { user, updateUser } = useAuth();
+  const { user, createList } = useAuth();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
@@ -17,22 +17,23 @@ export default function CreateList() {
     setIsLoading(true);
 
     try {
-      const newList = {
-        id: Date.now(),
+      // Dados da nova lista a enviar para o backend
+      const newListData = {
         name: formData.name,
         description: formData.description,
-        isPublic: formData.isPublic,
-        items: [],
-        createdAt: new Date().toISOString()
+        isPublic: formData.isPublic
       };
 
-      const updatedUser = {
-        ...user,
-        lists: [...(user.lists || []), newList]
-      };
+      // Cria a lista no backend
+      const result = await createList(newListData);
 
-      await updateUser(updatedUser);
-      navigate(`/users/${user.username}/lists/${newList.id}`);
+      if (result.success) {
+        // Redireciona para a página da nova lista
+        const createdList = result.list;
+        navigate(`/users/${user.username}/lists/${createdList.id}`);
+      } else {
+        console.error("Erro ao criar lista:", result.error);
+      }
     } catch (error) {
       console.error("Erro ao criar lista:", error);
     } finally {
