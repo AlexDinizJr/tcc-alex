@@ -20,6 +20,14 @@ import {
   deleteReview as deleteReviewService,
   toggleHelpful as toggleHelpfulService
 } from "../services/reviewService";
+import {
+  updateUserProfile,
+  updateUserSecurity,
+  uploadUserAvatar,
+  uploadUserCover,
+  deleteUserAvatar,
+  deleteUserCover 
+} from "../services/userService";
 
 const AuthContext = createContext(null);
 
@@ -27,10 +35,11 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const reloadUser = async () => {
+  const fetchAndSetUser = async () => {
     try {
       const currentUser = await fetchCurrentUser();
-      setUser(currentUser);
+      if (currentUser) setUser(currentUser);
+      else setUser(null);
       return currentUser;
     } catch (error) {
       console.error("Erro ao recarregar usuário:", error);
@@ -45,12 +54,8 @@ export function AuthProvider({ children }) {
       setLoading(true);
       try {
         const token = localStorage.getItem("authToken");
-        
-        if (token) {
-          await reloadUser();
-        } else {
-          setUser(null);
-        }
+        if (token) await fetchAndSetUser();
+        else setUser(null);
       } catch (error) {
         console.error("Erro ao inicializar auth:", error);
         setUser(null);
@@ -59,7 +64,6 @@ export function AuthProvider({ children }) {
         setLoading(false);
       }
     };
-
     initAuth();
   }, []);
 
@@ -67,11 +71,9 @@ export function AuthProvider({ children }) {
   const login = async ({ usernameOrEmail, password }) => {
     try {
       const result = await loginService({ usernameOrEmail, password });
-
       if (result?.token) {
         localStorage.setItem("authToken", result.token);
-        const currentUser = await fetchCurrentUser();
-        setUser(currentUser);
+        await fetchAndSetUser();
         return true;
       }
       return false;
@@ -83,8 +85,7 @@ export function AuthProvider({ children }) {
 
   const register = async (userData) => {
     try {
-      const result = await registerService(userData);
-      return result;
+      return await registerService(userData);
     } catch (error) {
       return { success: false, error: error.message };
     }
@@ -106,23 +107,115 @@ export function AuthProvider({ children }) {
   // --- PERFIL ---
   const updateProfile = async (profileData) => {
     if (!user) return { success: false, error: "Usuário não autenticado" };
-    
     try {
-      const updatedUser = { ...user, ...profileData };
-      setUser(updatedUser);
-      return { success: true, user: updatedUser };
+      await updateUserProfile(profileData);
+      const refreshedUser = await fetchAndSetUser();
+      return { success: true, user: refreshedUser };
     } catch (error) {
       return { success: false, error: error.message };
     }
   };
 
-  // --- MÍDIA ---
+  // --- PRIVACIDADE ---
+  const updateUserPrivacy = async (updatedUser) => {
+    if (!user) return { success: false, error: "Usuário não autenticado" };
+    try {
+      await updateUserProfile({ privacy: updatedUser.privacy });
+      const refreshedUser = await fetchAndSetUser();
+      return { success: true, user: refreshedUser };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  };
+
+  // --- EMAIL, USERNAME, SENHA ---
+  const updateEmail = async (newEmail, currentPassword) => {
+    if (!user) return { success: false, error: "Usuário não autenticado" };
+    try {
+      await updateUserSecurity({ email: newEmail, currentPassword });
+      const refreshedUser = await fetchAndSetUser();
+      return { success: true, user: refreshedUser };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  };
+
+  const updateUsername = async (currentPassword, newUsername) => {
+    if (!user) return { success: false, error: "Usuário não autenticado" };
+    try {
+      await updateUserSecurity({ currentPassword, newUsername });
+      const refreshedUser = await fetchAndSetUser();
+      return { success: true, user: refreshedUser };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  };
+
+  const updatePassword = async (currentPassword, newPassword) => {
+    if (!user) return { success: false, error: "Usuário não autenticado" };
+    try {
+      await updateUserSecurity({ currentPassword, newPassword });
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  };
+
+  // --- AVATAR / COVER ---
+  const uploadAvatarFile = async (file) => {
+    if (!user || !file) return { success: false };
+    try {
+      await uploadUserAvatar(Object.assign(new FormData(), { avatar: file }));
+      const refreshedUser = await fetchAndSetUser();
+      return { success: true, user: refreshedUser };
+    } catch (error) {
+      console.error("Erro ao enviar avatar:", error);
+      return { success: false, error: error.message };
+    }
+  };
+
+  const uploadCoverFile = async (file) => {
+    if (!user || !file) return { success: false };
+    try {
+      await uploadUserCover(Object.assign(new FormData(), { cover: file }));
+      const refreshedUser = await fetchAndSetUser();
+      return { success: true, user: refreshedUser };
+    } catch (error) {
+      console.error("Erro ao enviar cover:", error);
+      return { success: false, error: error.message };
+    }
+  };
+
+  const removeAvatar = async () => {
+    if (!user) return { success: false };
+    try {
+      await deleteUserAvatar();
+      const refreshedUser = await fetchAndSetUser();
+      return { success: true, user: refreshedUser };
+    } catch (error) {
+      console.error("Erro ao remover avatar:", error);
+      return { success: false, error: error.message };
+    }
+  };
+
+  const removeCover = async () => {
+    if (!user) return { success: false };
+    try {
+      await deleteUserCover();
+      const refreshedUser = await fetchAndSetUser();
+      return { success: true, user: refreshedUser };
+    } catch (error) {
+      console.error("Erro ao remover cover:", error);
+      return { success: false, error: error.message };
+    }
+  };
+
+  // --- MÍDIA, LISTAS, REVIEWS (mantidos com reloadUser) ---
   const toggleSavedMedia = async (mediaItem) => {
     if (!user) return { success: false, error: "Usuário não autenticado" };
-    
     try {
       await toggleSaveMediaService(mediaItem.id);
-      await reloadUser();
+      await fetchAndSetUser();
       return { success: true };
     } catch (error) {
       return { success: false, error: error.message };
@@ -131,24 +224,21 @@ export function AuthProvider({ children }) {
 
   const toggleFavorite = async (mediaItem) => {
     if (!user) return { success: false, error: "Usuário não autenticado" };
-    
     try {
       await toggleFavoriteMediaService(mediaItem.id);
-      await reloadUser();
+      await fetchAndSetUser();
       return { success: true };
     } catch (error) {
       return { success: false, error: error.message };
     }
   };
 
-  // --- LISTAS ---
   const createList = async (listData) => {
     if (!user) return { success: false, error: "Usuário não autenticado" };
-    
     try {
-      const newList = await createListService(listData);
-      await reloadUser();
-      return { success: true, list: newList };
+      await createListService(listData);
+      await fetchAndSetUser();
+      return { success: true };
     } catch (error) {
       return { success: false, error: error.message };
     }
@@ -156,11 +246,10 @@ export function AuthProvider({ children }) {
 
   const updateList = async (listId, updatedData) => {
     if (!user) return { success: false, error: "Usuário não autenticado" };
-    
     try {
-      const updatedList = await updateListService(listId, updatedData);
-      await reloadUser();
-      return { success: true, list: updatedList };
+      await updateListService(listId, updatedData);
+      await fetchAndSetUser();
+      return { success: true };
     } catch (error) {
       return { success: false, error: error.message };
     }
@@ -168,10 +257,9 @@ export function AuthProvider({ children }) {
 
   const deleteList = async (listId) => {
     if (!user) return { success: false, error: "Usuário não autenticado" };
-    
     try {
       await deleteListService(listId);
-      await reloadUser();
+      await fetchAndSetUser();
       return { success: true };
     } catch (error) {
       return { success: false, error: error.message };
@@ -180,65 +268,44 @@ export function AuthProvider({ children }) {
 
   const addMediaToList = async (mediaItem, listId, listName = null, isPublic = false) => {
     if (!user) return { success: false, reason: "unauthenticated" };
-    
     try {
       if (listName) {
         const newList = await createListService({ name: listName, description: "", isPublic });
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise(r => setTimeout(r, 100));
         await addItemToListService(newList.id, mediaItem.id);
-        await reloadUser();
-        return { success: true, newList };
       } else {
         await addItemToListService(listId, mediaItem.id);
-        await reloadUser();
-        return { success: true };
       }
+      await fetchAndSetUser();
+      return { success: true };
     } catch (error) {
-      console.error("Erro detalhado em addMediaToList:", error);
-
-      // apenas sinaliza duplicação ou erro genérico
       const errorMessage = error.message || error.response?.data?.message || "unknown";
-
-      const isDuplicate = errorMessage.includes("already exists") ||
-                          errorMessage.includes("duplicate") ||
-                          errorMessage.includes("already in list") ||
-                          errorMessage.includes("já está");
-
+      const isDuplicate = /already exists|duplicate|already in list|já está/i.test(errorMessage);
       return { success: false, isDuplicate, originalError: errorMessage };
     }
   };
 
   const removeMediaFromList = async (mediaId, listId) => {
     if (!user) return { success: false, error: "Usuário não autenticado" };
-    
     try {
       await removeItemFromListService(listId, mediaId);
-      await reloadUser();
+      await fetchAndSetUser();
       return { success: true };
     } catch (error) {
       return { success: false, error: error.message };
     }
   };
 
-  // --- REVIEWS ---
   const addOrUpdateReview = async (mediaItem, rating, comment = "") => {
     if (!user) return { success: false, error: "Usuário não autenticado" };
-    
     try {
       const existingReview = user.reviews?.find(r => r.mediaId === mediaItem.id);
-      
       if (existingReview) {
         await editReviewService(existingReview.id, { rating, comment });
       } else {
-        await createReviewService({
-          mediaId: mediaItem.id,
-          rating,
-          comment,
-          title: mediaItem.title
-        });
+        await createReviewService({ mediaId: mediaItem.id, rating, comment, title: mediaItem.title });
       }
-      
-      await reloadUser();
+      await fetchAndSetUser();
       return { success: true };
     } catch (error) {
       return { success: false, error: error.message };
@@ -247,13 +314,10 @@ export function AuthProvider({ children }) {
 
   const removeReview = async (mediaId) => {
     if (!user) return { success: false, error: "Usuário não autenticado" };
-    
     try {
       const existingReview = user.reviews?.find(r => r.mediaId === mediaId);
-      if (existingReview) {
-        await deleteReviewService(existingReview.id);
-      }
-      await reloadUser();
+      if (existingReview) await deleteReviewService(existingReview.id);
+      await fetchAndSetUser();
       return { success: true };
     } catch (error) {
       return { success: false, error: error.message };
@@ -262,10 +326,9 @@ export function AuthProvider({ children }) {
 
   const toggleHelpful = async (reviewId) => {
     if (!user) return { success: false, error: "Usuário não autenticado" };
-    
     try {
       await toggleHelpfulService(reviewId);
-      await reloadUser();
+      await fetchAndSetUser();
       return { success: true };
     } catch (error) {
       console.error(`Erro ao marcar review ${reviewId} como útil:`, error);
@@ -273,34 +336,40 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const getUserReview = (mediaId) => {
-    return user?.reviews?.find(r => r.mediaId === mediaId) || null;
-  };
-
-  const value = {
-    user,
-    isAuthenticated: !!user,
-    loading,
-    login,
-    register,
-    logout,
-    updateProfile,
-    toggleSavedMedia,
-    toggleFavorite,
-    addMediaToList,
-    removeMediaFromList,
-    addOrUpdateReview,
-    getUserReview,
-    removeReview,
-    toggleHelpful,
-    updateList,
-    deleteList,
-    createList,
-    reloadUser
-  };
+  const getUserReview = (mediaId) => user?.reviews?.find(r => r.mediaId === mediaId) || null;
 
   return (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider
+      value={{
+        user,
+        isAuthenticated: !!user,
+        loading,
+        login,
+        register,
+        logout,
+        updateProfile,
+        updateEmail,
+        updatePassword,
+        updateUsername,
+        updateUserPrivacy,
+        uploadAvatarFile,
+        uploadCoverFile,
+        removeAvatar,
+        removeCover,
+        toggleSavedMedia,
+        toggleFavorite,
+        addMediaToList,
+        removeMediaFromList,
+        addOrUpdateReview,
+        getUserReview,
+        removeReview,
+        toggleHelpful,
+        updateList,
+        deleteList,
+        createList,
+        reloadUser: fetchAndSetUser
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

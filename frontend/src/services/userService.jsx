@@ -73,7 +73,7 @@ export async function uploadUserAvatar(formData) {
     const response = await api.post("/users/avatar/upload", formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
-    return response.data;
+    return response.data.user;
   } catch (error) {
     console.error("Erro ao fazer upload do avatar:", error.response?.data || error);
     return null;
@@ -88,7 +88,7 @@ export async function uploadUserCover(formData) {
     const response = await api.post("/users/cover/upload", formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
-    return response.data;
+    return response.data.user;
   } catch (error) {
     console.error("Erro ao fazer upload da cover:", error.response?.data || error);
     return null;

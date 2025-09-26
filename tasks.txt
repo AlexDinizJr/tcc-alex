@@ -2,28 +2,31 @@
 
 # PRIORIDADES:
 
-1 - Users Settings Profile - Edit Name, Bio, Avatar, Cover;
-2 - Users Settings Account - Email, Senha, Username e Delete Account;
-3 - Users Settings Privacy - Show or Not Information;
-4 - Algoritmos - SimiliarMedia, HomePageRecommendations, Trending, UserInitialPreferences, CustomRecommendations e Não Recomendar mais;
+1 - Users Settings:
+    OBS1: Upload de Avatar e Cover: Faz o upload para o serviço mas não indicado o caminho no campo avatar do usuário;
+    OBS2: Upload de Avatar e Cover: Pelo backend o upload funciona mas o frontend parece que dá NotFound na imagem;
+    OBS3: Configs de Privacidade: Somente não funcionam;
+    OBS4: Update Username e Senha: Falta Feedback correto para quando o usuário escreve a senha incorreta;
+    OBS5: Update Email: Por algum motivo não está funcionando mesmo com uma lógica similar a Senha e Username;
+2 - Algoritmos - SimiliarMedia, HomePageRecommendations, Trending, UserInitialPreferences, CustomRecommendations e Não Recomendar mais;
     - OBS: Enxutar o Algoritmo de Recomendações para Apenas CustomRecommendations e HomePageRecommendations usando abordagens hibridas;
     - OBS2: Alterar o Trending para gerar 5 recomendações;
     - OBS3: Alterar o SimiliarMedia para gerar 4 recomendações e Ajustar ele;
 
 # POSSÍVEIS AJUSTES:
 
-- Adicionar nova seção de alterar username no Settings Account;
-- Meia estrela está com um fundo cinza
-- Não há feedback para o usuário informando se o item já está na lista;
 - Ajustar o funcionamento no mobile;
 - Trocar emojis por icons;
 - Largura padrão das páginas;
 - Adicionar cursor-pointer no que for necessário;
-- Ajusta o Toast caso o usuário esteja tentado marcar a própria review como útil;
+- Icone de Eye no Login
+- Ajustar a Estrela de Review cortada com fundo cinza;
+- Ajustar o Toast de feedback para o usuário informando que ele está tentando marcar a própria review como útil;
+- Ajustar o Toast de feedback para o usuário informando se o item já está na lista;
 - Ajustar o ícone de MarkedHelpful para ficar verde caso o usuário já tenha avaliado como útil;
 
 # BÔNUS:
 
 - Adicionar página de All Lists - todas as listas do site;
-- Criar novas seções no frontend além de recomendado para você;
 - Campo de gênero (sexo) no perfil;
+- Criar novas seções no frontend além de recomendado para você;

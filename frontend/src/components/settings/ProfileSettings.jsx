@@ -1,27 +1,24 @@
 import { useState } from "react";
 import { useAuth } from "../../hooks/useAuth";
+import { useToast } from "../../hooks/useToast";
 
 export default function ProfileSettings({ user }) {
-  const { updateProfile } = useAuth();
+  const { updateProfile, uploadAvatarFile, uploadCoverFile, removeAvatar, removeCover } = useAuth();
+  const { showToast } = useToast();
+
   const [formData, setFormData] = useState({
     name: user.name || "",
     bio: user.bio || "",
+    avatar: null,       // Guardaremos o File real
+    coverImage: null    // Guardaremos o File real
+  });
+
+  const [preview, setPreview] = useState({
     avatar: user.avatar || "",
     coverImage: user.coverImage || ""
   });
-  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-    try {
-      await updateProfile(formData);
-    } catch (error) {
-      console.error("Erro ao atualizar perfil:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e) => {
     setFormData(prev => ({
@@ -32,14 +29,61 @@ export default function ProfileSettings({ user }) {
 
   const handleFileUpload = (key, file) => {
     if (!file) return;
+    setFormData(prev => ({ ...prev, [key]: file }));
+
+    // Preview
     const reader = new FileReader();
     reader.onloadend = () => {
-      setFormData(prev => ({
-        ...prev,
-        [key]: reader.result
-      }));
+      setPreview(prev => ({ ...prev, [key]: reader.result }));
     };
     reader.readAsDataURL(file);
+  };
+
+  const handleRemove = async (key) => {
+    setIsLoading(true);
+    try {
+      if (key === "avatar") {
+        await removeAvatar();
+        setFormData(prev => ({ ...prev, avatar: null }));
+        setPreview(prev => ({ ...prev, avatar: "" }));
+      } else if (key === "coverImage") {
+        await removeCover();
+        setFormData(prev => ({ ...prev, coverImage: null }));
+        setPreview(prev => ({ ...prev, coverImage: "" }));
+      }
+      showToast("Imagem removida com sucesso!", "success");
+    } catch (error) {
+      console.error(error);
+      showToast("Falha ao remover imagem", "error");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    try {
+      // Atualiza nome e bio
+      await updateProfile({ name: formData.name, bio: formData.bio });
+
+      // Upload avatar
+      if (formData.avatar) {
+        await uploadAvatarFile(formData.avatar);
+      }
+
+      // Upload cover
+      if (formData.coverImage) {
+        await uploadCoverFile(formData.coverImage);
+      }
+
+      showToast("Perfil atualizado com sucesso!", "success");
+    } catch (error) {
+      console.error(error);
+      showToast("Falha ao atualizar perfil", "error");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -47,12 +91,13 @@ export default function ProfileSettings({ user }) {
       <h1 className="text-2xl font-bold text-white mb-6">Configurações de Perfil</h1>
 
       <form onSubmit={handleSubmit} className="space-y-6 bg-gray-800/80 p-6 rounded-2xl border border-gray-700/50">
+
         {/* Avatar */}
         <div>
           <label className="block text-sm font-medium text-white mb-2">Foto de Perfil</label>
           <div className="flex items-center gap-4">
             <img
-              src={formData.avatar || `https://ui-avatars.com/api/?name=${user.name}&background=007bff&color=fff`}
+              src={preview.avatar || `https://ui-avatars.com/api/?name=${user.name}&background=007bff&color=fff`}
               alt={user.name}
               className="w-16 h-16 rounded-full object-cover border border-gray-600"
             />
@@ -65,16 +110,25 @@ export default function ProfileSettings({ user }) {
                 onChange={(e) => handleFileUpload("avatar", e.target.files[0])}
               />
             </label>
+            {preview.avatar && (
+              <button
+                type="button"
+                onClick={() => handleRemove("avatar")}
+                className="bg-red-600 text-white px-3 py-1 rounded-md hover:bg-red-500 text-sm"
+              >
+                Remover
+              </button>
+            )}
           </div>
         </div>
 
-        {/* Capa */}
+        {/* Cover */}
         <div>
           <label className="block text-sm font-medium text-white mb-2">Foto de Capa</label>
           <div className="w-full h-40 bg-gray-700/30 rounded-lg overflow-hidden border border-gray-600 relative">
-            {formData.coverImage ? (
+            {preview.coverImage ? (
               <img
-                src={formData.coverImage}
+                src={preview.coverImage}
                 alt="Capa"
                 className="w-full h-full object-cover"
               />
@@ -83,15 +137,26 @@ export default function ProfileSettings({ user }) {
                 Sem capa
               </div>
             )}
-            <label className="absolute bottom-2 right-2 bg-blue-500 text-white px-3 py-1 rounded-md cursor-pointer hover:bg-blue-600 text-sm">
-              Carregar
-              <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={(e) => handleFileUpload("coverImage", e.target.files[0])}
-              />
-            </label>
+            <div className="absolute bottom-2 right-2 flex gap-2">
+              <label className="bg-blue-500 text-white px-3 py-1 rounded-md cursor-pointer hover:bg-blue-600 text-sm">
+                Carregar
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => handleFileUpload("coverImage", e.target.files[0])}
+                />
+              </label>
+              {preview.coverImage && (
+                <button
+                  type="button"
+                  onClick={() => handleRemove("coverImage")}
+                  className="bg-red-600 text-white px-3 py-1 rounded-md hover:bg-red-500 text-sm"
+                >
+                  Remover
+                </button>
+              )}
+            </div>
           </div>
         </div>
 

@@ -3,7 +3,7 @@ import api from "./api";
 export async function fetchCurrentUser() {
   try {
     const response = await api.get("/auth/profile", { withCredentials: true });
-    return response.data;
+    return response.data.user || response.data;;
   } catch (err) {
     console.error("Erro ao buscar usuário logado:", err.response?.data || err);
     return null;

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import DeleteAccountModal from "./DeleteAccountModal";
 import { useToast } from "../../hooks/useToast";
+import { useAuth } from "../../hooks/useAuth";
 
 function Modal({ title, children, onClose }) {
   return (
@@ -21,15 +22,20 @@ function Modal({ title, children, onClose }) {
 
 export default function AccountSettings({ user }) {
   const { showToast } = useToast();
+  const { updateEmail, updatePassword, updateUsername } = useAuth();
 
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [isUsernameModalOpen, setIsUsernameModalOpen] = useState(false);
+
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [emailForm, setEmailForm] = useState({ newEmail: "", currentPassword: "" });
   const [passwordForm, setPasswordForm] = useState({ newPassword: "", confirmPassword: "", currentPassword: "" });
+  const [usernameForm, setUsernameForm] = useState({ newUsername: "", currentPassword: "" });
 
+  // --- Handlers ---
   const handleEmailChange = async () => {
     if (!emailForm.newEmail || !emailForm.currentPassword) {
       return showToast("Preencha o novo email e a senha atual", "warning");
@@ -37,10 +43,14 @@ export default function AccountSettings({ user }) {
 
     setIsSubmitting(true);
     try {
-      await new Promise(r => setTimeout(r, 1500));
-      showToast("Email alterado com sucesso!", "success");
-      setEmailForm({ newEmail: "", currentPassword: "" });
-      setIsEmailModalOpen(false);
+      const res = await updateEmail(emailForm.newEmail, emailForm.currentPassword);
+      if (res.success) {
+        showToast("Email alterado com sucesso!", "success");
+        setEmailForm({ newEmail: "", currentPassword: "" });
+        setIsEmailModalOpen(false);
+      } else {
+        showToast(res.error || "Falha ao alterar email", "error");
+      }
     } catch (error) {
       console.error(error);
       showToast("Falha ao alterar email", "error");
@@ -60,13 +70,40 @@ export default function AccountSettings({ user }) {
 
     setIsSubmitting(true);
     try {
-      await new Promise(r => setTimeout(r, 1500));
-      showToast("Senha alterada com sucesso!", "success");
-      setPasswordForm({ newPassword: "", confirmPassword: "", currentPassword: "" });
-      setIsPasswordModalOpen(false);
+      const res = await updatePassword(currentPassword, newPassword);
+      if (res.success) {
+        showToast("Senha alterada com sucesso!", "success");
+        setPasswordForm({ newPassword: "", confirmPassword: "", currentPassword: "" });
+        setIsPasswordModalOpen(false);
+      } else {
+        showToast(res.error || "Falha ao alterar senha", "error");
+      }
     } catch (error) {
       console.error(error);
       showToast("Falha ao alterar senha", "error");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleUsernameChange = async () => {
+    if (!usernameForm.newUsername || !usernameForm.currentPassword) {
+      return showToast("Preencha o novo username e a senha atual", "warning");
+    }
+
+    setIsSubmitting(true);
+    try {
+      const res = await updateUsername(usernameForm.currentPassword, usernameForm.newUsername);
+      if (res.success) {
+        showToast("Username alterado com sucesso!", "success");
+        setUsernameForm({ newUsername: "", currentPassword: "" });
+        setIsUsernameModalOpen(false);
+      } else {
+        showToast(res.error || "Falha ao alterar username", "error");
+      }
+    } catch (error) {
+      console.error(error);
+      showToast("Falha ao alterar username", "error");
     } finally {
       setIsSubmitting(false);
     }
@@ -77,6 +114,20 @@ export default function AccountSettings({ user }) {
       <h1 className="text-2xl font-bold text-white mb-6">Configurações da Conta</h1>
 
       <div className="space-y-6">
+        {/* Username */}
+        <div className="bg-gray-800/80 border border-gray-700/50 rounded-2xl p-6 flex justify-between items-center shadow-md">
+          <div>
+            <h3 className="font-semibold text-white mb-1">Username</h3>
+            <p className="text-gray-300 text-sm">{user.username}</p>
+          </div>
+          <button
+            onClick={() => setIsUsernameModalOpen(true)}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-500 transition-colors text-sm"
+          >
+            Alterar Username
+          </button>
+        </div>
+
         {/* Email */}
         <div className="bg-gray-800/80 border border-gray-700/50 rounded-2xl p-6 flex justify-between items-center shadow-md">
           <div>
@@ -120,7 +171,33 @@ export default function AccountSettings({ user }) {
         </div>
       </div>
 
-      {/* Modal Email */}
+      {/* Modais */}
+      {isUsernameModalOpen && (
+        <Modal title="Alterar Username" onClose={() => setIsUsernameModalOpen(false)}>
+          <input
+            type="text"
+            placeholder="Novo username"
+            value={usernameForm.newUsername}
+            onChange={e => setUsernameForm(prev => ({ ...prev, newUsername: e.target.value }))}
+            className="w-full px-3 py-2 border border-gray-600 rounded-lg mb-2 bg-gray-800 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+          <input
+            type="password"
+            placeholder="Senha atual"
+            value={usernameForm.currentPassword}
+            onChange={e => setUsernameForm(prev => ({ ...prev, currentPassword: e.target.value }))}
+            className="w-full px-3 py-2 border border-gray-600 rounded-lg mb-4 bg-gray-800 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+          <button
+            onClick={handleUsernameChange}
+            disabled={isSubmitting}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-500 transition-colors w-full"
+          >
+            {isSubmitting ? "Alterando..." : "Confirmar Alteração"}
+          </button>
+        </Modal>
+      )}
+
       {isEmailModalOpen && (
         <Modal title="Alterar Email" onClose={() => setIsEmailModalOpen(false)}>
           <input
@@ -147,7 +224,6 @@ export default function AccountSettings({ user }) {
         </Modal>
       )}
 
-      {/* Modal Senha */}
       {isPasswordModalOpen && (
         <Modal title="Alterar Senha" onClose={() => setIsPasswordModalOpen(false)}>
           <input
@@ -181,7 +257,6 @@ export default function AccountSettings({ user }) {
         </Modal>
       )}
 
-      {/* Modal Delete */}
       {isDeleteConfirmOpen && (
         <DeleteAccountModal onClose={() => setIsDeleteConfirmOpen(false)} />
       )}

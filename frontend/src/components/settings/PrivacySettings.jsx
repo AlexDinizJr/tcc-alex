@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useAuth } from "../../hooks/useAuth";
 
 export default function PrivacySettings({ user }) {
-  const { updateUser } = useAuth();
+  const { updateUserPrivacy } = useAuth();
   const [privacySettings, setPrivacySettings] = useState({
     profileVisibility: user?.privacy?.profileVisibility || "public",
     showSavedItems: user?.privacy?.showSavedItems ?? false,
@@ -21,7 +21,7 @@ export default function PrivacySettings({ user }) {
         ...user,
         privacy: privacySettings
       };
-      await updateUser(updatedUser);
+      await updateUserPrivacy(updatedUser);
     } catch (error) {
       console.error("Erro ao salvar configurações:", error);
     } finally {
