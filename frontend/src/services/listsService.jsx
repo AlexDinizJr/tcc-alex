@@ -31,7 +31,7 @@ export async function fetchListById(listId) {
 export async function createList({ name, description = "", isPublic = false }) {
   try {
     const response = await api.post("/lists", { name, description, isPublic });
-    return response.data;
+    return response.data.list; 
   } catch (err) {
     throw new Error(err.response?.data?.message || "Erro ao criar lista");
   }

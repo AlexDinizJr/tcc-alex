@@ -59,7 +59,7 @@ export default function ReviewSection({ mediaId, currentUser }) {
   );
 
   const handleRatingChange = (rating) => {
-    setNewReview((prev) => ({ ...prev, rating }));
+    setNewReview((prev) => ({ ...prev, rating: parseFloat(rating) }));
   };
 
   const handleInputChange = (e) => {
@@ -99,7 +99,11 @@ export default function ReviewSection({ mediaId, currentUser }) {
       const created = await createReview({ mediaId, userId: currentUser.id, rating, comment });
 
       setReviews((prev) =>
-        prev.map((r) => (r.id === tempId ? { ...r, ...created.review } : r))
+        prev.map((r) =>
+          r.id === tempId
+            ? { ...r, ...(created?.review ?? {}) }
+            : r
+        )
       );
 
       setNewReview({ rating: 0, comment: "" });
@@ -124,8 +128,13 @@ export default function ReviewSection({ mediaId, currentUser }) {
       );
 
       const updated = await editReview(reviewId, { comment: newComment, rating: newRating });
+      
       setReviews((prev) =>
-        prev.map((r) => (r.id === reviewId ? { ...r, ...updated.review } : r))
+        prev.map((r) =>
+          r.id === reviewId
+            ? { ...r, ...(updated?.review ?? {}) }
+            : r
+        )
       );
       showToast("Avaliação editada com sucesso!", "success");
     } catch (err) {

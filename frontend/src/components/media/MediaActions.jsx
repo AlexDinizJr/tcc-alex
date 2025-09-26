@@ -12,6 +12,7 @@ export default function MediaActions({ mediaItem }) {
     toggleSavedMedia, 
     toggleFavorite, 
     addMediaToList,
+    updateUser,
     isAuthenticated 
   } = useAuth();
 
@@ -60,7 +61,6 @@ export default function MediaActions({ mediaItem }) {
     setShowAddToListModal(true);
   };
 
-  // 🔥 CORREÇÃO: Função assíncrona com tratamento de erro
   const handleAddToListConfirm = async (listId, listName = null, isPublic = false) => {
     if (!isAuthenticated)
       return showToast("Você precisa estar logado para adicionar itens a listas!", "warning");
@@ -70,36 +70,34 @@ export default function MediaActions({ mediaItem }) {
     try {
       const result = await addMediaToList(mediaItem, listId, listName, isPublic);
 
-      console.log("Resultado da adição à lista:", result); // 🔥 DEBUG
-
       if (result.success) {
+        // 🔥 Atualiza as listas do usuário no frontend caso seja nova lista
+        if (listName && result.list) {
+          updateUser(prev => ({
+            ...prev,
+            lists: [...(prev.lists || []), result.list]
+          }));
+        }
+
         showToast(
           listName 
-            ? `Lista "${listName}" criada com "${mediaItem.title}" adicionado!` 
-            : `"${mediaItem.title}" adicionado à lista com sucesso!`, 
+            ? `Lista "${listName}" criada com "${mediaItem.title}" adicionada!` 
+            : `"${mediaItem.title}" adicionado à lista!`,
           "success"
         );
         setShowAddToListModal(false);
+
       } else if (result.isDuplicate) {
-        // 🔥 ERRO ESPECÍFICO PARA DUPLICAÇÃO
+        showToast(`"${mediaItem.title}" já está nesta lista!`, "warning");
         setShowAddToListModal(false);
-        showToast(result.error || "Este item já está na lista", "warning");
+
       } else {
-        // 🔥 MENSAGEM DE ERRO MAIS ESPECÍFICA
-        const errorMsg = result.error || "Erro ao adicionar à lista";
-        showToast(errorMsg, "error");
-        console.error("Erro ao adicionar à lista:", result.error);
+        showToast(result.error || "Erro ao adicionar à lista", "error");
       }
+
     } catch (error) {
-      console.error("Erro capturado no handleAddToListConfirm:", error);
-      
-      // 🔥 TRATAMENTO DE ERRO MAIS DETALHADO
-      let errorMessage = "Erro ao adicionar à lista";
-      if (error.message?.includes("já está")) {
-        errorMessage = `"${mediaItem.title}" já está nesta lista!`;
-      }
-      
-      showToast(errorMessage, "error");
+      console.error("Erro inesperado ao adicionar à lista:", error);
+      showToast("Erro inesperado ao adicionar à lista", "error");
     }
   };
 

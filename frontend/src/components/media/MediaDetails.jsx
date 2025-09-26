@@ -26,7 +26,7 @@ export default function MediaDetails({ mediaItem }) {
       {renderMediaField(mediaItem.directors, "Diretor(es)")}
       {renderMediaField(mediaItem.authors, "Autor(es)")}
       {renderMediaField(mediaItem.artists, "Artista(s)")}
-      {renderMediaField(mediaItem.developers, "Desenvolvedor(es)")}
+      {renderMediaField(mediaItem.developer, "Desenvolvedor(es)")}
       {renderMediaField(mediaItem.producers, "Produtor(es)")}
       {renderMediaField(mediaItem.writers, "Roteirista(s)")}
       {renderMediaField(mediaItem.musicians, "Músico(s)")}
@@ -54,7 +54,7 @@ export default function MediaDetails({ mediaItem }) {
         </div>
       )}
 
-      {renderMediaField(mediaItem.publisher, "Editora")}
+      {renderMediaField(mediaItem.publisher, "Publisher")}
       {renderMediaField(mediaItem.language, "Idioma")}
       {renderMediaField(mediaItem.country, "País")}
 

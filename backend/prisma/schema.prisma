@@ -78,7 +78,7 @@ model Media {
 
 model Review {
   id       Int       @id @default(autoincrement())
-  rating   Int
+  rating   Float
   comment  String
   date     DateTime  @default(now())
   helpful  Int       @default(0)       // contador de "úteis"

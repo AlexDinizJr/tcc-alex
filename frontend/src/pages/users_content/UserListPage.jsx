@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useMemo, useEffect } from "react";
 import { useAuth } from "../../hooks/useAuth";
+import { useToast } from "../../hooks/useToast";
 import QuickAddModal from "../../components/lists/QuickAddModal";
 import EditListModal from "../../components/lists/EditListModal";
 import MediaCardWithActions from "../../components/lists/MediaCardWithActions";
@@ -12,6 +13,7 @@ import { fetchListById } from "../../services/listsService";
 
 export default function UserList() {
   const { username, id } = useParams();
+  const { showToast } = useToast();
   const parsedListId = parseInt(id);
   const navigate = useNavigate();
   const { user: loggedInUser, addMediaToList, removeMediaFromList, updateUser, deleteList, updateList } = useAuth();
@@ -104,11 +106,13 @@ export default function UserList() {
 
   const handleQuickAdd = async (mediaItem) => {
     if (!isOwner) return;
-    const result = addMediaToList(mediaItem, localList.id, null, user, updateUser);
+    const result = await addMediaToList(mediaItem, localList.id, null, user, updateUser);
     if (result.success) {
       setLocalList(prev => ({ ...prev, items: [...(prev.items || []), mediaItem] }));
-      return Promise.resolve();
-    } else return Promise.reject(result.error);
+      return showToast(`"${mediaItem.title}" adicionado à lista!`, "success");
+    } else {
+      return showToast("Erro ao adicionar item à lista.", "error"); 
+    }
   };
 
   const handleDeleteItem = async (itemId) => {

@@ -1,17 +1,27 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function AddToListModal({ mediaItem, userLists, onAddToList, onClose }) {
   const [selectedList, setSelectedList] = useState("");
   const [createNewList, setCreateNewList] = useState(false);
   const [newListName, setNewListName] = useState("");
   const [newListIsPublic, setNewListIsPublic] = useState(false);
+  const [lists, setLists] = useState(userLists || []);
+
+  // 🔹 Atualiza as listas quando userLists mudar
+  useEffect(() => {
+    setLists(userLists || []);
+  }, [userLists]);
 
   const handleAddToList = () => {
     if (createNewList && newListName.trim()) {
-      // Passa também newListIsPublic
       onAddToList(null, newListName.trim(), newListIsPublic);
+      // limpa input após adicionar
+      setNewListName("");
+      setNewListIsPublic(false);
+      setCreateNewList(false);
     } else if (selectedList) {
       onAddToList(parseInt(selectedList));
+      setSelectedList(""); // limpa seleção após adicionar
     }
   };
 
@@ -28,7 +38,6 @@ export default function AddToListModal({ mediaItem, userLists, onAddToList, onCl
     >
       <div className="bg-gray-900 rounded-lg shadow-lg border border-gray-700 w-full max-w-md">
         <div className="p-4">
-          {/* Cabeçalho */}
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-semibold text-gray-100">Adicionar à lista</h3>
             <button onClick={onClose} className="text-gray-400 hover:text-gray-200">
@@ -38,13 +47,11 @@ export default function AddToListModal({ mediaItem, userLists, onAddToList, onCl
             </button>
           </div>
 
-          {/* Conteúdo */}
           <div className="space-y-4 text-gray-100">
             <div className="text-sm">
               Adicionando: <span className="font-medium">{mediaItem.title}</span>
             </div>
 
-            {/* Lista existente */}
             <div className="space-y-2">
               <div className="flex items-center">
                 <input
@@ -64,7 +71,7 @@ export default function AddToListModal({ mediaItem, userLists, onAddToList, onCl
                   className="w-full p-2 bg-gray-800 text-gray-100 border border-gray-700 rounded text-sm"
                 >
                   <option value="">Selecione uma lista</option>
-                  {userLists.map((list) => (
+                  {lists.map((list) => (
                     <option key={list.id} value={list.id}>
                       {list.name}
                     </option>
@@ -73,7 +80,6 @@ export default function AddToListModal({ mediaItem, userLists, onAddToList, onCl
               )}
             </div>
 
-            {/* Nova lista */}
             <div className="space-y-2">
               <div className="flex items-center">
                 <input
@@ -109,7 +115,6 @@ export default function AddToListModal({ mediaItem, userLists, onAddToList, onCl
             </div>
           </div>
 
-          {/* Botões */}
           <div className="flex gap-2 mt-4">
             <button
               onClick={onClose}

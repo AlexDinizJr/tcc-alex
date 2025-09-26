@@ -48,10 +48,15 @@ export default function ReviewForm({
           <label className="block text-sm font-medium text-gray-100 mb-2">
             Sua avaliação *
           </label>
-          <StarRating value={newReview.rating} onRatingChange={onRatingChange} />
+          {/* 🔥 CORREÇÃO: Mude 'value' para 'rating' */}
+          <StarRating 
+            rating={newReview.rating} 
+            onRatingChange={onRatingChange} 
+          />
           {newReview.rating > 0 && (
             <p className="text-sm text-gray-300 mt-2">
-              {newReview.rating} {newReview.rating === 1 ? 'estrela' : 'estrelas'}
+              {/* 🔥 MOSTRE NOTA DECIMAL CORRETAMENTE */}
+              {newReview.rating.toFixed(1)} {newReview.rating === 1 ? 'estrela' : 'estrelas'}
             </p>
           )}
         </div>

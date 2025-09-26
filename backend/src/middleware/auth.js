@@ -43,4 +43,37 @@ const isAdmin = (req, res, next) => {
   next();
 };
 
-module.exports = { authenticateToken, isAdmin };
+const authenticateTokenOptional = async (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  console.log('🔐 Middleware Debug:', {
+    hasAuthHeader: !!authHeader,
+    hasToken: !!token,
+    url: req.originalUrl
+  });
+
+  if (!token) {
+    req.user = undefined;
+    console.log('👤 Usuário: Visitante (sem token)');
+    return next();
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await prisma.user.findUnique({
+      where: { id: decoded.userId },
+      select: { id: true, username: true, email: true }
+    });
+    
+    req.user = user;
+    console.log('👤 Usuário autenticado:', user);
+    next();
+  } catch (error) {
+    console.log('⚠️ Token inválido:', error.message);
+    req.user = undefined;
+    next();
+  }
+};
+
+module.exports = { authenticateToken, authenticateTokenOptional, isAdmin };

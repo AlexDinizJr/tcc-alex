@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useToast } from "../../hooks/useToast";
 
 export default function EditListModal({ 
@@ -9,6 +10,7 @@ export default function EditListModal({
   list 
 }) {
   const { showToast } = useToast();
+  const navigate = useNavigate();
 
   const [name, setName] = useState(list?.name || "");
   const [description, setDescription] = useState(list?.description || "");
@@ -49,6 +51,8 @@ export default function EditListModal({
       await onDelete();
       showToast(`"${list.name}" foi excluída com sucesso!`, "success");
       onClose();
+
+      navigate(`/users/${list.user.username}/lists`);
     } catch (error) {
       console.error("Erro ao excluir lista:", error);
       showToast("Erro ao excluir lista.", "error");

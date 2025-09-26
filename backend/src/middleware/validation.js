@@ -29,13 +29,13 @@ const validateUserRegistration = [
 ];
 
 const validateReview = [
-  body('rating').isInt({ min: 1, max: 5 }),
+  body('rating').isFloat({ min: 1, max: 5 }),
   body('comment').optional().trim().isLength({ max: 1000 }),
   handleValidationErrors
 ];
 
 const validateReviewUpdate = [
-  body('rating').optional().isInt({ min: 1, max: 5 }),
+  body('rating').optional().isFloat({ min: 1, max: 5 }),
   body('comment').optional().trim().isLength({ max: 1000 }),
   (req, res, next) => {
     if (!req.body.rating && !req.body.comment) {

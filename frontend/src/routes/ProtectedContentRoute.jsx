@@ -9,74 +9,134 @@ export default function ProtectedContentRoute({ children, contentType }) {
   const { username, id } = useParams();
   const { user: loggedInUser } = useAuth();
 
-  const [user, setUser] = useState(null);
+  const [profileUser, setProfileUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const isOwner = loggedInUser?.username === username;
 
   useEffect(() => {
+    let mounted = true;
+
     async function loadUser() {
-      if (isOwner) {
-        setUser(loggedInUser);
-        setLoading(false);
-      } else {
-        try {
-          const data = await fetchUserByUsername(username);
-          setUser(data);
-        } catch {
-          setUser(null);
-        } finally {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const data = await fetchUserByUsername(username, isOwner ? { includePrivate: true } : {});
+        
+        if (mounted) {
+          setProfileUser(data);
+        }
+      } catch (error) {
+        console.error("Erro ao carregar usuário:", error);
+        if (mounted) {
+          if (error.response?.status === 404) {
+            setError("Usuário não encontrado");
+          } else {
+            setError("Erro ao carregar perfil");
+          }
+          setProfileUser(null);
+        }
+      } finally {
+        if (mounted) {
           setLoading(false);
         }
       }
     }
-    loadUser();
-  }, [username, isOwner, loggedInUser]);
 
-  if (loading) return <p>Carregando...</p>;
+    if (username) {
+      loadUser();
+    } else {
+      setLoading(false);
+      setError("Username não fornecido");
+    }
 
-  if (!user) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <p className="text-lg font-semibold text-gray-600">
-          Usuário não encontrado.
-        </p>
-      </div>
-    );
-  }
+    return () => {
+      mounted = false;
+    };
+  }, [username, isOwner]);
 
   const canViewContent = () => {
+    if (!profileUser) return false;
     if (isOwner) return true;
 
     switch (contentType) {
       case "lists":
-        return (user.lists || []).some(list => list.isPublic);
+        return profileUser.showSavedItems !== false && 
+               (profileUser.lists || []).some(list => list.isPublic);
       case "list":
+        // tslint:disable-next-line: eqeq
         const targetListId = parseInt(id);
-        const targetList = (user.lists || []).find(l => l.id === targetListId);
-        return targetList ? targetList.isPublic : false;
+        // tslint:disable-next-line: eqeq
+        const targetList = (profileUser.lists || []).find(l => l.id === targetListId);
+        return targetList?.isPublic === true;
       case "reviews":
-        return user.showReviews === true;
+        return profileUser.showReviews === true;
       case "favorites":
-        return user.showFavorites === true;
+        return profileUser.showFavorites === true;
       case "saved":
-        return user.showSavedItems === true;
+        return profileUser.showSavedItems === true;
       case "stats":
-        return user.showStats === true;
+        return profileUser.showStats === true;
       default:
         return false;
     }
   };
 
-  if (!canViewContent()) {
+  const getContentTypeText = () => {
+    switch (contentType) {
+      case "lists": return "listas";
+      case "list": return "esta lista";
+      case "reviews": return "avaliações";
+      case "favorites": return "favoritos";
+      case "saved": return "itens salvos";
+      case "stats": return "estatísticas";
+      default: return "conteúdo";
+    }
+  };
+
+  if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen">
-        <FaLock className="text-3xl text-gray-400 mb-3" />
-        <h2 className="text-xl font-semibold text-white mb-2">
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        <span className="ml-3 text-gray-300">Carregando...</span>
+      </div>
+    );
+  }
+
+  if (error || !profileUser) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen px-4">
+        <FaLock className="text-5xl text-gray-400 mb-4" />
+        <h2 className="text-xl font-semibold text-white mb-2 text-center">
+          {error === "Usuário não encontrado" ? "Usuário Não Encontrado" : "Erro ao Carregar"}
+        </h2>
+        <p className="text-gray-400 text-center mb-4">
+          {error === "Usuário não encontrado" 
+            ? "O usuário que você está tentando acessar não existe."
+            : "Ocorreu um erro ao carregar o perfil do usuário."
+          }
+        </p>
+        <BackToProfile username={username} className="mt-4" />
+      </div>
+    );
+  }
+
+  const canView = canViewContent();
+  
+  if (!canView) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen px-4">
+        <FaLock className="text-5xl text-gray-400 mb-4" />
+        <h2 className="text-xl font-semibold text-white mb-2 text-center">
           Conteúdo Restrito
         </h2>
-        <p className="text-gray-400 text-center">
-          Este usuário optou por manter seu {contentType} privado.
+        <p className="text-gray-400 text-center mb-4">
+          {isOwner 
+            ? `Você optou por manter ${getContentTypeText()} privado.`
+            : `Este usuário optou por manter ${getContentTypeText()} privado.`
+          }
         </p>
         <BackToProfile username={username} className="mt-4" />
       </div>

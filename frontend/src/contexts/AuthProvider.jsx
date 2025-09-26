@@ -179,59 +179,32 @@ export function AuthProvider({ children }) {
   };
 
   const addMediaToList = async (mediaItem, listId, listName = null, isPublic = false) => {
-    if (!user) return { success: false, error: "Usuário não autenticado" };
+    if (!user) return { success: false, reason: "unauthenticated" };
     
     try {
       if (listName) {
-        // 1. Primeiro cria a lista
-        const newList = await createListService({ 
-          name: listName, 
-          description: "",
-          isPublic: isPublic
-        });
-        
-        // 🔥 PEQUENA PAUSA para garantir que a lista foi criada
+        const newList = await createListService({ name: listName, description: "", isPublic });
         await new Promise(resolve => setTimeout(resolve, 100));
-        
-        // 2. Depois adiciona o item à lista
         await addItemToListService(newList.id, mediaItem.id);
-        
-        // 3. Recarrega o usuário
         await reloadUser();
-        
-        return { 
-          success: true, 
-          list: newList,
-          message: `Lista "${listName}" criada com sucesso!`
-        };
+        return { success: true, newList };
       } else {
-        // Para lista existente
         await addItemToListService(listId, mediaItem.id);
         await reloadUser();
-        return { 
-          success: true, 
-          message: `"${mediaItem.title}" adicionado à lista!` 
-        };
+        return { success: true };
       }
     } catch (error) {
       console.error("Erro detalhado em addMediaToList:", error);
-      
-      // 🔥 CORREÇÃO: Captura mais tipos de erro de duplicação
-      const errorMessage = error.message || error.response?.data?.message || "Erro desconhecido";
-      
-      if (errorMessage.includes("já está") || 
-          errorMessage.includes("already exists") ||
-          errorMessage.includes("duplicate") ||
-          errorMessage.includes("já foi adicionado") ||
-          errorMessage.includes("already in list")) {
-        return { 
-          success: false, 
-          error: `"${mediaItem.title}" já está nesta lista!`,
-          isDuplicate: true
-        };
-      }
-      
-      return { success: false, error: errorMessage };
+
+      // apenas sinaliza duplicação ou erro genérico
+      const errorMessage = error.message || error.response?.data?.message || "unknown";
+
+      const isDuplicate = errorMessage.includes("already exists") ||
+                          errorMessage.includes("duplicate") ||
+                          errorMessage.includes("already in list") ||
+                          errorMessage.includes("já está");
+
+      return { success: false, isDuplicate, originalError: errorMessage };
     }
   };
 

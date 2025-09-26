@@ -10,7 +10,7 @@ const {
   deleteAvatar,
   deleteCover
 } = require('../controllers/userController');
-const { authenticateToken } = require('../middleware/auth');
+const { authenticateToken, authenticateTokenOptional } = require('../middleware/auth');
 const { avatarUpload, coverUpload } = require('../config/upload');
 
 const router = express.Router();
@@ -68,7 +68,7 @@ router.get('/', getAllUsers);
  *       404:
  *         description: Usuário não encontrado
  */
-router.get('/username/:username', getUserByUsername);
+router.get('/username/:username', authenticateTokenOptional, getUserByUsername);
 
 /**
  * @swagger

@@ -11,8 +11,7 @@ const listController = {
       const [lists, total] = await Promise.all([
         prisma.list.findMany({
           where: { 
-            userId: parseInt(userId),
-            isPublic: req.user?.id !== parseInt(userId) ? true : undefined
+            userId: parseInt(userId)
           },
           skip,
           take: parseInt(limit),
@@ -37,8 +36,7 @@ const listController = {
         }),
         prisma.list.count({
           where: { 
-            userId: parseInt(userId),
-            isPublic: req.user?.id !== parseInt(userId) ? true : undefined
+            userId: parseInt(userId)
           }
         })
       ]);
@@ -95,12 +93,6 @@ const listController = {
       if (!list) {
         return res.status(404).json({ error: 'Lista não encontrada' });
       }
-
-      // Verificar se a lista é privada e se o usuário é o dono
-      if (!list.isPublic && list.userId !== req.user?.id) {
-        return res.status(403).json({ error: 'Esta lista é privada' });
-      }
-
       res.json(list);
     } catch (error) {
       console.error('Error getting list:', error);
@@ -117,8 +109,6 @@ const listController = {
     const user = await prisma.user.findUnique({
       where: { id: parseInt(userId) },
       select: {
-        profileVisibility: true,
-        showSavedItems: true,
         savedMedia: {
           skip,
           take: parseInt(limit),
@@ -141,11 +131,6 @@ const listController = {
     if (!user) {
       return res.status(404).json({ error: 'Usuário não encontrado' });
     }
-
-    if (user.profileVisibility !== 'public' || !user.showSavedItems) {
-      return res.status(403).json({ error: 'Não é permitido acessar os itens salvos deste usuário' });
-    }
-
     res.json({
       savedMedia: user.savedMedia,
       totalSaved: user._count.savedMedia
@@ -166,8 +151,6 @@ async getUserFavorites(req, res) {
     const user = await prisma.user.findUnique({
       where: { id: parseInt(userId) },
       select: {
-        profileVisibility: true,
-        showFavorites: true,
         favorites: {
           skip,
           take: parseInt(limit),
@@ -180,7 +163,6 @@ async getUserFavorites(req, res) {
             rating: true,
             genres: true
           }
-          
         },
         _count: {
           select: { favorites: true }
@@ -192,13 +174,9 @@ async getUserFavorites(req, res) {
       return res.status(404).json({ error: 'Usuário não encontrado' });
     }
 
-    if (user.profileVisibility !== 'public' || !user.showFavorites) {
-      return res.status(403).json({ error: 'Não é permitido acessar os favoritos deste usuário' });
-    }
-
     res.json({
       favorites: user.favorites,
-      totalSaved: user._count.favorites
+      totalFavorites: user._count.favorites
     });
 
   } catch (error) {

@@ -47,7 +47,7 @@ const reviewController = {
           orderBy: REVIEW_SORT_OPTIONS[sortBy] || REVIEW_SORT_OPTIONS.recent,
           include: {
             user: { select: { id: true, name: true, username: true, avatar: true } },
-            helpfuls: true // pega todos os helpfuls
+            helpfuls: true
           }
         }),
         prisma.review.count({ where: { mediaId } }),
@@ -137,39 +137,77 @@ const reviewController = {
     }
   },
 
-  // Criar avaliação
+  // 🔥 CORREÇÃO: Criar avaliação - Aceitar notas decimais
   async createReview(req, res) {
     try {
       const userId = req.user.id;
       const mediaId = parseInt(req.body.mediaId);
-      const rating = parseInt(req.body.rating);
+      
+      // 🔥 CORREÇÃO CRÍTICA: Validação correta de notas decimais
+      let rating;
+      if (typeof req.body.rating === 'string') {
+        rating = parseFloat(req.body.rating.replace(',', '.')); // Suporte a vírgula
+      } else {
+        rating = parseFloat(req.body.rating);
+      }
+      
       const comment = req.body.comment?.trim() || '';
+
+      console.log('🔍 Dados recebidos no createReview:', {
+        userId,
+        mediaId,
+        rating: req.body.rating,
+        parsedRating: rating,
+        typeOfRating: typeof req.body.rating
+      });
+
+      // 🔥 VALIDAÇÃO CORRIGIDA: Aceitar notas de 0.5 a 5.0
+      if (!mediaId || isNaN(rating) || rating < 0.5 || rating > 5) {
+        return res.status(400).json({ 
+          error: 'Rating inválido. Deve ser um número entre 0.5 e 5.0' 
+        });
+      }
 
       // Verifica se já existe
       const existingReview = await prisma.review.findUnique({
         where: { userId_mediaId: { userId, mediaId } }
       });
-      if (existingReview) return res.status(400).json({ error: 'Você já avaliou esta mídia' });
+      if (existingReview) {
+        return res.status(400).json({ error: 'Você já avaliou esta mídia' });
+      }
 
       // Verifica se a mídia existe
       const media = await prisma.media.findUnique({ where: { id: mediaId } });
       if (!media) return res.status(404).json({ error: 'Mídia não encontrada' });
 
       const review = await prisma.review.create({
-        data: { userId, mediaId, rating, comment, date: new Date()},
-        include: { user: { select: { id: true, name: true, username: true, avatar: true } }, media: { select: { id: true, title: true, type: true } } }
+        data: { 
+          userId, 
+          mediaId, 
+          rating, // 🔥 Já é um float válido
+          comment, 
+          date: new Date() 
+        },
+        include: { 
+          user: { select: { id: true, name: true, username: true, avatar: true } } 
+        }
       });
 
       await updateMediaRating(mediaId);
 
-      res.status(201).json({ message: 'Avaliação criada com sucesso', review });
+      console.log('✅ Review criada com sucesso:', review);
+
+      res.status(201).json({ 
+        message: 'Avaliação criada com sucesso', 
+        review 
+      });
     } catch (error) {
       console.error('Erro ao criar avaliação:', error);
       res.status(500).json({ error: 'Erro interno do servidor' });
     }
   },
 
-  // Atualizar avaliação
+  // 🔥 CORREÇÃO: Atualizar avaliação - Aceitar notas decimais
   async updateReview(req, res) {
     try {
       const reviewId = parseInt(req.params.reviewId);
@@ -180,11 +218,29 @@ const reviewController = {
       if (!review) return res.status(404).json({ error: 'Avaliação não encontrada' });
       if (review.userId !== userId) return res.status(403).json({ error: 'Você não pode editar esta avaliação' });
 
-      // Prepara os campos que serão atualizados
-      const updateData = {};
-      if (rating !== undefined) updateData.rating = parseInt(rating);
-      if (comment !== undefined) updateData.comment = comment.trim();
-      updateData.date = new Date();
+      // 🔥 CORREÇÃO: Processar rating corretamente
+      const updateData = { date: new Date() };
+      
+      if (rating !== undefined) {
+        let parsedRating;
+        if (typeof rating === 'string') {
+          parsedRating = parseFloat(rating.replace(',', '.'));
+        } else {
+          parsedRating = parseFloat(rating);
+        }
+        
+        if (isNaN(parsedRating) || parsedRating < 0.5 || parsedRating > 5) {
+          return res.status(400).json({ 
+            error: 'Rating inválido. Deve ser um número entre 0.5 e 5.0' 
+          });
+        }
+        
+        updateData.rating = parsedRating;
+      }
+      
+      if (comment !== undefined) {
+        updateData.comment = comment.trim();
+      }
 
       const updatedReview = await prisma.review.update({
         where: { id: reviewId },
@@ -196,14 +252,17 @@ const reviewController = {
 
       await updateMediaRating(review.mediaId);
 
-      res.json({ message: 'Avaliação atualizada com sucesso', review: updatedReview });
+      res.json({ 
+        message: 'Avaliação atualizada com sucesso', 
+        review: updatedReview 
+      });
     } catch (error) {
       console.error('Erro ao atualizar avaliação:', error);
       res.status(500).json({ error: 'Erro interno do servidor' });
     }
   },
 
-  // Excluir avaliação
+  // Excluir avaliação (mantida igual)
   async deleteReview(req, res) {
     try {
       const reviewId = parseInt(req.params.reviewId);
@@ -223,15 +282,15 @@ const reviewController = {
     }
   },
 
-  // Marcar avaliação como útil
-    async markHelpful(req, res) {
+  // Marcar avaliação como útil (mantida igual)
+  async markHelpful(req, res) {
     try {
       const reviewId = parseInt(req.params.reviewId);
       const userId = req.user.id;
 
       const review = await prisma.review.findUnique({
         where: { id: reviewId },
-        include: { helpfuls: true } // pega todos os helpfuls
+        include: { helpfuls: true }
       });
       if (!review) return res.status(404).json({ error: 'Avaliação não encontrada' });
       if (review.userId === userId) return res.status(403).json({ error: 'Você não pode marcar sua própria avaliação como útil' });
@@ -243,7 +302,6 @@ const reviewController = {
       let updatedReview;
 
       if (existing) {
-        // desmarcar
         const [reviewUpdate] = await prisma.$transaction([
           prisma.review.update({
             where: { id: reviewId },
@@ -253,7 +311,6 @@ const reviewController = {
         ]);
         updatedReview = reviewUpdate;
       } else {
-        // marcar
         const [reviewUpdate] = await prisma.$transaction([
           prisma.review.update({
             where: { id: reviewId },
@@ -264,7 +321,6 @@ const reviewController = {
         updatedReview = reviewUpdate;
       }
 
-      // ✅ Retornar o estado correto do usuário
       const userMarkedHelpful = !existing;
 
       res.json({

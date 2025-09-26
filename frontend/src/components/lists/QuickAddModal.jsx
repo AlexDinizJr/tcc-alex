@@ -1,46 +1,39 @@
 import { useState } from "react";
 import ListSearchBar from "./ListSearchBar";
-import { convertMediaIdsToObjects } from "../../utils/MediaHelpers";
-import { useToast } from "../../hooks/useToast";
 
 export default function QuickAddModal({ onClose, onAddItem, currentListItems }) {
   const [selectedMedia, setSelectedMedia] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
   const [isAdding, setIsAdding] = useState(false);
-  const { showToast } = useToast();
 
-  const currentMediaObjects = convertMediaIdsToObjects(currentListItems);
+  const currentMediaObjects = currentListItems.map((item) =>
+    typeof item === "object" ? item : { id: item }
+  );
 
   const handleSearchResults = (results) => {
     const availableResults = results.filter(
-      media => !currentMediaObjects.some(item => item.id === media.id)
+      (media) => !currentMediaObjects.some((item) => item.id === media.id)
     );
     setSearchResults(availableResults);
   };
 
   const handleToggleSelection = (media) => {
-    setSelectedMedia(prev => {
-      const isSelected = prev.some(item => item.id === media.id);
-      if (isSelected) return prev.filter(item => item.id !== media.id);
-      return [...prev, media];
+    setSelectedMedia((prev) => {
+      const isSelected = prev.some((item) => item.id === media.id);
+      return isSelected
+        ? prev.filter((item) => item.id !== media.id)
+        : [...prev, media];
     });
   };
 
   const handleAddSelected = async () => {
-    if (selectedMedia.length === 0) {
-      showToast("Selecione pelo menos um item para adicionar!", "warning");
-      return;
-    }
-
+    if (selectedMedia.length === 0) return;
     setIsAdding(true);
     try {
-      // Adiciona todos em paralelo
-      await Promise.all(selectedMedia.map(media => onAddItem(media)));
-      showToast(`${selectedMedia.length} item(s) adicionados com sucesso!`, "success");
+      await Promise.all(selectedMedia.map((media) => onAddItem(media)));
       onClose();
     } catch (error) {
       console.error("Erro ao adicionar itens:", error);
-      showToast("Erro ao adicionar itens. Tente novamente.", "error");
     } finally {
       setIsAdding(false);
     }
@@ -86,54 +79,57 @@ export default function QuickAddModal({ onClose, onAddItem, currentListItems }) 
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-2 p-4">
-              {searchResults.map((media) => (
-                <div
-                  key={media.id}
-                  className={`flex items-center p-3 rounded-lg cursor-pointer transition-all ${
-                    selectedMedia.some(item => item.id === media.id)
-                      ? "bg-blue-500/20 border border-blue-400/50"
-                      : "border border-gray-600 hover:bg-gray-700/50"
-                  }`}
-                  onClick={(e) => handleItemClick(e, media)}
-                >
-                  <input
-                    type="checkbox"
-                    checked={selectedMedia.some(item => item.id === media.id)}
-                    onChange={() => handleToggleSelection(media)}
-                    className="mr-3 h-4 w-4 text-blue-400 focus:ring-blue-500 bg-gray-700 border-gray-600 rounded"
-                    onClick={(e) => e.stopPropagation()}
-                    disabled={isAdding}
-                  />
-                  <img
-                    src={media.poster || media.image}
-                    alt={media.title}
-                    className="w-12 h-16 object-cover rounded mr-3 border border-gray-600"
-                  />
-                  <div className="flex-1">
-                    <h3 className="font-medium text-white">{media.title}</h3>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className="text-xs px-2 py-1 bg-gray-700 text-gray-300 rounded-full border border-gray-600/50">
-                        {media.type === "movie"
-                          ? "Filme"
-                          : media.type === "tv"
-                          ? "Série"
-                          : media.type === "game"
-                          ? "Game"
-                          : media.type === "music"
-                          ? "Música"
-                          : media.type}
-                      </span>
-                      {media.year && <span className="text-xs text-gray-400">{media.year}</span>}
-                      {media.rating && (
-                        <div className="flex items-center ml-auto">
-                          <span className="text-yellow-400 text-xs mr-1">⭐</span>
-                          <span className="text-xs text-gray-400">{media.rating}</span>
-                        </div>
-                      )}
+              {searchResults.map((media) => {
+                const isSelected = selectedMedia.some((item) => item.id === media.id);
+                return (
+                  <div
+                    key={media.id}
+                    className={`flex items-center p-3 rounded-lg cursor-pointer transition-all ${
+                      isSelected
+                        ? "bg-blue-500/20 border border-blue-400/50"
+                        : "border border-gray-600 hover:bg-gray-700/50"
+                    }`}
+                    onClick={(e) => handleItemClick(e, media)}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={() => handleToggleSelection(media)}
+                      className="mr-3 h-4 w-4 text-blue-400 focus:ring-blue-500 bg-gray-700 border-gray-600 rounded"
+                      onClick={(e) => e.stopPropagation()}
+                      disabled={isAdding}
+                    />
+                    <img
+                      src={media.poster || media.image}
+                      alt={media.title}
+                      className="w-12 h-16 object-cover rounded mr-3 border border-gray-600"
+                    />
+                    <div className="flex-1">
+                      <h3 className="font-medium text-white">{media.title}</h3>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-xs px-2 py-1 bg-gray-700 text-gray-300 rounded-full border border-gray-600/50">
+                          {media.type === "movie"
+                            ? "Filme"
+                            : media.type === "tv"
+                            ? "Série"
+                            : media.type === "game"
+                            ? "Game"
+                            : media.type === "music"
+                            ? "Música"
+                            : media.type}
+                        </span>
+                        {media.year && <span className="text-xs text-gray-400">{media.year}</span>}
+                        {media.rating && (
+                          <div className="flex items-center ml-auto">
+                            <span className="text-yellow-400 text-xs mr-1">⭐</span>
+                            <span className="text-xs text-gray-400">{media.rating}</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
@@ -141,7 +137,9 @@ export default function QuickAddModal({ onClose, onAddItem, currentListItems }) 
         {/* Footer */}
         <div className="flex justify-between items-center p-6 border-t border-gray-700 bg-gray-800/80">
           <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-400">{selectedMedia.length} item(s) selecionado(s)</span>
+            <span className="text-sm text-gray-400">
+              {selectedMedia.length} item(s) selecionado(s)
+            </span>
             {selectedMedia.length > 0 && (
               <button
                 onClick={() => setSelectedMedia([])}
