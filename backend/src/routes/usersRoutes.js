@@ -5,10 +5,12 @@ const {
   getUserByUsername,
   updateUser,
   updateUserWithPassword,
+  updateUserPrivacy,
   uploadAvatar,
   uploadCover,
   deleteAvatar,
-  deleteCover
+  deleteCover,
+  deleteProfile
 } = require('../controllers/userController');
 const { authenticateToken, authenticateTokenOptional } = require('../middleware/auth');
 const { avatarUpload, coverUpload } = require('../config/upload');
@@ -170,6 +172,47 @@ router.put('/profile/security', authenticateToken, updateUserWithPassword);
 
 /**
  * @swagger
+ * /api/users/profile/privacy:
+ *   put:
+ *     summary: Atualiza apenas as configurações de privacidade do usuário autenticado
+ *     security:
+ *       - bearerAuth: []
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               privacySettings:
+ *                 type: object
+ *                 properties:
+ *                   profileVisibility:
+ *                     type: string
+ *                     enum: [public, private]
+ *                   showActivity:
+ *                     type: boolean
+ *                   showSavedItems:
+ *                     type: boolean
+ *                   showFavorites:
+ *                     type: boolean
+ *                   showReviews:
+ *                     type: boolean
+ *                   showStats:
+ *                     type: boolean
+ *                   dataCollection:
+ *                     type: boolean
+ *     responses:
+ *       200:
+ *         description: Privacidade atualizada com sucesso
+ *       400:
+ *         description: Nenhum dado de privacidade válido enviado
+ */
+router.put('/profile/privacy', authenticateToken, updateUserPrivacy);
+
+/**
+ * @swagger
  * /api/users/avatar/upload:
  *   post:
  *     summary: Faz upload do avatar do usuário
@@ -247,5 +290,19 @@ router.delete('/avatar', authenticateToken, deleteAvatar);
  *         description: Capa removida com sucesso
  */
 router.delete('/cover', authenticateToken, deleteCover);
+
+/**
+ * @swagger
+ * /api/users/profile:
+ *   delete:
+ *     summary: Deleta o perfil do usuário autenticado
+ *     security:
+ *       - bearerAuth: []
+ *     tags: [Users]
+ *     responses:
+ *       200:
+ *         description: Perfil deletado com sucesso
+ */
+router.delete('/profile', authenticateToken, deleteProfile);
 
 module.exports = router;

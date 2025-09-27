@@ -1,36 +1,58 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "../../hooks/useAuth";
+import { useToast } from "../../hooks/useToast"; // 🔥 IMPORTE O HOOK DO TOAST
 
-export default function PrivacySettings({ user }) {
-  const { updateUserPrivacy } = useAuth();
+export default function PrivacySettings() {
+  const { user, updatePrivacy } = useAuth();
+  const { showToast } = useToast(); // 🔥 INICIALIZE O HOOK
+
   const [privacySettings, setPrivacySettings] = useState({
-    profileVisibility: user?.privacy?.profileVisibility || "public",
-    showSavedItems: user?.privacy?.showSavedItems ?? false,
-    showFavorites: user?.privacy?.showFavorites ?? true,
-    showReviews: user?.privacy?.showReviews ?? true,
-    showStats: user?.privacy?.showStats ?? true,
-    dataCollection: user?.privacy?.dataCollection ?? true
+    profileVisibility: "public",
+    showSavedItems: false,
+    showFavorites: true,
+    showReviews: true,
+    showStats: true,
+    dataCollection: true
   });
 
   const [isLoading, setIsLoading] = useState(false);
 
+  useEffect(() => {
+    if (user) {
+      setPrivacySettings({
+        profileVisibility: user.profileVisibility || "public",
+        showSavedItems: user.showSavedItems ?? true,
+        showFavorites: user.showFavorites ?? true,
+        showReviews: user.showReviews ?? true,
+        showStats: user.showStats ?? true,
+        dataCollection: user.dataCollection ?? true
+      });
+    }
+  }, [user]);
+
   const handleSave = async () => {
     setIsLoading(true);
     try {
-      const updatedUser = {
-        ...user,
-        privacy: privacySettings
-      };
-      await updateUserPrivacy(updatedUser);
+      const { success, error } = await updatePrivacy(privacySettings);
+      if (success) {
+        // 🔥 TOAST DE SUCESSO
+        showToast("Configurações de privacidade salvas com sucesso!", "success");
+      } else {
+        console.error("Erro ao salvar configurações:", error);
+        // 🔥 TOAST DE ERRO
+        showToast(error || "Erro ao salvar configurações", "error");
+      }
     } catch (error) {
       console.error("Erro ao salvar configurações:", error);
+      // 🔥 TOAST DE ERRO
+      showToast("Erro ao salvar configurações", "error");
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleToggle = (key) => {
-    setPrivacySettings(prev => ({
+    setPrivacySettings((prev) => ({
       ...prev,
       [key]: !prev[key]
     }));
@@ -47,7 +69,6 @@ export default function PrivacySettings({ user }) {
         <h3 className="text-lg font-semibold text-white mb-4">
           Visibilidade do Perfil
         </h3>
-
         <div className="space-y-3">
           {["public", "private"].map((value) => (
             <label
@@ -95,26 +116,10 @@ export default function PrivacySettings({ user }) {
         )}
 
         {[
-          {
-            key: "showSavedItems",
-            label: "Mostrar itens salvos",
-            desc: "Exibir sua lista de itens salvos publicamente"
-          },
-          {
-            key: "showFavorites",
-            label: "Mostrar favoritos",
-            desc: "Exibir suas mídias favoritas publicamente"
-          },
-          {
-            key: "showReviews",
-            label: "Mostrar avaliações",
-            desc: "Exibir suas avaliações publicamente"
-          },
-          {
-            key: "showStats",
-            label: "Mostrar estatísticas",
-            desc: "Exibir suas estatísticas publicamente"
-          }
+          { key: "showSavedItems", label: "Mostrar itens salvos", desc: "Exibir sua lista de itens salvos publicamente" },
+          { key: "showFavorites", label: "Mostrar favoritos", desc: "Exibir suas mídias favoritas publicamente" },
+          { key: "showReviews", label: "Mostrar avaliações", desc: "Exibir suas avaliações publicamente" },
+          { key: "showStats", label: "Mostrar estatísticas", desc: "Exibir suas estatísticas publicamente" }
         ].map(({ key, label, desc }, index) => {
           const disabled = privacySettings.profileVisibility === "private";
           return (
@@ -144,20 +149,15 @@ export default function PrivacySettings({ user }) {
         })}
       </div>
 
-      {/* Dados e Analytics */}
+      {/* Coleta de Dados */}
       <div className="bg-gray-800/80 rounded-2xl border border-gray-700/50 p-6">
         <h3 className="text-lg font-semibold text-white mb-4">
           Coleta de Dados
         </h3>
-
         <div className="flex items-center justify-between">
           <div>
-            <p className="font-medium text-white">
-              Compartilhar dados para analytics
-            </p>
-            <p className="text-gray-300 text-sm">
-              Ajudar a melhorar nossos serviços
-            </p>
+            <p className="font-medium text-white">Compartilhar dados para analytics</p>
+            <p className="text-gray-300 text-sm">Ajudar a melhorar nossos serviços</p>
           </div>
           <button
             onClick={() => handleToggle("dataCollection")}

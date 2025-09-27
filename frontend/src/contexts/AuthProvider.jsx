@@ -23,6 +23,7 @@ import {
 import {
   updateUserProfile,
   updateUserSecurity,
+  updateUserPrivacy,
   uploadUserAvatar,
   uploadUserCover,
   deleteUserAvatar,
@@ -116,48 +117,117 @@ export function AuthProvider({ children }) {
     }
   };
 
-  // --- PRIVACIDADE ---
-  const updateUserPrivacy = async (updatedUser) => {
+  const updatePrivacy = async (privacySettings) => {
     if (!user) return { success: false, error: "Usuário não autenticado" };
+
     try {
-      await updateUserProfile({ privacy: updatedUser.privacy });
+      const payload = {
+        profileVisibility: privacySettings.profileVisibility,
+        showActivity: privacySettings.showActivity ?? true,
+        showSavedItems: privacySettings.showSavedItems,
+        showFavorites: privacySettings.showFavorites,
+        showReviews: privacySettings.showReviews,
+        showStats: privacySettings.showStats,
+        dataCollection: privacySettings.dataCollection
+      };
+
+      await updateUserPrivacy(payload); // envia achatado
       const refreshedUser = await fetchAndSetUser();
       return { success: true, user: refreshedUser };
     } catch (error) {
-      return { success: false, error: error.message };
+      const backendError =
+        error.response?.data?.error ||
+        error.response?.data?.message ||
+        error.message ||
+        "Erro desconhecido";
+      return { success: false, error: backendError };
     }
   };
 
   // --- EMAIL, USERNAME, SENHA ---
-  const updateEmail = async (newEmail, currentPassword) => {
+  const updateEmail = async (currentPassword, newEmail) => {
     if (!user) return { success: false, error: "Usuário não autenticado" };
     try {
-      await updateUserSecurity({ email: newEmail, currentPassword });
+      const result = await updateUserSecurity({ currentPassword, newEmail });
+      
+      // 🔥 Verifica se o backend retornou sucesso
+      if (result.success === false) {
+        return { success: false, error: result.error };
+      }
+      
       const refreshedUser = await fetchAndSetUser();
       return { success: true, user: refreshedUser };
     } catch (error) {
-      return { success: false, error: error.message };
+      // 🔥 AGORA vai cair aqui quando a senha estiver errada
+      console.error('Erro ao atualizar email:', error);
+      
+      // 🔥 Tratamento específico para senha incorreta
+      const errorMessage = error.message || "Erro ao atualizar email";
+      const isWrongPassword = errorMessage.toLowerCase().includes('senha') || 
+                            errorMessage.toLowerCase().includes('password') ||
+                            errorMessage.toLowerCase().includes('incorreto') ||
+                            errorMessage.toLowerCase().includes('inválido') ||
+                            error.statusCode === 401;
+
+      return { 
+        success: false, 
+        error: isWrongPassword ? "Senha atual incorreta" : errorMessage 
+      };
     }
   };
 
   const updateUsername = async (currentPassword, newUsername) => {
     if (!user) return { success: false, error: "Usuário não autenticado" };
     try {
-      await updateUserSecurity({ currentPassword, newUsername });
+      const result = await updateUserSecurity({ currentPassword, newUsername });
+      
+      if (result.success === false) {
+        return { success: false, error: result.error };
+      }
+      
       const refreshedUser = await fetchAndSetUser();
       return { success: true, user: refreshedUser };
     } catch (error) {
-      return { success: false, error: error.message };
+      console.error('Erro ao atualizar username:', error);
+      
+      const errorMessage = error.message || "Erro ao atualizar username";
+      const isWrongPassword = errorMessage.toLowerCase().includes('senha') || 
+                            errorMessage.toLowerCase().includes('password') ||
+                            errorMessage.toLowerCase().includes('incorreto') ||
+                            errorMessage.toLowerCase().includes('inválido') ||
+                            error.statusCode === 401;
+
+      return { 
+        success: false, 
+        error: isWrongPassword ? "Senha atual incorreta" : errorMessage 
+      };
     }
   };
 
   const updatePassword = async (currentPassword, newPassword) => {
     if (!user) return { success: false, error: "Usuário não autenticado" };
     try {
-      await updateUserSecurity({ currentPassword, newPassword });
+      const result = await updateUserSecurity({ currentPassword, newPassword });
+      
+      if (result.success === false) {
+        return { success: false, error: result.error };
+      }
+      
       return { success: true };
     } catch (error) {
-      return { success: false, error: error.message };
+      console.error('Erro ao atualizar senha:', error);
+      
+      const errorMessage = error.message || "Erro ao atualizar senha";
+      const isWrongPassword = errorMessage.toLowerCase().includes('senha') || 
+                            errorMessage.toLowerCase().includes('password') ||
+                            errorMessage.toLowerCase().includes('incorreto') ||
+                            errorMessage.toLowerCase().includes('inválido') ||
+                            error.statusCode === 401;
+
+      return { 
+        success: false, 
+        error: isWrongPassword ? "Senha atual incorreta" : errorMessage 
+      };
     }
   };
 
@@ -351,7 +421,7 @@ export function AuthProvider({ children }) {
         updateEmail,
         updatePassword,
         updateUsername,
-        updateUserPrivacy,
+        updatePrivacy,
         uploadAvatarFile,
         uploadCoverFile,
         removeAvatar,

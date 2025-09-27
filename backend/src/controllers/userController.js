@@ -223,6 +223,58 @@ const userController = {
       res.status(500).json({ error: 'Erro interno do servidor' });
     }
   },
+  // Atualizar apenas configurações de privacidade do usuário
+  async updateUserPrivacy(req, res) {
+    try {
+      const { privacySettings } = req.body;
+
+      if (!privacySettings || typeof privacySettings !== 'object') {
+        return res.status(400).json({ error: 'Dados de privacidade inválidos' });
+      }
+
+      const allowedFields = [
+        'profileVisibility',
+        'showActivity',
+        'showSavedItems',
+        'showFavorites',
+        'showReviews',
+        'showStats',
+        'dataCollection'
+      ];
+
+      const dataToUpdate = {};
+      allowedFields.forEach(field => {
+        if (privacySettings[field] !== undefined) dataToUpdate[field] = privacySettings[field];
+      });
+
+      if (Object.keys(dataToUpdate).length === 0) {
+        return res.status(400).json({ error: 'Nenhum dado de privacidade para atualizar' });
+      }
+
+      const updatedUser = await prisma.user.update({
+        where: { id: req.user.id },
+        data: dataToUpdate,
+        select: {
+          id: true,
+          name: true,
+          username: true,
+          profileVisibility: true,
+          showActivity: true,
+          showSavedItems: true,
+          showFavorites: true,
+          showReviews: true,
+          showStats: true,
+          dataCollection: true
+        }
+      });
+
+      res.json({ message: 'Privacidade atualizada com sucesso', user: updatedUser });
+
+    } catch (error) {
+      console.error('Erro ao atualizar privacidade do usuário:', error);
+      res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+  },
 
   // Upload avatar
   async uploadAvatar(req, res) {
@@ -314,8 +366,35 @@ const userController = {
       console.error('Error deleting cover:', error);
       res.status(500).json({ error: 'Erro ao remover imagem de capa' });
     }
-  }
+  },
 
+  async deleteProfile(req, res) {
+    try {
+      const userId = req.user.id;
+
+      // Opcional: deletar imagens associadas
+      const user = await prisma.user.findUnique({ where: { id: userId }, select: { avatar: true, coverImage: true } });
+
+      if (user.avatar) {
+        const avatarFilename = user.avatar.split('/').pop();
+        await imageProcessingService.deleteOldImages([avatarFilename], 'avatar');
+      }
+
+      if (user.coverImage) {
+        const coverFilename = user.coverImage.split('/').pop();
+        await imageProcessingService.deleteOldImages([coverFilename], 'cover');
+      }
+
+      // Deletar usuário do banco
+      await prisma.user.delete({ where: { id: userId } });
+
+      res.json({ message: 'Perfil deletado com sucesso' });
+    } catch (error) {
+      console.error('Erro ao deletar perfil:', error);
+      res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+  }
+  
 };
 
 module.exports = userController;

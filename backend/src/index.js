@@ -65,6 +65,19 @@ app.use((req, res) => {
   res.status(404).json({ error: 'Rota não encontrada' });
 });
 
+// Configurar política de recursos de origem cruzada para servir uploads
+app.use('/uploads', helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
+
+// Servir arquivos estáticos (como uploads)
+app.use(
+  '/uploads',
+  cors({
+    origin: 'http://localhost:5173',
+    credentials: true
+  }),
+  express.static('uploads')
+);
+
 // Inicializar servidor
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);

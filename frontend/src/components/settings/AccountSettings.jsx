@@ -20,9 +20,9 @@ function Modal({ title, children, onClose }) {
   );
 }
 
-export default function AccountSettings({ user }) {
+export default function AccountSettings() {
+  const { user, updateEmail, updatePassword, updateUsername } = useAuth();
   const { showToast } = useToast();
-  const { updateEmail, updatePassword, updateUsername } = useAuth();
 
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
@@ -41,9 +41,14 @@ export default function AccountSettings({ user }) {
       return showToast("Preencha o novo email e a senha atual", "warning");
     }
 
+    console.log("Enviando para updateEmail:", {
+      newEmail: emailForm.newEmail,
+      currentPassword: emailForm.currentPassword
+    });
+
     setIsSubmitting(true);
     try {
-      const res = await updateEmail(emailForm.newEmail, emailForm.currentPassword);
+      const res = await updateEmail(emailForm.currentPassword, emailForm.newEmail);
       if (res.success) {
         showToast("Email alterado com sucesso!", "success");
         setEmailForm({ newEmail: "", currentPassword: "" });
@@ -118,7 +123,7 @@ export default function AccountSettings({ user }) {
         <div className="bg-gray-800/80 border border-gray-700/50 rounded-2xl p-6 flex justify-between items-center shadow-md">
           <div>
             <h3 className="font-semibold text-white mb-1">Username</h3>
-            <p className="text-gray-300 text-sm">{user.username}</p>
+            <p className="text-gray-300 text-sm">{user?.username}</p>
           </div>
           <button
             onClick={() => setIsUsernameModalOpen(true)}
@@ -132,7 +137,7 @@ export default function AccountSettings({ user }) {
         <div className="bg-gray-800/80 border border-gray-700/50 rounded-2xl p-6 flex justify-between items-center shadow-md">
           <div>
             <h3 className="font-semibold text-white mb-1">Email</h3>
-            <p className="text-gray-300 text-sm">{user.email}</p>
+            <p className="text-gray-300 text-sm">{user?.email}</p>
           </div>
           <button
             onClick={() => setIsEmailModalOpen(true)}

@@ -60,8 +60,41 @@ export async function updateUserSecurity(data) {
     const response = await api.put("/users/profile/security", data);
     return response.data;
   } catch (error) {
-    console.error("Erro ao atualizar perfil sensível:", error.response?.data || error);
-    return null;
+    const backendMessage = error.response?.data?.error || 
+                          error.response?.data?.message || 
+                          error.message || 
+                          "Erro desconhecido";
+
+    const securityError = new Error(backendMessage);
+    
+    securityError.statusCode = error.response?.status;
+    securityError.originalError = error;
+    
+    throw securityError;
+  }
+}
+
+/**
+ * Atualiza apenas as configurações de privacidade do usuário autenticado
+ */
+export const updateUserPrivacy = async (privacyData) => {
+  try {
+    const payload = {
+      privacySettings: privacyData
+    };
+    
+    return api.put("/users/profile/privacy", payload, { withCredentials: true });
+  } catch (error) {
+    const backendMessage = error.response?.data?.error || 
+                          error.response?.data?.message || 
+                          error.message || 
+                          "Erro desconhecido";
+
+    const privacyError = new Error(backendMessage);
+    privacyError.statusCode = error.response?.status;
+    privacyError.originalError = error;
+
+    throw privacyError;
   }
 }
 
@@ -118,5 +151,26 @@ export async function deleteUserCover() {
   } catch (error) {
     console.error("Erro ao remover cover:", error.response?.data || error);
     return null;
+  }
+}
+
+/**
+ * Deleta o perfil do usuário autenticado
+ */
+export async function deleteUserProfile() {
+  try {
+    const response = await api.delete("/users/profile");
+    return response.data;
+  } catch (error) {
+    const backendMessage = error.response?.data?.error || 
+                          error.response?.data?.message || 
+                          error.message || 
+                          "Erro desconhecido";
+
+    const deleteError = new Error(backendMessage);
+    deleteError.statusCode = error.response?.status;
+    deleteError.originalError = error;
+
+    throw deleteError;
   }
 }

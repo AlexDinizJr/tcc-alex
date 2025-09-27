@@ -184,7 +184,7 @@ const authController = {
               image: true,
               type: true
             }
-          }
+          },
         }
       });
 
