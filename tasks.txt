@@ -2,30 +2,25 @@
 
 # PRIORIDADES:
 
-1 - Users Settings:
-    OBS2: Consertar Visibilidade de Itens: tá tudo privado a visitantes.
-    OBS3: Upload de Avatar e Cover: Faz o upload para o serviço mas não indica o caminho no campo avatar do usuário (no banco de dados fica null esse campo,
-    apesar da pasta uploads estar com o avatar);
-    OBS3.5: Upload de Avatar e Cover: Pelo backend (swagger) o upload funciona mas o frontend parece que dá NotFound na imagem, além disso ele não aceita webpp,
-    o que é ok mas deveria gerar um warning caso o usuário tente enviar imagens nesse formato;
-2 - Implementar Algoritmos de Recomendações Customizadas, BuildInitialPreferences e ExcludeMediafromRecomendations;
-3 - Revisar o GetTreding - está gerando os mesmos resultados não importando o mediaId passado; 
-4 - Remover o Lixo de Arquivos do Mock (Helpers e MockData) e Organizar o código;
+1 - Implementar Algoritmos de Recomendações Customizadas, BuildInitialPreferences e ExcludeMediafromRecomendations;
+2 - Revisar o GetTreding - está gerando os mesmos resultados não importando o mediaId passado (backend) e a página de Mídia não está carregando esta seção (frontend);
+3 - Remover o Lixo de Arquivos do Mock (Helpers e MockData) e Organizar o código;
 
 # POSSÍVEIS AJUSTES:
 
 - Ajustar o funcionamento no mobile;
+- Quando trocar de página - fechar o drawer no mobile;
 - Trocar emojis por icons;
 - Largura padrão das páginas;
 - Adicionar cursor-pointer no que for necessário;
-- Icone de Eye no Login
+- Icone de Eye no Login;
 - Ajustar a Estrela de Review cortada com fundo cinza;
 - Ajustar o Toast de feedback para o usuário informando que ele está tentando marcar a própria review como útil;
 - Ajustar o Toast de feedback para o usuário informando se o item já está na lista;
 - Ajustar o ícone de MarkedHelpful para ficar verde caso o usuário já tenha avaliado como útil;
-- Implementar no footer o suporte e newsletter;
 
 # BÔNUS:
 
 - Adicionar página de All Lists - todas as listas do site;
 - Campo de gênero (sexo) no perfil;
+- Implementar no footer o suporte e newsletter;

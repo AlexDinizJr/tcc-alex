@@ -24,6 +24,7 @@ import {
   updateUserProfile,
   updateUserSecurity,
   updateUserPrivacy,
+  deleteUserProfile,
   uploadUserAvatar,
   uploadUserCover,
   deleteUserAvatar,
@@ -231,11 +232,28 @@ export function AuthProvider({ children }) {
     }
   };
 
-  // --- AVATAR / COVER ---
+  // --- DELETE ACCOUNT ---
+
+    const deleteAccount = async () => {
+    if (!user) return;
+    try {
+      await deleteUserProfile();
+      logout();
+      return true;
+    } catch (error) {
+      console.error("Erro ao deletar conta:", error);
+      throw error;
+    }
+  };
+
+  // --- AVATAR E COVER ---
+
   const uploadAvatarFile = async (file) => {
     if (!user || !file) return { success: false };
     try {
-      await uploadUserAvatar(Object.assign(new FormData(), { avatar: file }));
+      const formData = new FormData();
+      formData.append("avatar", file);
+      await uploadUserAvatar(formData);
       const refreshedUser = await fetchAndSetUser();
       return { success: true, user: refreshedUser };
     } catch (error) {
@@ -247,7 +265,9 @@ export function AuthProvider({ children }) {
   const uploadCoverFile = async (file) => {
     if (!user || !file) return { success: false };
     try {
-      await uploadUserCover(Object.assign(new FormData(), { cover: file }));
+      const formData = new FormData();
+      formData.append("cover", file);
+      await uploadUserCover(formData);
       const refreshedUser = await fetchAndSetUser();
       return { success: true, user: refreshedUser };
     } catch (error) {
@@ -424,6 +444,7 @@ export function AuthProvider({ children }) {
         updatePrivacy,
         uploadAvatarFile,
         uploadCoverFile,
+        deleteAccount,
         removeAvatar,
         removeCover,
         toggleSavedMedia,

@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "../../hooks/useToast";
 
 export default function DeleteAccountModal({ onClose }) {
-  const { logout } = useAuth();
+  const { deleteAccount } = useAuth();
   const navigate = useNavigate();
   const { showToast } = useToast();
 
@@ -18,18 +18,13 @@ export default function DeleteAccountModal({ onClose }) {
     }
 
     setIsDeleting(true);
-    
+
     try {
-      // Simulando exclusão da conta
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Logout e redirecionamento
-      logout();
+      await deleteAccount();
       navigate("/");
       showToast("Sua conta foi excluída com sucesso.", "success");
     } catch (error) {
-      console.error("Erro ao excluir conta:", error);
-      showToast("Erro ao excluir conta. Tente novamente.", "error");
+      showToast(error.message || "Erro ao excluir conta. Tente novamente.", "error");
     } finally {
       setIsDeleting(false);
       onClose();

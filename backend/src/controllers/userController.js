@@ -69,6 +69,13 @@ const userController = {
           coverImage: true,
           bio: true,
           createdAt: true,
+          profileVisibility: true,
+          showActivity: true,
+          showSavedItems: true,
+          showFavorites: true,
+          showReviews: true,
+          showStats: true,
+          dataCollection: true,
           reviews: {
             include: {
               media: { select: { id: true, title: true, type: true, image: true } }
@@ -106,6 +113,13 @@ const userController = {
           coverImage: true,
           bio: true,
           createdAt: true,
+          profileVisibility: true,
+          showActivity: true,
+          showSavedItems: true,
+          showFavorites: true,
+          showReviews: true,
+          showStats: true,
+          dataCollection: true,
           reviews: {
             include: {
               media: { select: { id: true, title: true, type: true, image: true } }

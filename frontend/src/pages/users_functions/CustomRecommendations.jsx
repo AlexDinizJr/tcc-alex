@@ -4,7 +4,9 @@ import ReferenceMediaGrid from "../../components/recommendations/ReferenceMediaG
 import ResultsGrid from "../../components/recommendations/ResultsGrid";
 import MediaSearchModal from "../../components/recommendations/MediaSearchModal";
 import { useRecommendationFilters } from "../../hooks/useRecommendationFilters";
-import { ALL_MEDIA } from "../../mockdata/mockMedia";
+import { fetchMedia } from "../../services/mediaService";
+
+const ALL_MEDIA = fetchMedia();
 
 export default function CustomRecommendations() {
   const [filters, setFilters] = useState({

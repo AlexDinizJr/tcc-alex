@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import { useToast } from "../../hooks/useToast";
 
@@ -9,8 +9,6 @@ export default function ProfileSettings({ user }) {
   const [formData, setFormData] = useState({
     name: user.name || "",
     bio: user.bio || "",
-    avatar: null,   
-    coverImage: null 
   });
 
   const [preview, setPreview] = useState({
@@ -18,6 +16,13 @@ export default function ProfileSettings({ user }) {
     coverImage: user.coverImage || ""
   });
 
+  useEffect(() => {
+    setPreview({
+      avatar: user.avatar,
+      coverImage: user.coverImage
+    });
+  }, [user]);
+  
   const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e) => {

@@ -86,7 +86,7 @@ model Review {
 
   media   Media @relation(fields: [mediaId], references: [id])
   mediaId Int
-  user    User  @relation(fields: [userId], references: [id])
+  user    User  @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId  Int
 
   @@unique([userId, mediaId]) // <- índice único combinando usuário + mídia
@@ -101,7 +101,7 @@ model List {
   updatedAt   DateTime @updatedAt
 
   // Relacionamentos
-  user   User    @relation(fields: [userId], references: [id])
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId Int
   items  Media[]
 }

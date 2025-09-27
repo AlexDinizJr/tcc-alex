@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const path = require('path');
 require('dotenv').config();
 
 // Importar rotas
@@ -19,19 +20,37 @@ const adminStreamingRoutes = require('./routes/admin/streamingAdminRoutes');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Swagger
-const setupSwagger = require('./config/swagger');
-setupSwagger(app);
-
-// Middleware
-app.use(helmet());
+// Configurar CORS
 app.use(cors({
-  origin: 'http://localhost:5173', // URL do seu frontend
+  origin: 'http://localhost:5173',
   credentials: true
 }));
+
+// Configurar Helmet com política menos restritiva para imagens
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" } 
+}));
+
 app.use(morgan('combined'));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
+
+// Servir arquivos estáticos (imagens)
+app.use(
+  '/uploads',
+  express.static(path.join(__dirname, 'uploads'), {
+    setHeaders: (res, path) => {
+      // 🔥 Headers específicos para imagens
+      res.setHeader('Access-Control-Allow-Origin', 'http://localhost:5173');
+      res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+      res.setHeader('Cache-Control', 'public, max-age=86400'); // Cache de 1 dia
+    }
+  })
+);
+
+// Swagger
+const setupSwagger = require('./config/swagger');
+setupSwagger(app);
 
 // Rotas públicas e de usuários
 app.use('/api/auth', authRoutes);
@@ -60,23 +79,10 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Algo deu errado!' });
 });
 
-// Maneira recomendada de definir rota 404
+// Rota 404
 app.use((req, res) => {
   res.status(404).json({ error: 'Rota não encontrada' });
 });
-
-// Configurar política de recursos de origem cruzada para servir uploads
-app.use('/uploads', helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
-
-// Servir arquivos estáticos (como uploads)
-app.use(
-  '/uploads',
-  cors({
-    origin: 'http://localhost:5173',
-    credentials: true
-  }),
-  express.static('uploads')
-);
 
 // Inicializar servidor
 app.listen(PORT, () => {
@@ -84,4 +90,5 @@ app.listen(PORT, () => {
   console.log(`📊 Environment: ${process.env.NODE_ENV}`);
   console.log(`🔗 Health check: http://localhost:${PORT}/health`);
   console.log(`🔗 Swagger: http://localhost:${PORT}/api-docs`);
+  console.log(`🖼️  Images serving from: http://localhost:${PORT}/uploads/`);
 });

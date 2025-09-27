@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useAppNavigate } from "../../hooks/useAppNavigate";
-import { ALL_MEDIA } from "../../mockdata/mockMedia";
+import { fetchMedia } from "../../services/mediaService";
+
+const ALL_MEDIA = fetchMedia();
 
 export default function Preferences() {
   const [selected, setSelected] = useState([]);
