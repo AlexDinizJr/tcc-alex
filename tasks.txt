@@ -3,15 +3,17 @@
 # PRIORIDADES:
 
 1 - Users Settings:
-    OBS1: Upload de Avatar e Cover: Faz o upload para o serviço mas não indicado o caminho no campo avatar do usuário;
-    OBS2: Upload de Avatar e Cover: Pelo backend o upload funciona mas o frontend parece que dá NotFound na imagem;
-    OBS3: Configs de Privacidade: Somente não funcionam;
+    OBS1: Update Email: Por algum motivo não está funcionando mesmo com uma lógica similar a Senha e Username;
+    OBS2: Upload de Avatar e Cover: Faz o upload para o serviço mas não indica o caminho no campo avatar do usuário (no banco de dados fica null esse campo,
+    apesar da pasta uploads estar com o avatar);
+    OBS2.5: Upload de Avatar e Cover: Pelo backend (swagger) o upload funciona mas o frontend parece que dá NotFound na imagem, além disso ele não aceita webpp,
+    o que é ok mas deveria gerar um warning caso o usuário tente enviar imagens nesse formato;
+    OBS3: Configs de Privacidade: Somente não funciona;
     OBS4: Update Username e Senha: Falta Feedback correto para quando o usuário escreve a senha incorreta;
-    OBS5: Update Email: Por algum motivo não está funcionando mesmo com uma lógica similar a Senha e Username;
-2 - Algoritmos - SimiliarMedia, HomePageRecommendations, Trending, UserInitialPreferences, CustomRecommendations e Não Recomendar mais;
-    - OBS: Enxutar o Algoritmo de Recomendações para Apenas CustomRecommendations e HomePageRecommendations usando abordagens hibridas;
-    - OBS2: Alterar o Trending para gerar 5 recomendações;
-    - OBS3: Alterar o SimiliarMedia para gerar 4 recomendações e Ajustar ele;
+    OBS6: Consertar Visibilidade de Itens: tá tudo privado a visitantes.
+2 - Implementar Algoritmos de Recomendações Customizadas, BuildInitialPreferences e ExcludeMediafromRecomendations;
+3 - Revisar o GetTreding - está gerando os mesmos resultados não importando o mediaId passado; 
+4 - Remover o Lixo de Arquivos do Mock (Helpers e MockData) e Organizar o código;
 
 # POSSÍVEIS AJUSTES:
 
@@ -24,9 +26,9 @@
 - Ajustar o Toast de feedback para o usuário informando que ele está tentando marcar a própria review como útil;
 - Ajustar o Toast de feedback para o usuário informando se o item já está na lista;
 - Ajustar o ícone de MarkedHelpful para ficar verde caso o usuário já tenha avaliado como útil;
+- Implementar no footer o suporte e newsletter;
 
 # BÔNUS:
 
 - Adicionar página de All Lists - todas as listas do site;
 - Campo de gênero (sexo) no perfil;
-- Criar novas seções no frontend além de recomendado para você;

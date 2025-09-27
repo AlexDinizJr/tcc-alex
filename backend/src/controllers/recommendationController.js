@@ -1,14 +1,5 @@
 const recommendationService = require('../services/recommendationService');
 
-const generateRecommendationExplanation = async (userId, recommendations) => {
-  // Implementação futura
-  return {
-    basedOn: 'seus gostos anteriores e comportamento similar de outros usuários',
-    factors: ['gêneros preferidos', 'avaliações similares', 'tendências da comunidade'],
-    confidence: 'high'
-  };
-};
-
 const recommendationController = {
   
   // Recomendações personalizadas para o usuário
@@ -31,7 +22,7 @@ const recommendationController = {
       } : undefined;
 
       const options = {
-        limit: Math.min(parseInt(limit), 50), // Limite máximo de 50
+        limit: Math.min(parseInt(limit), 50),
         type,
         genre,
         minRating: minRating ? parseFloat(minRating) : undefined,
@@ -76,6 +67,132 @@ const recommendationController = {
         success: false,
         error: 'Erro ao gerar recomendações',
         details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      });
+    }
+  },
+
+  // Recomendações customizadas com filtros e referência de mídia
+  async getCustomRecommendations(req, res) {
+    try {
+      const userId = req.user?.id;
+      const {
+        limit = 10,
+        type,
+        genre,
+        minRating,
+        startYear,
+        endYear,
+        referenceMediaIds
+      } = req.query;
+
+      const yearRange = startYear && endYear ? {
+        start: parseInt(startYear),
+        end: parseInt(endYear)
+      } : undefined;
+
+      const filters = {
+        type,
+        genre,
+        minRating: minRating ? parseFloat(minRating) : undefined,
+        yearRange
+      };
+
+      // Parseia os IDs de mídia de referência para array de inteiros
+      const referenceIds = referenceMediaIds
+        ? referenceMediaIds.split(',').map(id => parseInt(id)).filter(Boolean)
+        : [];
+
+      const customRecommendations = await recommendationService.getCustomRecommendations(
+        userId,
+        filters,
+        referenceIds,
+        Math.min(parseInt(limit), 50)
+      );
+
+      res.json({
+        success: true,
+        data: {
+          recommendations: customRecommendations,
+          count: customRecommendations.length,
+          filters,
+          referenceMediaIds: referenceIds,
+          userBased: !!userId
+        }
+      });
+
+    } catch (error) {
+      console.error('Erro nas recomendações customizadas:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Erro ao gerar recomendações customizadas'
+      });
+    }
+  },
+
+  async getInitialPreferences(req, res) {
+    try {
+      const userId = req.user.id; 
+      const { selectedMediaIds = [] } = req.body;
+
+      // Chama o service para gerar preferências iniciais
+      const preferences = await recommendationService.getInitialPreferences(userId, selectedMediaIds);
+
+      res.status(200).json(preferences);
+    } catch (error) {
+      console.error("Erro ao buscar preferências iniciais:", error);
+      res.status(500).json({ error: "Erro ao buscar preferências iniciais" });
+    }
+  },
+
+  // Excluir mídia das recomendações
+  async excludeFromRecommendations(req, res) {
+    try {
+      const userId = req.user?.id;
+      const { mediaId } = req.params;
+      const { 
+        months = 3, 
+        reason = 'not-interested' 
+      } = req.body;
+
+      if (!userId) {
+        return res.status(401).json({ 
+          success: false,
+          error: 'Usuário não autenticado' 
+        });
+      }
+
+      if (!mediaId) {
+        return res.status(400).json({ 
+          success: false,
+          error: 'mediaId é obrigatório' 
+        });
+      }
+
+      await recommendationService.excludeMedia(
+        userId, 
+        parseInt(mediaId), 
+        parseInt(months)
+      );
+
+      const excludedUntil = new Date();
+      excludedUntil.setMonth(excludedUntil.getMonth() + parseInt(months));
+
+      res.json({ 
+        success: true, 
+        message: 'Mídia excluída das recomendações com sucesso',
+        data: { 
+          mediaId, 
+          excludedUntil: excludedUntil.toISOString(),
+          reason,
+          durationMonths: parseInt(months)
+        }
+      });
+
+    } catch (error) {
+      console.error('Erro ao excluir mídia:', error);
+      res.status(500).json({ 
+        success: false,
+        error: 'Erro ao excluir mídia das recomendações' 
       });
     }
   },
@@ -164,93 +281,6 @@ const recommendationController = {
     }
   },
 
-  // Recomendações baseadas em engajamento
-  async getEngagementRecommendations(req, res) {
-    try {
-      const userId = req.user?.id;
-      const { 
-        limit = 8,
-        engagementType = 'all' // all, saved, favorited, viewed
-      } = req.query;
-
-      if (!userId) {
-        return res.status(401).json({ 
-          success: false,
-          error: 'Autenticação necessária para recomendações baseadas em engajamento' 
-        });
-      }
-
-      const recommendations = await recommendationService.getEngagementRecommendations(
-        userId, 
-        Math.min(parseInt(limit), 30)
-      );
-
-      res.json({
-        success: true,
-        data: {
-          recommendations,
-          count: recommendations.length,
-          basedOn: 'user-engagement',
-          engagementType,
-          userContext: 'authenticated'
-        }
-      });
-
-    } catch (error) {
-      console.error('Erro nas recomendações de engajamento:', error);
-      res.status(500).json({ 
-        success: false,
-        error: 'Erro ao gerar recomendações de engajamento' 
-      });
-    }
-  },
-
-  // Recomendações otimizadas (híbridas)
-  async getOptimizedRecommendations(req, res) {
-    try {
-      const userId = req.user?.id;
-      const { 
-        limit = 10,
-        includeExplanation = false 
-      } = req.query;
-
-      if (!userId) {
-        return res.status(401).json({ 
-          success: false,
-          error: 'Usuário não autenticado' 
-        });
-      }
-
-      const recommendations = await recommendationService.getOptimizedRecommendations(
-        userId, 
-        Math.min(parseInt(limit), 25)
-      );
-
-      let explanation = null;
-      if (includeExplanation === 'true') {
-        explanation = await generateRecommendationExplanation(userId, recommendations); // ← CORRIGIDO
-      }
-
-      res.json({
-        success: true,
-        data: {
-          recommendations,
-          count: recommendations.length,
-          algorithm: 'hybrid-optimized',
-          explanation,
-          features: ['collaborative-filtering', 'content-based', 'engagement-analysis']
-        }
-      });
-
-    } catch (error) {
-      console.error('Erro nas recomendações otimizadas:', error);
-      res.status(500).json({ 
-        success: false,
-        error: 'Erro ao gerar recomendações otimizadas' 
-      });
-    }
-  },
-
   // Track de engajamento (quando usuário interage com recomendação)
   async trackEngagement(req, res) {
     try {
@@ -308,59 +338,6 @@ const recommendationController = {
     }
   },
 
-  // Excluir mídia das recomendações
-  async excludeFromRecommendations(req, res) {
-    try {
-      const userId = req.user?.id;
-      const { mediaId } = req.params;
-      const { 
-        months = 3, 
-        reason = 'not-interested' 
-      } = req.body;
-
-      if (!userId) {
-        return res.status(401).json({ 
-          success: false,
-          error: 'Usuário não autenticado' 
-        });
-      }
-
-      if (!mediaId) {
-        return res.status(400).json({ 
-          success: false,
-          error: 'mediaId é obrigatório' 
-        });
-      }
-
-      await recommendationService.excludeMedia(
-        userId, 
-        parseInt(mediaId), 
-        parseInt(months)
-      );
-
-      const excludedUntil = new Date();
-      excludedUntil.setMonth(excludedUntil.getMonth() + parseInt(months));
-
-      res.json({ 
-        success: true, 
-        message: 'Mídia excluída das recomendações com sucesso',
-        data: { 
-          mediaId, 
-          excludedUntil: excludedUntil.toISOString(),
-          reason,
-          durationMonths: parseInt(months)
-        }
-      });
-
-    } catch (error) {
-      console.error('Erro ao excluir mídia:', error);
-      res.status(500).json({ 
-        success: false,
-        error: 'Erro ao excluir mídia das recomendações' 
-      });
-    }
-  },
-
   // Métricas de recomendação (admin/dashboard)
   async getRecommendationMetrics(req, res) {
     try {
@@ -402,96 +379,7 @@ const recommendationController = {
       });
     }
   },
-
-  // Recomendações para página inicial (combina várias fontes)
-  async getHomepageRecommendations(req, res) {
-    try {
-      const userId = req.user?.id;
-      const { 
-        sections = 'all',
-        limitPerSection = 6 
-      } = req.query;
-
-      const requestedSections = sections.split(',');
-
-      const sectionPromises = [];
-
-      if (requestedSections.includes('all') || requestedSections.includes('trending')) {
-        sectionPromises.push(
-          recommendationService.getTrendingMedia({ 
-            limit: parseInt(limitPerSection) 
-          }).then(media => ({
-            title: 'Em Alta',
-            type: 'trending',
-            media,
-            count: media.length
-          }))
-        );
-      }
-
-      if (userId && (requestedSections.includes('all') || requestedSections.includes('personalized'))) {
-        sectionPromises.push(
-          recommendationService.getUserRecommendations(userId, { 
-            limit: parseInt(limitPerSection) 
-          }).then(media => ({
-            title: 'Para Você',
-            type: 'personalized',
-            media,
-            count: media.length
-          }))
-        );
-      }
-
-      if (userId && (requestedSections.includes('all') || requestedSections.includes('engagement'))) {
-        sectionPromises.push(
-          recommendationService.getEngagementRecommendations(userId, parseInt(limitPerSection))
-            .then(media => ({
-              title: 'Baseado no Seu Engajamento',
-              type: 'engagement',
-              media,
-              count: media.length
-            }))
-        );
-      }
-
-      if (requestedSections.includes('all') || requestedSections.includes('new')) {
-        sectionPromises.push(Promise.resolve({
-          title: 'Novidades',
-          type: 'new',
-          media: [],
-          count: 0,
-          message: 'Em breve - conteúdo recentemente adicionado'
-        }));
-      }
-
-      const sectionsData = await Promise.all(sectionPromises);
-
-      res.json({
-        success: true,
-        data: {
-          sections: sectionsData,
-          userContext: userId ? 'authenticated' : 'anonymous',
-          generatedAt: new Date().toISOString()
-        }
-      });
-
-    } catch (error) {
-      console.error('Erro nas recomendações da homepage:', error);
-      res.status(500).json({ 
-        success: false,
-        error: 'Erro ao carregar recomendações' 
-      });
-    }
-  },
-
-  // Gerar explicação para recomendações (opcional)
-  async generateRecommendationExplanation(userId, recommendations) {
-    // Implementação futura para explicar o "porquê" das recomendações
-    return {
-      basedOn: 'seus gostos anteriores e comportamento similar de outros usuários',
-      factors: ['gêneros preferidos', 'avaliações similares', 'tendências da comunidade']
-    };
-  }
+  
 }
 
 module.exports = recommendationController;

@@ -5,12 +5,11 @@ const {
   getUserRecommendations,
   getTrending,
   getSimilarMedia,
-  getEngagementRecommendations,
-  getOptimizedRecommendations,
+  getInitialPreferences,
   excludeFromRecommendations,
   getRecommendationMetrics,
-  getHomepageRecommendations,
-  trackEngagement
+  trackEngagement,
+  getCustomRecommendations
 } = require('../controllers/recommendationController');
 
 /**
@@ -51,21 +50,62 @@ router.get('/', getUserRecommendations);
 
 /**
  * @swagger
- * /api/recommendations/homepage:
+ * /api/recommendations/custom:
  *   get:
- *     summary: Recomendações exibidas na homepage
+ *     summary: Obter recomendações customizadas (usuário autenticado)
  *     description: 
- *       Rota exclusiva para usuários logados. Retorna recomendações curtas e rápidas para exibição na homepage.
+ *       Gera recomendações personalizadas usando filtros (tipo, gênero, nota mínima, ano) e mídias de referência.
+ *       É necessário estar logado para acessar esta rota.
  *     tags: [Recommendations]
  *     security:
- *       - bearerAuth: []
+ *       - bearerAuth: [] # obrigatório
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *           maximum: 50
+ *       - in: query
+ *         name: type
+ *         schema:
+ *           type: string
+ *           example: movie
+ *       - in: query
+ *         name: genre
+ *         schema:
+ *           type: string
+ *           example: action
+ *       - in: query
+ *         name: minRating
+ *         schema:
+ *           type: number
+ *           format: float
+ *           example: 7.5
+ *       - in: query
+ *         name: startYear
+ *         schema:
+ *           type: integer
+ *           example: 2010
+ *       - in: query
+ *         name: endYear
+ *         schema:
+ *           type: integer
+ *           example: 2023
+ *       - in: query
+ *         name: referenceMediaIds
+ *         schema:
+ *           type: string
+ *           description: IDs de mídia de referência, separados por vírgula
+ *           example: "12,45,99"
  *     responses:
  *       200:
- *         description: Lista de mídias para exibição na homepage
+ *         description: Lista de recomendações customizadas
  *       401:
  *         description: Usuário não autenticado
  */
-router.get('/homepage', getHomepageRecommendations);
+router.get('/custom', getCustomRecommendations);
+
 
 /**
  * @swagger
@@ -121,57 +161,6 @@ router.get('/similar/:id', getSimilarMedia);
 
 /**
  * @swagger
- * /api/recommendations/engagement:
- *   get:
- *     summary: Recomendações baseadas em engajamento do usuário
- *     tags: [Recommendations]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: query
- *         name: limit
- *         schema:
- *           type: integer
- *           default: 8
- *       - in: query
- *         name: engagementType
- *         schema:
- *           type: string
- *           enum: [all, saved, favorited, viewed]
- *           default: all
- *     responses:
- *       200:
- *         description: Lista de recomendações baseadas em engajamento
- */
-router.get('/engagement', getEngagementRecommendations);
-
-/**
- * @swagger
- * /api/recommendations/optimized:
- *   get:
- *     summary: Recomendações híbridas otimizadas
- *     tags: [Recommendations]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: query
- *         name: limit
- *         schema:
- *           type: integer
- *           default: 10
- *       - in: query
- *         name: includeExplanation
- *         schema:
- *           type: boolean
- *           default: false
- *     responses:
- *       200:
- *         description: Recomendações geradas via algoritmo híbrido
- */
-router.get('/optimized', getOptimizedRecommendations);
-
-/**
- * @swagger
  * /api/recommendations/exclude/{mediaId}:
  *   post:
  *     summary: Excluir mídia das recomendações do usuário
@@ -200,6 +189,38 @@ router.get('/optimized', getOptimizedRecommendations);
  *         description: Mídia excluída com sucesso
  */
 router.post('/exclude/:mediaId', excludeFromRecommendations);
+
+/**
+ * @swagger
+ * /api/recommendations/initial-preferences:
+ *   post:
+ *     summary: Salvar ou obter preferências iniciais do usuário (onboarding)
+ *     description: Recebe os IDs de mídias escolhidas pelo usuário durante o onboarding e retorna as preferências geradas.
+ *     tags: [Recommendations]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               selectedMediaIds:
+ *                 type: array
+ *                 items:
+ *                   type: integer
+ *                 description: IDs de mídias escolhidas pelo usuário
+ *                 example: [12, 45, 99]
+ *     responses:
+ *       200:
+ *         description: Preferências iniciais do usuário
+ *       401:
+ *         description: Usuário não autenticado
+ *       500:
+ *         description: Erro ao gerar preferências
+ */
+router.post('/initial-preferences', getInitialPreferences);
 
 /**
  * @swagger

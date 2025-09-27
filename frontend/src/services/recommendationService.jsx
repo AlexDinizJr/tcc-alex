@@ -1,28 +1,32 @@
 import api from "./api";
 
 /**
- * Busca recomendações personalizadas para o usuário logado
+ * Busca recomendações para o usuário logado
  */
 export async function fetchUserRecommendations(params = {}) {
   try {
+    console.log("🌐 [FRONT] Chamando API de recomendações com params:", params);
     const response = await api.get("/recommendations", { params });
+    console.log("✅ [FRONT] Resposta da API:", response.data);
     return response.data;
   } catch (error) {
-    console.error("Erro ao buscar recomendações do usuário:", error.response?.data || error);
-    return [];
+    console.error("❌ [FRONT] Erro na API de recomendações:", error);
+    throw error;
   }
 }
 
 /**
- * Busca recomendações para homepage
+ * Busca recomendações personalizadas para o usuário logado
  */
-export async function fetchHomepageRecommendations() {
+export async function fetchCustomRecommendations(params = {}) {
   try {
-    const response = await api.get("/recommendations/homepage");
+    console.log("🌐 [FRONT] Chamando API de recomendações com params:", params);
+    const response = await api.get("/recommendations/custom", { params });
+    console.log("✅ [FRONT] Resposta da API:", response.data);
     return response.data;
   } catch (error) {
-    console.error("Erro ao buscar recomendações para homepage:", error.response?.data || error);
-    return [];
+    console.error("❌ [FRONT] Erro na API de recomendações:", error);
+    throw error;
   }
 }
 
@@ -34,8 +38,8 @@ export async function fetchTrending() {
   if (!res.ok) throw new Error("Erro ao buscar trending");
 
   const result = await res.json();
-  // Retornar apenas o array de trending
-  return result.data?.trending || [].slice(0, 5);
+  
+  return result.data?.trending.slice(0, 5) || [];
 }
 
 /**
@@ -46,7 +50,7 @@ export async function fetchSimilarMedia(mediaId, options = {}) {
     console.log(`🔄 Buscando mídias similares para ID: ${mediaId}`);
     const response = await api.get(`/recommendations/similar/${mediaId}`, { params: options });
     console.log("✅ Resposta da API (similar):", response.data);
-    return response.data;
+    return response.data.slice(0, 4) || [];
   } catch (error) {
     console.error(`❌ Erro ao buscar mídias similares para ${mediaId}:`, error);
     console.error("Detalhes do erro:", {
@@ -59,28 +63,21 @@ export async function fetchSimilarMedia(mediaId, options = {}) {
 }
 
 /**
- * Recomendações baseadas em engajamento do usuário
+ * Pegar as preferências iniciais do usuário com base nas mídias selecionadas
  */
-export async function fetchEngagementRecommendations(params = {}) {
+export async function buildUserInitialPreferences(selectedMediaIds = []) {
   try {
-    const response = await api.get("/recommendations/engagement", { params });
-    return response.data;
-  } catch (error) {
-    console.error("Erro ao buscar recomendações por engajamento:", error.response?.data || error);
-    return [];
-  }
-}
+    console.log("🌐 [FRONT] Enviando mídias selecionadas para gerar preferências iniciais:", selectedMediaIds);
 
-/**
- * Recomendações híbridas otimizadas
- */
-export async function fetchOptimizedRecommendations(params = {}) {
-  try {
-    const response = await api.get("/recommendations/optimized", { params });
+    const response = await api.post("/recommendations/initial-preferences", {
+      selectedMediaIds
+    });
+
+    console.log("✅ [FRONT] Preferências iniciais recebidas:", response.data);
     return response.data;
   } catch (error) {
-    console.error("Erro ao buscar recomendações otimizadas:", error.response?.data || error);
-    return [];
+    console.error("❌ [FRONT] Erro ao gerar preferências iniciais:", error.response?.data || error);
+    return null;
   }
 }
 
@@ -96,6 +93,10 @@ export async function excludeFromRecommendations(mediaId, body = {}) {
     return null;
   }
 }
+
+/**
+ * As funções abaixo são para métricas e tracking de engajamento não necessárias para o funcionamento básico das recomendações
+ */
 
 /**
  * Buscar métricas de recomendações

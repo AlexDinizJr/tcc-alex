@@ -9,8 +9,8 @@ export default function ProfileSettings({ user }) {
   const [formData, setFormData] = useState({
     name: user.name || "",
     bio: user.bio || "",
-    avatar: null,       // Guardaremos o File real
-    coverImage: null    // Guardaremos o File real
+    avatar: null,   
+    coverImage: null 
   });
 
   const [preview, setPreview] = useState({

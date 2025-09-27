@@ -33,9 +33,19 @@ const recommendationService = {
     return recommendationEngine.getCustomRecommendations(userId, filters, referenceMediaIds, limit);
   },
 
+  // Preferências iniciais do usuário (cold start)
+  async getInitialPreferences(userId, selectedMediaIds = []) {
+    return recommendationEngine.buildUserInitialPreferences(userId, selectedMediaIds);
+  },
+
+    // Excluir mídia das recomendações
+  async excludeMedia(userId, mediaId, months = 3) {
+    return recommendationEngine.excludeMediaForUser(userId, mediaId, months);
+  },
+
   // Conteúdo em alta
   async getTrendingMedia(options = {}) {
-    const { limit = 10, type, genre } = options;
+    const { limit = 5, type, genre } = options;
     const filters = { type, genre };
     
     let trending = await recommendationEngine.getTrendingMedia(limit * 2);
@@ -58,19 +68,6 @@ const recommendationService = {
     return recommendationEngine.getSimilarMedia(mediaId, limit);
   },
 
-  // Recomendações baseadas em engajamento
-  async getEngagementRecommendations(userId, limit = 5) {
-    if (!userId) {
-      return this.getTrendingMedia({ limit });
-    }
-    return recommendationEngine.getEngagementBasedRecommendations(userId, limit);
-  },
-
-  // Recomendações híbridas otimizadas
-  async getOptimizedRecommendations(userId, limit = 5) {
-    return recommendationEngine.getOptimizedRecommendations(userId, limit);
-  },
-
   // Track de engajamento
   async trackEngagement(userId, mediaId, action, metadata = {}) {
     return recommendationEngine.trackRecommendationEngagement(userId, mediaId, action, metadata);
@@ -86,10 +83,6 @@ const recommendationService = {
     return recommendationEngine.getSimilarityMetrics(mediaId, similarMedia);
   },
 
-  // Excluir mídia das recomendações
-  async excludeMedia(userId, mediaId, months = 3) {
-    return recommendationEngine.excludeMediaForUser(userId, mediaId, months);
-  }
 };
 
 module.exports = recommendationService;

@@ -169,7 +169,7 @@ const calculateSimilarity = (mediaA, mediaB) => {
   return normalize(score, 1.5);
 };
 
-const getTrendingMedia = async (limit = 10) => {
+const getTrendingMedia = async (limit = 5) => {
   const media = await prisma.media.findMany({
     include: {
       recommendationEngagements: true,
@@ -205,6 +205,7 @@ const getTrendingMedia = async (limit = 10) => {
   return scored.slice(0, limit).map(item => item.media);
 };
 
+// --- User Recommendations ---
 const getUserRecommendations = async (userId, limit = 5) => {
   const [prefs, excludedItems] = await Promise.all([
     getUserPreferences(userId),
@@ -219,26 +220,25 @@ const getUserRecommendations = async (userId, limit = 5) => {
 
   const allMedia = await prisma.media.findMany({
     where: { id: { notIn: [...userMediaIds, ...excludedIds] } },
-    include: {
-      recommendationEngagements: true
-    }
+    include: { recommendationEngagements: true }
   });
+
+  const allMediaMap = new Map(allMedia.map(m => [m.id, m]));
 
   const scoredMedia = allMedia.map(media => {
     let similarityScore = 0;
-    
+
     Object.entries(prefs).forEach(([mediaId, weight]) => {
-      const preferredMedia = allMedia.find(m => m.id === parseInt(mediaId));
+      const preferredMedia = allMediaMap.get(parseInt(mediaId));
       if (preferredMedia) {
         similarityScore += calculateSimilarity(media, preferredMedia) * weight;
       }
     });
 
-    // Adicionar score de engajamento global
     const engagementBonus = calculateEngagementScore(media) * 0.3;
-    
-    return { 
-      media, 
+
+    return {
+      media,
       score: similarityScore + engagementBonus,
       similarityScore,
       engagementBonus
@@ -253,10 +253,10 @@ const getUserRecommendations = async (userId, limit = 5) => {
 
   for (const item of scoredMedia) {
     if (finalRecommendations.length >= limit) break;
-    
+
     const itemGenres = item.media.genres || [];
     const hasGenreOverlap = itemGenres.some(genre => includedGenres.has(genre));
-    
+
     if (!hasGenreOverlap || finalRecommendations.length < 2) {
       finalRecommendations.push(item.media);
       itemGenres.forEach(genre => includedGenres.add(genre));
@@ -373,9 +373,9 @@ const getHybridRecommendations = async (userId, limit = 5) => {
   const interactionCount = Object.keys(prefs).length;
 
   if (interactionCount < 5) {
-    return getColdStartRecommendations(userId, limit);
+    return await getColdStartRecommendations(userId, limit);
   } else {
-    return getUserRecommendations(userId, limit);
+    return await getUserRecommendations(userId, limit);
   }
 };
 
