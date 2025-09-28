@@ -28,7 +28,7 @@ export default function ResultsGrid({ recommendations = [], isLoading, hasFilter
       </h2>
       
       {/* Carrossel horizontal */}
-      <div className="flex overflow-x-auto pb-4 gap-4 justify-center scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-700">
+      <div className="flex overflow-visible pb-4 gap-4 justify-center">
         {recommendationsArray.map((media) => (
           <MediaCarouselCard 
             key={media.id}

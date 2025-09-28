@@ -50,14 +50,15 @@ export async function fetchSimilarMedia(mediaId, options = {}) {
     console.log(`🔄 Buscando mídias similares para ID: ${mediaId}`);
     const response = await api.get(`/recommendations/similar/${mediaId}`, { params: options });
     console.log("✅ Resposta da API (similar):", response.data);
-    return response.data.slice(0, 4) || [];
+
+    // ⚡ Aqui pegamos o array correto dentro de data
+    const similarArray = Array.isArray(response.data?.data?.similarMedia)
+      ? response.data.data.similarMedia.slice(0, 4) // Limitando a 4 itens
+      : [];
+
+    return similarArray;
   } catch (error) {
     console.error(`❌ Erro ao buscar mídias similares para ${mediaId}:`, error);
-    console.error("Detalhes do erro:", {
-      status: error.response?.status,
-      data: error.response?.data,
-      message: error.message
-    });
     return [];
   }
 }
@@ -87,10 +88,10 @@ export async function buildUserInitialPreferences(selectedMediaIds = []) {
 export async function excludeFromRecommendations(mediaId, body = {}) {
   try {
     const response = await api.post(`/recommendations/exclude/${mediaId}`, body);
-    return response.data;
+    return response.data; // Retorna o que a API manda
   } catch (error) {
     console.error(`Erro ao excluir mídia ${mediaId} das recomendações:`, error.response?.data || error);
-    return null;
+    throw error; // Propaga o erro em vez de retornar null
   }
 }
 

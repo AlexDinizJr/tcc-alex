@@ -4,8 +4,10 @@ import {
   FaMicrosoft,
   FaPlaystation,
   FaXbox, 
-  FaDeezer
+  FaDeezer,
+  FaBattleNet
 } from 'react-icons/fa';
+
 import { 
   SiNetflix,
   SiPrimevideo,  
@@ -123,6 +125,12 @@ export const SERVICES = {
     icon: <SiEa className="w-5 h-5" />,
     color: "bg-[#000000] hover:bg-[#1A1A1A] text-[#FF0000]", // Preto com texto vermelho EA
     baseUrl: "https://www.ea.com/"
+  },
+  BATTLENET: {
+    name: "Battle.net",
+    icon: <FaBattleNet className="w-5 h-5" />, // Ícone da Blizzard
+    color: "bg-[#148EFF] hover:bg-[#0F70CC] text-white", // Azul oficial da Battle.net
+    baseUrl: "https://shop.battle.net/product/" // URL para produtos na Battle.net
   },
   SPOTIFY: {
     name: "Spotify",

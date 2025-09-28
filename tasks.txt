@@ -1,12 +1,21 @@
 ***REVISÃO DA APLICAÇÃO***
 
-# PRIORIDADES:
+# ALGORITMOS E SUAS FUNÇÕES:
 
-1 - Implementar Algoritmos de Recomendações Customizadas, BuildInitialPreferences e ExcludeMediafromRecomendations;
-2 - Revisar o GetTreding - está gerando os mesmos resultados não importando o mediaId passado (backend) e a página de Mídia não está carregando esta seção (frontend);
-3 - Remover o Lixo de Arquivos do Mock (Helpers e MockData) e Organizar o código;
+- Revisar Algoritmos de CustomRecommendations e GetUserRecommendations
+- Remover o Lixo de Arquivos do Mock (Helpers e MockData) e Organizar o código;
 
-# POSSÍVEIS AJUSTES:
+# SEED DE DADOS:
+
+- Montar Script de Seed de Mídias com:
+    - 200 games; (ideal = 1000)
+    - 200 músicas; (ideal = 1000)
+    - 200 filmes (ideal = 1000)
+    - 200 séries de tv; (ideal = 1000)
+    - 200 livros; (ideal = 1000)
+- Se possível preencher algumas mídias com informações mais detalhadas;
+
+# REFINAMENTOS VISUAIS:
 
 - Ajustar o funcionamento no mobile;
 - Quando trocar de página - fechar o drawer no mobile;
@@ -14,6 +23,9 @@
 - Largura padrão das páginas;
 - Adicionar cursor-pointer no que for necessário;
 - Icone de Eye no Login;
+
+# TRATAMENTO DE ERROS E FEEDBACKS:
+
 - Ajustar a Estrela de Review cortada com fundo cinza;
 - Ajustar o Toast de feedback para o usuário informando que ele está tentando marcar a própria review como útil;
 - Ajustar o Toast de feedback para o usuário informando se o item já está na lista;
@@ -23,4 +35,12 @@
 
 - Adicionar página de All Lists - todas as listas do site;
 - Campo de gênero (sexo) no perfil;
-- Implementar no footer o suporte e newsletter;
+- Implementar no footer as seções de suporte e newsletter;
+
+# DEPLOY E HOSPEDAGEM (Nessa parte eu sou mais inexperiente):
+
+- Escolher servidor online para hospedar (do que eu pesquisei, o digital ocean é um gratuito bom);
+- Alocar um domínio do site (seria algo como www.mediahub.com.br)
+- Configurar o GitHub Actions;
+- Configurar o Docker para rodar o servidor corretamente;
+

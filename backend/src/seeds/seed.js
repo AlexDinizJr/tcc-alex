@@ -9,7 +9,6 @@ async function seed() {
   try {
     console.log('🚀 Iniciando seed do banco...');
 
-
     // 🔹 Cria ou atualiza mídias
     for (const media of ALL_MEDIA) {
       const createdMedia = await prisma.media.upsert({

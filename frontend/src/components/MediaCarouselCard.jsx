@@ -1,7 +1,9 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { useState, useRef, useEffect } from "react";
+import { useToast } from "../hooks/useToast";
 import ShareMediaModal from "./ShareMediaModal";
+import { excludeFromRecommendations } from "../services/recommendationService";
 import { toggleSaveMedia, toggleFavoriteMedia, fetchUserFavorites, fetchUserSavedMedia } from "../services/listsService";
 
 export default function MediaCarouselCard({ media }) {
@@ -11,6 +13,7 @@ export default function MediaCarouselCard({ media }) {
   const [isSaved, setIsSaved] = useState(user?.savedMedia?.some(m => m.id === media.id));
   const [isFavorited, setIsFavorited] = useState(user?.favorites?.some(m => m.id === media.id));
   const menuRef = useRef(null);
+  const { showToast } = useToast();
 
   useEffect(() => {
   setIsSaved(user?.savedMedia?.some(m => m.id === media.id) || false);
@@ -60,6 +63,33 @@ export default function MediaCarouselCard({ media }) {
     }
   };
 
+  // Não recomendar mais
+  const handleNotInterested = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!user) return;
+
+    try {
+      const result = await excludeFromRecommendations(media.id);
+      console.log('Resultado exclusão:', result);
+      
+      if (result?.success) {
+        const updatedExcluded = [...(user.excludedMedia || []), media];
+        updateUser({ ...user, excludedMedia: updatedExcluded });
+        showToast("Você não receberá mais esse conteúdo", "success");
+        setMenuOpen(false);
+        return;
+      }
+      
+      // Se não houve success, mostrar mensagem de erro
+      showToast("Não foi possível excluir das recomendações", "error");
+      
+    } catch (err) {
+      console.error("Erro ao excluir mídia das recomendações:", err);
+      showToast("Não foi possível realizar esta ação", "error");
+    }
+  };
+
   // Menu
   const toggleMenu = (e) => {
     e.preventDefault();
@@ -72,13 +102,6 @@ export default function MediaCarouselCard({ media }) {
     e.preventDefault();
     e.stopPropagation();
     setShareOpen(true);
-    setMenuOpen(false);
-  };
-
-  const handleNotInterested = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    console.log("Não recomendar mais:", media.title);
     setMenuOpen(false);
   };
 

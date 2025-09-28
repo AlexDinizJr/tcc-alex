@@ -20,30 +20,24 @@ export default function MediaPage() {
       try {
         const media = await fetchMediaById(Number(id));
         setMediaItem(media);
-
         if (!media) return;
 
-        // 🔹 Similar Media
         const similarResponse = await fetchSimilarMedia(media.id);
 
-        let similarArray = [];
-        if (similarResponse?.success && similarResponse.data) {
-          similarArray = similarResponse.data.similarMedia || [];
-        } else if (Array.isArray(similarResponse)) {
-          similarArray = similarResponse;
-        } else if (Array.isArray(similarResponse?.similar)) {
-          similarArray = similarResponse.similar;
-        }
+        // Já é um array
+        const similarArray = Array.isArray(similarResponse) ? similarResponse : [];
 
+        // Normaliza para o MediaGrid
         const normalizedSimilar = similarArray.map((item) => ({
           id: item.id,
           title: item.title || "Sem título",
           image: item.image || "/placeholder.png",
           type: item.type || media.type,
-          rating: item.rating,
+          rating: item.rating || 0,
         }));
 
         setSimilarMedia(normalizedSimilar);
+        console.log("Normalized Similar:", normalizedSimilar); // agora deve mostrar 6 itens
       } catch (error) {
         console.error("Erro ao carregar mídia ou similares:", error);
       }

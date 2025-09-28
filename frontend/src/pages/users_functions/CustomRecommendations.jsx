@@ -3,12 +3,14 @@ import FilterSection from "../../components/recommendations/FilterSection";
 import ReferenceMediaGrid from "../../components/recommendations/ReferenceMediaGrid";
 import ResultsGrid from "../../components/recommendations/ResultsGrid";
 import MediaSearchModal from "../../components/recommendations/MediaSearchModal";
+import GenreFilterSection from "../../components/recommendations/GenreFilterSection";
 import { useRecommendationFilters } from "../../hooks/useRecommendationFilters";
-import { fetchMedia } from "../../services/mediaService";
-
-const ALL_MEDIA = fetchMedia();
+import { searchMediaByQuery } from "../../services/mediaService";
+import { fetchCustomRecommendations } from "../../services/recommendationService";
+import { useAuth } from "../../hooks/useAuth"; // Adicione este hook
 
 export default function CustomRecommendations() {
+  const { user } = useAuth(); // Para pegar o userId
   const [filters, setFilters] = useState({
     types: [],
     genres: [],
@@ -57,70 +59,48 @@ export default function CustomRecommendations() {
   };
 
   const generateRecommendations = async () => {
+    if (!user) {
+      console.error("Usuário não autenticado");
+      return;
+    }
+
     setIsLoading(true);
+    setRecommendations([]);
 
-    setTimeout(() => {
-      try {
-        let filteredPool = [...ALL_MEDIA];
+    try {
+      // Prepara os parâmetros para a API
+      const params = {
+        userId: user.id,
+        types: filters.types.length > 0 ? filters.types : undefined,
+        genres: filters.genres.length > 0 ? filters.genres : undefined,
+        classifications: filters.classifications.length > 0 ? filters.classifications : undefined,
+        minYear: filters.minYear || undefined,
+        maxYear: filters.maxYear || undefined,
+        minRating: filters.minRating || undefined,
+        platforms: filters.platforms.length > 0 ? filters.platforms : undefined,
+        referenceMediaIds: referenceMedia
+          .filter(media => media !== null)
+          .map(media => media.id),
+        limit: 20 // Você pode ajustar conforme necessário
+      };
 
-        if (filters.types.length > 0) {
-          filteredPool = filteredPool.filter(m => filters.types.includes(m.type.toString()));
-        }
-        
-        if (filters.genres.length > 0) {
-          filteredPool = filteredPool.filter(m => 
-            m.genres && m.genres.some(genre => filters.genres.includes(genre.toString()))
-          );
-        }
+      console.log("📤 Enviando parâmetros para API:", params);
 
-        if (filters.classifications.length > 0) {
-          filteredPool = filteredPool.filter(m => 
-            filters.classifications.includes(m.classification)
-          );
-        }
-        
-        const minYearNum = parseInt(filters.minYear);
-        if (!isNaN(minYearNum)) filteredPool = filteredPool.filter(m => m.year >= minYearNum);
-        
-        const maxYearNum = parseInt(filters.maxYear);
-        if (!isNaN(maxYearNum)) filteredPool = filteredPool.filter(m => m.year <= maxYearNum);
-        
-        const minRatingNum = parseFloat(filters.minRating);
-        if (!isNaN(minRatingNum)) filteredPool = filteredPool.filter(m => m.rating >= minRatingNum);
-        
-        if (filters.platforms.length > 0) {
-          filteredPool = filteredPool.filter(m =>
-            m.streamingLinks?.some(s => filters.platforms.includes(s.service))
-          );
-        }
+      // Chama a API do backend
+      const result = await fetchCustomRecommendations(params);
 
-        const activeReferences = referenceMedia.filter(r => r !== null);
-        if (activeReferences.length > 0) {
-          filteredPool = filteredPool.filter(m => {
-            return activeReferences.some(ref => {
-              const sameType = m.type === ref.type;
-              const hasCommonGenres = m.genres && ref.genres && 
-                m.genres.some(genre => ref.genres.includes(genre));
-              return sameType || hasCommonGenres;
-            });
-          });
-        }
+      const recommendationsArray = result?.data?.recommendations.slice(0, 5) ?? [];
+      setRecommendations(recommendationsArray);
+      
+      console.log("📥 Resposta da API:", result);
 
-        const finalRecommendations = applyTestAlgorithm(filteredPool);
-        setRecommendations(finalRecommendations);
-      } catch (error) {
-        console.error('Erro ao gerar recomendações:', error);
-        setRecommendations([]);
-      } finally {
-        setIsLoading(false);
-      }
-    }, 1000);
-  };
-
-  const applyTestAlgorithm = (filteredPool) => {
-    if (filteredPool.length === 0) return [];
-    if (filteredPool.length <= 5) return filteredPool;
-    return [...filteredPool].sort(() => 0.5 - Math.random()).slice(0, 5);
+    } catch (error) {
+      console.error('❌ Erro ao gerar recomendações:', error);
+      setRecommendations([]);
+      // Você pode adicionar um toast de erro aqui
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const hasFilters =
@@ -130,7 +110,19 @@ export default function CustomRecommendations() {
     filters.maxYear ||
     filters.minRating ||
     filters.platforms.length > 0 ||
+    filters.classifications.length > 0 ||
     referenceMedia.some(media => media !== null);
+
+  // Se você ainda precisa da busca de mídias para o modal, mantenha esta função
+  const handleSearchMedia = async (query) => {
+    try {
+      const result = await searchMediaByQuery(query);
+      return result.items || result.media || [];
+    } catch (error) {
+      console.error("Erro ao buscar mídias:", error);
+      return [];
+    }
+  };
 
   return (
     <div className="min-h-screen py-8">
@@ -154,16 +146,15 @@ export default function CustomRecommendations() {
               </div>
               <div className="ml-3">
                 <h3 className="text-sm font-medium text-blue-100">
-                  Dica para melhores recomendações
+                  Como funciona
                 </h3>
                 <div className="mt-2 text-sm text-blue-200">
                   <p>
-                    ⚠️ <strong>Cuidado com filtros muito específicos!</strong> Combinar muitos critérios 
-                    restritivos (como ano + gênero + plataforma + avaliação) pode limitar demais as opções.
+                    🎯 <strong>Recomendações inteligentes:</strong> O sistema analisa suas preferências 
+                    e mídias similares para sugerir conteúdo personalizado.
                   </p>
                   <p className="mt-2">
-                    💡 <strong>Sugestão:</strong> Comece com filtros mais amplos e vá refinando 
-                    gradualmente.
+                    💡 <strong>Dica:</strong> Adicione mídias de referência para refinar ainda mais as recomendações.
                   </p>
                 </div>
               </div>
@@ -189,19 +180,11 @@ export default function CustomRecommendations() {
             </FilterSection>
 
             <FilterSection title="Gêneros">
-              <div className="space-y-2">
-                {genres.map(genre => (
-                  <label key={genre} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={filters.genres.includes(genre)}
-                      onChange={() => handleFilterChange("genres", genre)}
-                      className="rounded border-gray-600 text-blue-500 focus:ring-blue-400 bg-gray-700/70"
-                    />
-                    <span className="ml-2 text-sm text-white">{genre}</span>
-                  </label>
-                ))}
-              </div>
+              <GenreFilterSection
+                genres={genres}
+                selectedGenres={filters.genres}
+                onGenreChange={(genre) => handleFilterChange("genres", genre)}
+              />
             </FilterSection>
 
             <FilterSection title="Classificação Etária">
@@ -262,20 +245,13 @@ export default function CustomRecommendations() {
               </div>
             </FilterSection>
 
+            {/* Plataformas */}
             <FilterSection title="Plataformas">
-              <div className="space-y-2">
-                {platforms.map(platform => (
-                  <label key={platform} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={filters.platforms.includes(platform)}
-                      onChange={() => handleFilterChange("platforms", platform)}
-                      className="rounded border-gray-600 text-blue-500 focus:ring-blue-400 bg-gray-700/70"
-                    />
-                    <span className="ml-2 text-sm text-white">{platform}</span>
-                  </label>
-                ))}
-              </div>
+              <GenreFilterSection
+                genres={platforms}
+                selectedGenres={filters.platforms}
+                onGenreChange={(platforms) => handleFilterChange("platforms", platforms)}
+              />
             </FilterSection>
           </div>
 
@@ -289,7 +265,7 @@ export default function CustomRecommendations() {
           {/* Botão de Gerar Recomendações */}
           <button
             onClick={generateRecommendations}
-            disabled={!hasFilters || isLoading}
+            disabled={!hasFilters || isLoading || !user}
             className="w-full bg-blue-600 text-white py-3 px-6 rounded-2xl hover:bg-blue-500 cursor-pointer disabled:bg-gray-600 disabled:cursor-not-allowed font-semibold text-lg transition-colors"
           >
             {isLoading ? (
@@ -297,6 +273,8 @@ export default function CustomRecommendations() {
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
                 Gerando recomendações...
               </span>
+            ) : !user ? (
+              "Faça login para gerar recomendações"
             ) : (
               "Gerar Recomendações Personalizadas"
             )}
@@ -315,6 +293,7 @@ export default function CustomRecommendations() {
           isOpen={showSearchModal}
           onClose={() => setShowSearchModal(false)}
           onSelect={handleMediaSelect}
+          onSearch={handleSearchMedia} // Passe a função de busca se necessário
         />
       </div>
     </div>
