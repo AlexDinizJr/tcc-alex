@@ -26,7 +26,8 @@ class StreamingService {
       'AMAZON',
       'AMAZON_KINDLE',
       'GOOGLE_PLAY',
-      'MICROSOFT'
+      'MICROSOFT',
+      'BATTLENET',
     ];
   }
 

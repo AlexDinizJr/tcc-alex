@@ -102,20 +102,29 @@ const buildUserInitialPreferences = async (userId, selectedMediaIds) => {
 };
 
 const getUserPreferences = async (userId) => {
+  if (!userId) return {};
+
   const [reviews, favorites, saved, engagements] = await Promise.all([
-    prisma.review.findMany({ 
-      where: { userId, rating: { gte: 4.5 } }, 
-      select: { mediaId: true, rating: true, createdAt: true } 
+    // Avaliações altas
+    prisma.review.findMany({
+      where: { userId, rating: { gte: 4.5 } },
+      select: { mediaId: true, rating: true, date: true } // <--- trocado createdAt por date
     }),
-    prisma.media.findMany({ 
-      where: { favoritedBy: { some: { id: userId } } }, 
-      select: { id: true, createdAt: true } 
+
+    // Mídias favorited
+    prisma.media.findMany({
+      where: { favoritedBy: { some: { id: userId } } },
+      select: { id: true } // <--- sem createdAt
     }),
-    prisma.media.findMany({ 
-      where: { savedBy: { some: { id: userId } } }, 
-      select: { id: true, createdAt: true } 
+
+    // Mídias salvas
+    prisma.media.findMany({
+      where: { savedBy: { some: { id: userId } } },
+      select: { id: true } // <--- sem createdAt
     }),
-    prisma.recommendationEngagements.findMany({
+
+    // Engajamentos registrados
+    prisma.recommendationEngagement.findMany({
       where: { userId },
       select: { mediaId: true, action: true, timestamp: true }
     })
@@ -123,20 +132,17 @@ const getUserPreferences = async (userId) => {
 
   const prefs = {};
 
-  const addPreference = (mediaId, weight, createdAt) => {
-    const decay = calculateDecayFactor(createdAt);
+  const addPreference = (mediaId, weight, timestamp) => {
+    const decay = timestamp ? calculateDecayFactor(timestamp) : 1; // decay com timestamp se existir
     prefs[mediaId] = (prefs[mediaId] || 0) + weight * decay;
   };
 
-  // Preferências explícitas
-  reviews.forEach(review => addPreference(review.mediaId, INTERACTION_WEIGHTS.rating, review.createdAt));
-  favorites.forEach(fav => addPreference(fav.id, INTERACTION_WEIGHTS.favorite, fav.createdAt));
-  saved.forEach(save => addPreference(save.id, INTERACTION_WEIGHTS.saved, save.createdAt));
-
-  // Preferências baseadas em engajamento
-  engagements.forEach(engagement => {
-    const weight = ENGAGEMENT_WEIGHTS[engagement.action] || 0;
-    addPreference(engagement.mediaId, weight * 0.5, engagement.timestamp); // Peso reduzido para engajamento
+  reviews.forEach(r => addPreference(r.mediaId, INTERACTION_WEIGHTS.rating, r.date));
+  favorites.forEach(fav => addPreference(fav.id, INTERACTION_WEIGHTS.favorite));
+  saved.forEach(save => addPreference(save.id, INTERACTION_WEIGHTS.saved));
+  engagements.forEach(e => {
+    const weight = ENGAGEMENT_WEIGHTS[e.action] || 0;
+    addPreference(e.mediaId, weight * 0.5, e.timestamp);
   });
 
   return prefs;
@@ -206,23 +212,51 @@ const getTrendingMedia = async (limit = 5) => {
 };
 
 // --- User Recommendations ---
-const getUserRecommendations = async (userId, limit = 5) => {
-  const [prefs, excludedItems] = await Promise.all([
+const getUserRecommendations = async (userId, limit = 5, filters = {}) => {
+  if (!userId) return [];
+
+  // 1️⃣ Buscar preferências e itens a excluir
+  const [prefs, excludedItems, savedItems, favoritedItems] = await Promise.all([
     getUserPreferences(userId),
+
+    // Itens que o usuário excluiu explicitamente
     prisma.userExcludedMedia.findMany({
       where: { userId, expireAt: { gte: new Date() } },
       select: { mediaId: true }
+    }),
+
+    // Itens que o usuário já salvou ou favoritou
+    prisma.media.findMany({
+      where: { savedBy: { some: { id: userId } } },
+      select: { id: true }
+    }),
+    prisma.media.findMany({
+      where: { favoritedBy: { some: { id: userId } } },
+      select: { id: true }
     })
   ]);
 
-  const excludedIds = excludedItems.map(item => item.mediaId);
+  const excludedIds = [
+    ...excludedItems.map(i => i.mediaId),
+    ...savedItems.map(i => i.id),
+    ...favoritedItems.map(i => i.id)
+  ];
+
   const userMediaIds = Object.keys(prefs).map(Number);
 
+  // 2️⃣ Construir filtros opcionais
+  const whereFilters = buildFilters(filters);
+
+  // 3️⃣ Buscar mídias candidatas
   const allMedia = await prisma.media.findMany({
-    where: { id: { notIn: [...userMediaIds, ...excludedIds] } },
+    where: {
+      ...whereFilters,
+      id: { notIn: [...userMediaIds, ...excludedIds] }
+    },
     include: { recommendationEngagements: true }
   });
 
+  // 4️⃣ Calcular score por similaridade e engajamento
   const allMediaMap = new Map(allMedia.map(m => [m.id, m]));
 
   const scoredMedia = allMedia.map(media => {
@@ -245,9 +279,10 @@ const getUserRecommendations = async (userId, limit = 5) => {
     };
   });
 
+  // 5️⃣ Ordenar pelo score
   scoredMedia.sort((a, b) => b.score - a.score);
 
-  // Diversificação por gêneros
+  // 6️⃣ Diversificação por gêneros
   const finalRecommendations = [];
   const includedGenres = new Set();
 
@@ -257,6 +292,7 @@ const getUserRecommendations = async (userId, limit = 5) => {
     const itemGenres = item.media.genres || [];
     const hasGenreOverlap = itemGenres.some(genre => includedGenres.has(genre));
 
+    // Permite repetir apenas 1 ou 2 gêneros para diversificação
     if (!hasGenreOverlap || finalRecommendations.length < 2) {
       finalRecommendations.push(item.media);
       itemGenres.forEach(genre => includedGenres.add(genre));
@@ -266,7 +302,17 @@ const getUserRecommendations = async (userId, limit = 5) => {
   return finalRecommendations;
 };
 
+const cleanFilters = (filters = {}) => {
+  return Object.fromEntries(
+    Object.entries(filters)
+      .filter(([_, value]) => value !== undefined && value !== null)
+  );
+};
+
 const getCustomRecommendations = async (userId, filters = {}, referenceMediaIds = [], limit = 5) => {
+  if (!userId) return [];
+
+  // 1️⃣ Buscar preferências do usuário e itens excluídos
   const [prefs, excludedItems] = await Promise.all([
     getUserPreferences(userId),
     prisma.userExcludedMedia.findMany({
@@ -276,41 +322,49 @@ const getCustomRecommendations = async (userId, filters = {}, referenceMediaIds 
   ]);
 
   const excludedIds = excludedItems.map(item => item.mediaId);
-  const userMediaIds = Object.keys(prefs).map(Number);
+  const userMediaIds = Object.keys(prefs || {}).map(Number);
 
-  const whereFilters = buildFilters(filters);
+  // 2️⃣ Limpar filtros e montar whereFilters
+  const cleanedFilters = cleanFilters(filters);
+  const whereFilters = buildFilters(cleanedFilters);
 
+  // 3️⃣ Buscar mídias candidatas
   const allMedia = await prisma.media.findMany({
     where: {
       ...whereFilters,
       id: { notIn: [...userMediaIds, ...excludedIds] }
     },
-    include: {
-      recommendationEngagements: true
-    }
+    include: { recommendationEngagements: true }
   });
 
+  // 4️⃣ Calcular score por similaridade e engajamento
   const scoredMedia = allMedia.map(media => {
     let similarityScore = 0;
 
     // Similaridade com preferências do usuário
-    Object.entries(prefs).forEach(([mediaId, weight]) => {
-      const preferredMedia = allMedia.find(m => m.id === parseInt(mediaId));
-      if (preferredMedia) {
-        similarityScore += calculateSimilarity(media, preferredMedia) * weight;
-      }
-    });
+    if (prefs) {
+      Object.entries(prefs).forEach(([mediaId, weight]) => {
+        const preferredMedia = allMedia.find(m => m.id === parseInt(mediaId));
+        if (preferredMedia) {
+          similarityScore += calculateSimilarity(media, preferredMedia) * weight;
+        }
+      });
+    }
 
     // Similaridade com mídias de referência (peso menor)
-    referenceMediaIds.forEach(refId => {
-      const refMedia = allMedia.find(m => m.id === refId);
-      if (refMedia) {
-        similarityScore += calculateSimilarity(media, refMedia) * 0.5;
-      }
-    });
+    if (Array.isArray(referenceMediaIds) && referenceMediaIds.length > 0) {
+      referenceMediaIds.forEach(refId => {
+        const refMedia = allMedia.find(m => m.id === refId);
+        if (refMedia) {
+          similarityScore += calculateSimilarity(media, refMedia) * 0.5;
+        }
+      });
+    }
 
     // Score de engajamento global
-    const engagementScore = calculateEngagementScore(media) * 0.2;
+    const engagementScore = media.recommendationEngagements
+      ? calculateEngagementScore(media) * 0.2
+      : 0;
 
     return { 
       media, 
@@ -318,6 +372,7 @@ const getCustomRecommendations = async (userId, filters = {}, referenceMediaIds 
     };
   });
 
+  // 5️⃣ Ordenar pelo score e limitar
   scoredMedia.sort((a, b) => b.score - a.score);
   return scoredMedia.slice(0, limit).map(item => item.media);
 };

@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const { authenticateToken } = require('../middleware/auth');
 
 const {
   getUserRecommendations,
@@ -104,7 +105,7 @@ router.get('/', getUserRecommendations);
  *       401:
  *         description: Usuário não autenticado
  */
-router.get('/custom', getCustomRecommendations);
+router.get('/custom', authenticateToken, getCustomRecommendations);
 
 
 /**
@@ -188,7 +189,7 @@ router.get('/similar/:id', getSimilarMedia);
  *       200:
  *         description: Mídia excluída com sucesso
  */
-router.post('/exclude/:mediaId', excludeFromRecommendations);
+router.post('/exclude/:mediaId', authenticateToken, excludeFromRecommendations);
 
 /**
  * @swagger
@@ -220,7 +221,7 @@ router.post('/exclude/:mediaId', excludeFromRecommendations);
  *       500:
  *         description: Erro ao gerar preferências
  */
-router.post('/initial-preferences', getInitialPreferences);
+router.post('/initial-preferences', authenticateToken, getInitialPreferences);
 
 /**
  * @swagger
