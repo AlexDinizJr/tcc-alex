@@ -184,7 +184,6 @@ export default function ReviewSection({ mediaId, currentUser }) {
 
   return (
     <div className="bg-gray-800/80 rounded-2xl shadow-md border border-gray-700/50 p-8 mb-8">
-      <h2 className="text-2xl font-bold text-white mb-6">Avaliações dos Usuários</h2>
 
       <ReviewGrid
         reviews={reviews.slice(0, visibleCount)}

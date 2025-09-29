@@ -28,6 +28,8 @@ import {
 import { TbBrandDisney } from "react-icons/tb";
 import { FcKindle } from "react-icons/fc";
 import { IoLogoGooglePlaystore } from 'react-icons/io5';
+import CIcon from '@coreui/icons-react';
+import { cibHulu } from '@coreui/icons';
 
 export const SERVICES = {
   NETFLIX: {
@@ -71,6 +73,24 @@ export const SERVICES = {
     icon: <SiAppletv className="w-5 h-5" />,
     color: "bg-[#000000] hover:bg-[#1A1A1A] text-white", // Preto Apple
     baseUrl: "https://tv.apple.com/"
+  },
+  HULU: {
+    name: "Hulu",
+    icon: <CIcon icon={cibHulu} className="w-5 h-5" />,
+    color: "bg-[#1CE783] hover:bg-[#17B869] text-black", // Verde oficial Hulu com texto preto
+    baseUrl: "https://www.hulu.com/watch/"
+  },
+  PEACOCK: {
+    name: "Peacock TV",
+    icon: <span className="font-bold text-lg">🦚</span>,
+    color: "bg-[#000000] hover:bg-[#1A1A1A] text-[#FFD700]", // Fundo preto e texto dourado, cores do Peacock
+    baseUrl: "https://www.peacocktv.com/watch/"
+  },
+  HIDIVE: {
+    name: "HIDIVE",
+    icon: <span className="font-bold text-sm">HD</span>, 
+    color: "bg-[#00AEEF] hover:bg-[#008FCC] text-white", // Azul oficial HIDIVE
+    baseUrl: "https://www.hidive.com/stream/"
   },
   STEAM: {
     name: "Steam",

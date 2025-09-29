@@ -3,7 +3,7 @@ import ReviewCard from "./ReviewCard";
 export default function ReviewGrid({ 
   reviews, 
   title = "Avaliações", 
-  emptyMessage = "Nenhuma avaliação encontrada.", 
+  emptyMessage = "Nenhuma avaliação encontrada. Seja o primeiro a avaliar!", 
   showViewAll = true,
   onHelpfulClick,
   onEditClick,

@@ -1,43 +1,52 @@
 ***REVISÃO DA APLICAÇÃO***
 
-# ALGORITMOS E SUAS FUNÇÕES:
-
-- Revisar Algoritmos de CustomRecommendations e GetUserRecommendations
-- Remover o Lixo de Arquivos do Mock (Helpers e MockData) e Organizar o código;
-
 # SEED DE DADOS:
 
 - Montar Script de Seed de Mídias com:
-    - 200 games; (ideal = 1000)
+    - 200 games; (ideal = 1000) - Done!
     - 200 músicas; (ideal = 1000)
-    - 200 filmes (ideal = 1000)
-    - 200 séries de tv; (ideal = 1000)
+    - 200 filmes (ideal = 1000) - Done!
+    - 200 séries de tv; (ideal = 1000) -  Done!
     - 200 livros; (ideal = 1000)
 - Se possível preencher algumas mídias com informações mais detalhadas;
 
-# REFINAMENTOS VISUAIS:
+# AJUSTES NECESSÁRIOS:
+
+- Algoritmo de GetUserRecommendations - não está funcionando corretamente;
+- Função de Busca:
+    - No SearchPage - mostrar todos os resultados;
+    - No MediaPage - Não funciona se não estiver na página 1;
+    - Busca - Ser mais leniente com as buscas como aceitar termos escritos errados, faltando ":", " ", "-"; não estando em Lower ou Upper Case;
+- Card do Carousel - Remover reportar conteúdo, mexer na função não recomendar mais;
+- Icone de Eye no Login;
+- Ajustar o componente de PlataformFilterSection;
+- Adicionar Warning na página de CustomRecommendations que a função ainda está em desenvolvimento;
+
+# REFINAMENTOS VISUAIS (OPCIONAIS):
 
 - Ajustar o funcionamento no mobile;
 - Quando trocar de página - fechar o drawer no mobile;
 - Trocar emojis por icons;
 - Largura padrão das páginas;
 - Adicionar cursor-pointer no que for necessário;
-- Icone de Eye no Login;
+- No modal de compartilhamento fazer os botões de redes sociais circulares
+
+# BÔNUS:
+
+- Adcionar Formulário de Pedidos e Aviso de Erros;
+- Adicionar página de All Lists - todas as listas do site;
+- Campo de gênero (sexo) no perfil;
+- Implementar no footer as seções de suporte e newsletter;
 
 # TRATAMENTO DE ERROS E FEEDBACKS:
 
+- Consistência na Visibilidade de Listas;
 - Ajustar a Estrela de Review cortada com fundo cinza;
 - Ajustar o Toast de feedback para o usuário informando que ele está tentando marcar a própria review como útil;
 - Ajustar o Toast de feedback para o usuário informando se o item já está na lista;
 - Ajustar o ícone de MarkedHelpful para ficar verde caso o usuário já tenha avaliado como útil;
 
-# BÔNUS:
-
-- Adicionar página de All Lists - todas as listas do site;
-- Campo de gênero (sexo) no perfil;
-- Implementar no footer as seções de suporte e newsletter;
-
-# DEPLOY E HOSPEDAGEM (Nessa parte eu sou mais inexperiente):
+# DEPLOY E HOSPEDAGEM:
 
 - Escolher servidor online para hospedar (do que eu pesquisei, o digital ocean é um gratuito bom);
 - Alocar um domínio do site (seria algo como www.mediahub.com.br)

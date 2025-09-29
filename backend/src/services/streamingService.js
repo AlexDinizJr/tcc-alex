@@ -28,6 +28,9 @@ class StreamingService {
       'GOOGLE_PLAY',
       'MICROSOFT',
       'BATTLENET',
+      'HULU',
+      'PEACOCK',
+      'HIDIVE'
     ];
   }
 
