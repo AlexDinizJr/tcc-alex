@@ -51,6 +51,12 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const refreshUserOnInteraction = async () => {
+    if (user) {
+      await fetchAndSetUser();
+    }
+  };
+
   useEffect(() => {
     const initAuth = async () => {
       setLoading(true);
@@ -458,7 +464,8 @@ export function AuthProvider({ children }) {
         updateList,
         deleteList,
         createList,
-        reloadUser: fetchAndSetUser
+        reloadUser: fetchAndSetUser,
+        refreshUserOnInteraction
       }}
     >
       {children}

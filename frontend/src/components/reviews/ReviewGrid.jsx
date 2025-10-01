@@ -14,6 +14,13 @@ export default function ReviewGrid({
   showUserInfo = true,
 }) {
   
+  // 🔥 ADICIONE ESTE CONSOLE.LOG NO REVIEWGRID
+  console.log('🔍 ReviewGrid - reviews:', reviews.map(r => ({
+    id: r.id,
+    userMarkedHelpful: r.userMarkedHelpful,
+    helpfulCount: r.helpfulCount
+  })));
+
   const content = (
     <>
       {(title || showViewAll) && (

@@ -7,12 +7,14 @@ import {
   toggleHelpful
 } from "../../services/reviewService";
 import { useToast } from "../../hooks/useToast";
+import { useAuth } from "../../hooks/useAuth"; 
 
 import ReviewGrid from "../reviews/ReviewGrid";
 import ReviewForm from "../media/ReviewForm";
 
 export default function ReviewSection({ mediaId, currentUser }) {
   const { showToast } = useToast();
+  const { refreshUserOnInteraction } = useAuth()
 
   const [reviews, setReviews] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -163,8 +165,10 @@ export default function ReviewSection({ mediaId, currentUser }) {
     try {
       const result = await toggleHelpful(reviewId);
 
-      setReviews((prev) =>
-        prev.map((r) =>
+      console.log('🐛 ANTES do setReviews - result.userMarkedHelpful:', result.userMarkedHelpful);
+      
+      setReviews((prev) => {
+        const updated = prev.map((r) =>
           r.id === reviewId
             ? {
                 ...r,
@@ -172,14 +176,16 @@ export default function ReviewSection({ mediaId, currentUser }) {
                 userMarkedHelpful: result.userMarkedHelpful,
               }
             : r
-        )
-      );
+        );
+        console.log('🐛 DENTRO do setReviews - review atualizada:', updated.find(r => r.id === reviewId));
+        return updated;
+      });
+
     } catch (err) {
       console.error("Erro ao marcar útil:", err);
       showToast("Erro ao marcar como útil.", "error");
     }
   };
-
   const loadMore = () => setVisibleCount((c) => c + PAGE_SIZE);
 
   return (

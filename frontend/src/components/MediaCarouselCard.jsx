@@ -7,7 +7,7 @@ import { excludeFromRecommendations } from "../services/recommendationService";
 import { toggleSaveMedia, toggleFavoriteMedia, fetchUserFavorites, fetchUserSavedMedia } from "../services/listsService";
 
 export default function MediaCarouselCard({ media }) {
-  const { user, updateUser } = useAuth();
+  const { user, updateProfile, refreshUserOnInteraction } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
   const [isSaved, setIsSaved] = useState(user?.savedMedia?.some(m => m.id === media.id));
@@ -16,8 +16,8 @@ export default function MediaCarouselCard({ media }) {
   const { showToast } = useToast();
 
   useEffect(() => {
-  setIsSaved(user?.savedMedia?.some(m => m.id === media.id) || false);
-  setIsFavorited(user?.favorites?.some(m => m.id === media.id) || false);
+    setIsSaved(user?.savedMedia?.some(m => m.id === media.id) || false);
+    setIsFavorited(user?.favorites?.some(m => m.id === media.id) || false);
   }, [user, media.id]);
 
   const handleSave = async (e) => {
@@ -27,15 +27,11 @@ export default function MediaCarouselCard({ media }) {
 
     try {
       await toggleSaveMedia(media.id);
-
-      // Atualiza estado local imediatamente
       setIsSaved(prev => !prev);
 
-      // Atualiza listas do usuário global
       const savedMedia = await fetchUserSavedMedia(user.id);
       const favorites = await fetchUserFavorites(user.id);
-      updateUser({ ...user, savedMedia, favorites });
-
+      updateProfile({ ...user, savedMedia, favorites });
     } catch (err) {
       console.error(err);
     }
@@ -48,14 +44,12 @@ export default function MediaCarouselCard({ media }) {
 
     try {
       await toggleFavoriteMedia(media.id);
-
-      // Atualiza estado local imediatamente
+      refreshUserOnInteraction();
       setIsFavorited(prev => !prev);
 
-      // Atualiza listas do usuário global
       const savedMedia = await fetchUserSavedMedia(user.id);
       const favorites = await fetchUserFavorites(user.id);
-      updateUser({ ...user, savedMedia, favorites });
+      updateProfile({ ...user, savedMedia, favorites });
 
       setMenuOpen(false);
     } catch (err) {
@@ -63,52 +57,36 @@ export default function MediaCarouselCard({ media }) {
     }
   };
 
-  // Não recomendar mais
   const handleNotInterested = async (e) => {
     e.preventDefault();
     e.stopPropagation();
+    setMenuOpen(false);
     if (!user) return;
 
     try {
       const result = await excludeFromRecommendations(media.id);
-      console.log('Resultado exclusão:', result);
       
       if (result?.success) {
         const updatedExcluded = [...(user.excludedMedia || []), media];
-        updateUser({ ...user, excludedMedia: updatedExcluded });
+        updateProfile({ ...user, excludedMedia: updatedExcluded });
         showToast("Você não receberá mais esse conteúdo", "success");
-        setMenuOpen(false);
         return;
       }
-      
-      // Se não houve success, mostrar mensagem de erro
-      showToast("Não foi possível excluir das recomendações", "error");
-      
     } catch (err) {
-      console.error("Erro ao excluir mídia das recomendações:", err);
-      showToast("Não foi possível realizar esta ação", "error");
+      console.error("Erro ao excluir mídia:", err);
     }
   };
 
-  // Menu
   const toggleMenu = (e) => {
     e.preventDefault();
     e.stopPropagation();
     setMenuOpen(prev => !prev);
   };
 
-  // Compartilhar
   const handleShare = (e) => {
     e.preventDefault();
     e.stopPropagation();
     setShareOpen(true);
-    setMenuOpen(false);
-  };
-
-  const handleReportContent = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    console.log("Reportar conteúdo:", media.title);
     setMenuOpen(false);
   };
 
@@ -125,68 +103,54 @@ export default function MediaCarouselCard({ media }) {
   return (
     <div className="bg-gray-800/80 border border-gray-700/50 shadow-md hover:shadow-2xl transition-transform transform-gpu duration-300 relative rounded-2xl w-full h-auto hover:scale-105 hover:z-10">
 
-      {/* Botão de menu */}
-      <button
-        onClick={toggleMenu}
-        className="absolute top-3 left-3 p-2 rounded-full transition-all z-10 bg-gray-900/80 text-gray-200 hover:bg-blue-600/30 backdrop-blur-sm"
-        title="Mais opções"
-      >
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01" />
-        </svg>
-      </button>
-
-      {/* Dropdown menu */}
-      {menuOpen && (
-        <div
-          ref={menuRef}
-          className="absolute top-12 left-3 bg-gray-900/95 shadow-xl rounded-lg py-2 z-20 min-w-[180px] border border-gray-700 backdrop-blur-sm"
+      {/* Botão + Dropdown no mesmo wrapper com ref */}
+      <div ref={menuRef} className="absolute top-3 left-3 z-20">
+        <button
+          onClick={toggleMenu}
+          className="p-2 rounded-full transition-all bg-gray-900/80 text-gray-200 hover:bg-blue-600/30 backdrop-blur-sm"
+          title="Mais opções"
         >
-          <button
-            onClick={handleNotInterested}
-            className="w-full text-left px-4 py-2 text-sm text-gray-200 hover:bg-blue-600/20 transition-colors flex items-center gap-3"
-          >
-            <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-            Não recomendar mais
-          </button>
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01" />
+          </svg>
+        </button>
 
-          <button
-            onClick={handleAddToFavorites}
-            className="w-full text-left px-4 py-2 text-sm text-gray-200 hover:bg-blue-600/20 transition-colors flex items-center gap-3"
-          >
-            <svg className="w-4 h-4 flex-shrink-0" fill={isFavorited ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-            </svg>
-            {isFavorited ? "Remover dos favoritos" : "Adicionar aos favoritos"}
-          </button>
+        {menuOpen && (
+          <div className="mt-2 bg-gray-900/95 shadow-xl rounded-lg py-2 min-w-[180px] border border-gray-700 backdrop-blur-sm">
+            <button
+              onClick={handleNotInterested}
+              className="w-full text-left px-4 py-2 text-sm text-gray-200 hover:bg-blue-600/20 transition-colors flex items-center gap-3"
+            >
+              <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+              Não recomendar mais
+            </button>
 
-          <button
-            onClick={handleShare}
-            className="w-full text-left px-4 py-2 text-sm text-gray-200 hover:bg-blue-600/20 transition-colors flex items-center gap-3"
-          >
-            <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-            </svg>
-            Compartilhar
-          </button>
+            <button
+              onClick={handleAddToFavorites}
+              className="w-full text-left px-4 py-2 text-sm text-gray-200 hover:bg-blue-600/20 transition-colors flex items-center gap-3"
+            >
+              <svg className="w-4 h-4 flex-shrink-0" fill={isFavorited ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              </svg>
+              {isFavorited ? "Remover dos favoritos" : "Adicionar aos favoritos"}
+            </button>
 
-          <hr className="my-2 border-gray-700" />
+            <button
+              onClick={handleShare}
+              className="w-full text-left px-4 py-2 text-sm text-gray-200 hover:bg-blue-600/20 transition-colors flex items-center gap-3"
+            >
+              <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+              </svg>
+              Compartilhar
+            </button>
+          </div>
+        )}
+      </div>
 
-          <button
-            onClick={handleReportContent}
-            className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-red-600/20 transition-colors flex items-center gap-3"
-          >
-            <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-            Reportar conteúdo
-          </button>
-        </div>
-      )}
-
-      {/* Salvar */}
+      {/* Botão salvar */}
       <button
         onClick={handleSave}
         className={`absolute top-3 right-3 p-2 rounded-full transition-all z-10 backdrop-blur-sm ${
@@ -222,7 +186,6 @@ export default function MediaCarouselCard({ media }) {
         {media.year && <p className="text-xs text-gray-400 text-right">{media.year}</p>}
       </Link>
 
-      {/* Modal de compartilhamento */}
       {shareOpen && (
         <ShareMediaModal
           isOpen={shareOpen}
