@@ -25,6 +25,7 @@ class StreamingService {
       'YOUTUBE_MUSIC',
       'AMAZON',
       'AMAZON_KINDLE',
+      'AMAZON_MUSIC',
       'GOOGLE_PLAY',
       'MICROSOFT',
       'BATTLENET',

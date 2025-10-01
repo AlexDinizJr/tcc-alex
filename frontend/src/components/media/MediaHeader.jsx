@@ -36,7 +36,7 @@ export default function MediaHeader({ mediaItem, description }) {
           </div>
 
           {/* Título */}
-          <h1 className="text-4xl font-bold text-white mb-4 line-clamp-2">{mediaItem.title}</h1>
+          <h1 className="text-4xl font-bold text-white mb-4 line-clamp-2 leading-[1.15] pb-1">{mediaItem.title}</h1>
 
           {/* Metadados */}
           <MediaMetadata mediaItem={mediaItem} darkMode />

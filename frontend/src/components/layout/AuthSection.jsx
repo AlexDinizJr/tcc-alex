@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { FiUser, FiList } from "react-icons/fi";
+import { FiLogOut } from "react-icons/fi";
 
 export default function AuthSection({ user, isAuthenticated, onLogout, mobile = false, profileLink = "#", listsLink = "#" }) {
   if (mobile) {
@@ -36,8 +37,9 @@ export default function AuthSection({ user, isAuthenticated, onLogout, mobile = 
             
             <button
               onClick={onLogout}
-              className="w-full text-left px-4 py-2 rounded-lg hover:bg-red-700 bg-red-600 transition-colors flex items-center gap-2"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-gray-700 text-gray-300 hover:text-red-400 transition-colors w-full text-left"
             >
+              <FiLogOut className="text-gray-300" />
               Sair
             </button>
           </>
@@ -97,8 +99,9 @@ export default function AuthSection({ user, isAuthenticated, onLogout, mobile = 
           {/* Botão de sair */}
           <button
             onClick={onLogout}
-            className="ml-auto px-4 py-2 rounded-lg hover:bg-red-700 bg-red-600 transition-colors text-sm"
+            className="ml-auto flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-red-700 bg-red-600 transition-colors text-sm"
           >
+            <FiLogOut className="text-gray-300" />
             Sair
           </button>
         </>

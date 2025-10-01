@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { useAppNavigate } from "../../hooks/useAppNavigate";
 import { FaPlayCircle } from "react-icons/fa";
@@ -11,11 +11,22 @@ export default function Navbar() {
   const { user, logout, isAuthenticated, loading } = useAuth();
   const { goHome } = useAppNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const location = useLocation();
+
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false);
+  };
 
   const handleLogout = () => {
     logout();
     goHome();
+    closeMobileMenu();
   };
+
+  // Fecha o menu automaticamente quando a rota muda
+  useEffect(() => {
+    closeMobileMenu();
+  }, [location]);
 
   // Funções para links do usuário logado
   const getUserProfileLink = () => (user?.username ? `/users/${user.username}` : "#");
@@ -75,8 +86,7 @@ export default function Navbar() {
 
       {/* Mobile Menu Expandido */}
       {isMobileMenuOpen && (
-        <div className="md:hidden mt-4 pt-4 border-t border-gray-700 flex flex-col gap-4">
-          <SearchBar />
+        <div className="md:hidden mt-4 mb-4 pt-4 border-t border-gray-700 flex flex-col gap-4">
           <NavLinks mobile />
           <AuthSection
             user={user}

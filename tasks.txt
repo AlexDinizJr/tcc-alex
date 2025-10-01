@@ -1,50 +1,32 @@
 ***REVISÃO DA APLICAÇÃO***
 
-# SEED DE DADOS:
-
-- Montar Script de Seed de Mídias com:
-    - 200 games; (ideal = 1000) - Done!
-    - 200 músicas; (ideal = 1000)
-    - 200 filmes (ideal = 1000) - Done!
-    - 200 séries de tv; (ideal = 1000) -  Done!
-    - 200 livros; (ideal = 1000)
-- Se possível preencher algumas mídias com informações mais detalhadas;
-
-# AJUSTES NECESSÁRIOS:
+# AJUSTES NECESSÁRIOS - SEXTA:
 
 - Algoritmo de GetUserRecommendations - não está funcionando corretamente;
+- Card do Carousel - Remover reportar conteúdo, mexer na função não recomendar mais;
 - Função de Busca:
     - No SearchPage - mostrar todos os resultados;
     - No MediaPage - Não funciona se não estiver na página 1;
     - Busca - Ser mais leniente com as buscas como aceitar termos escritos errados, faltando ":", " ", "-"; não estando em Lower ou Upper Case;
-- Card do Carousel - Remover reportar conteúdo, mexer na função não recomendar mais;
-- Icone de Eye no Login;
-- Ajustar o componente de PlataformFilterSection;
-- Adicionar Warning na página de CustomRecommendations que a função ainda está em desenvolvimento;
+- Ordenação nas páginas de conteúdos - parecem estar com uma certa incosistencia;
+- Consistência na Visibilidade de Listas;
 
-# REFINAMENTOS VISUAIS (OPCIONAIS):
-
-- Ajustar o funcionamento no mobile;
-- Quando trocar de página - fechar o drawer no mobile;
-- Trocar emojis por icons;
-- Largura padrão das páginas;
-- Adicionar cursor-pointer no que for necessário;
-- No modal de compartilhamento fazer os botões de redes sociais circulares
-
-# BÔNUS:
+# BÔNUS: FUNCIONALIDADES EXTRAS - SÁBADO:
 
 - Adcionar Formulário de Pedidos e Aviso de Erros;
 - Adicionar página de All Lists - todas as listas do site;
-- Campo de gênero (sexo) no perfil;
-- Implementar no footer as seções de suporte e newsletter;
+- Implementar no footer as seções de suporte, newsletter, termos de uso, cookies;
+- Adicionar campos de idade e gênero aos usuários.
 
-# TRATAMENTO DE ERROS E FEEDBACKS:
+# BÔNUS: REFINAMENTOS VISUAIS - SÁBADO:
 
-- Consistência na Visibilidade de Listas;
+- Ajustar o componente de PlataformFilterSection;
 - Ajustar a Estrela de Review cortada com fundo cinza;
-- Ajustar o Toast de feedback para o usuário informando que ele está tentando marcar a própria review como útil;
-- Ajustar o Toast de feedback para o usuário informando se o item já está na lista;
-- Ajustar o ícone de MarkedHelpful para ficar verde caso o usuário já tenha avaliado como útil;
+- Trocar emojis por icons;
+- Adicionar cursor-pointer no que for necessário;
+- Largura padrão das páginas;
+
+# BÔNUS: ADIÇÃO DE IMAGENS AS MÍDIAS - DOMINGO:
 
 # DEPLOY E HOSPEDAGEM:
 
@@ -53,3 +35,8 @@
 - Configurar o GitHub Actions;
 - Configurar o Docker para rodar o servidor corretamente;
 
+# POST LAUNCH - TRATAMENTO DE ERROS E FEEDBACKS:
+
+- Ajustar o Toast de feedback para o usuário informando que ele está tentando marcar a própria review como útil;
+- Ajustar o Toast de feedback para o usuário informando se o item já está na lista;
+- Ajustar o ícone de MarkedHelpful para ficar verde caso o usuário já tenha avaliado como útil;

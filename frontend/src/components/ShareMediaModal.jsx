@@ -139,17 +139,17 @@ export default function ShareMediaModal({ isOpen, onClose, media }) {
             <h3 className="text-sm font-medium text-gray-300 mb-4 text-center">
               Compartilhar via
             </h3>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="flex flex-wrap justify-center gap-3">
               {shareOptions.map((option) => (
                 <a
                   key={option.name}
                   href={option.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium text-white transition-all duration-200 hover:scale-105 ${option.color}`}
+                  className={`w-14 h-14 flex items-center justify-center rounded-full text-white transition-all duration-200 hover:scale-110 ${option.color}`}
+                  title={option.name} // mostra o nome ao passar o mouse
                 >
                   {option.icon}
-                  <span className="text-sm">{option.name}</span>
                 </a>
               ))}
             </div>

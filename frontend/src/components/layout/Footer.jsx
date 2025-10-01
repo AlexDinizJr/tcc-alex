@@ -10,7 +10,7 @@ export default function Footer() {
           
           {/* Logo e Descrição */}
           <div className="lg:col-span-1">
-            <h3 className="text-2xl font-bold text-blue-400 mb-4">RecommendationHub</h3>
+            <h3 className="text-2xl font-bold text-blue-400 mb-4">MediaHub</h3>
             <p className="text-gray-300 leading-relaxed mb-4">
               Sua plataforma completa para descobrir, avaliar e explorar o melhor do entretenimento.
             </p>

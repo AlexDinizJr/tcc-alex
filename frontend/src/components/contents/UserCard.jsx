@@ -31,7 +31,7 @@ export default function UserCard({ user: userProp }) {
     : `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random&color=fff`;
 
   return (
-    <Link to={`/users/${user.username}`} className="block">
+    <Link to={`/users/${user.username}`} className="block mx-auto w-full max-w-xs">
     <div className="bg-gray-800/80 rounded-2xl shadow-md p-4 flex justify-between items-center 
       hover:shadow-white/20 transition-shadow cursor-pointer border border-gray-700/50
       min-w-[250px] max-w-[350px] w-full h-30"

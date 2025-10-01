@@ -176,6 +176,12 @@ export const SERVICES = {
     color: "bg-[#FF0000] hover:bg-[#D40000] text-white", // Vermelho YouTube
     baseUrl: "https://music.youtube.com/playlist?list="
   },
+  AMAZON_MUSIC: {
+    name: "Amazon Music",
+    icon: <FaAmazon className="w-5 h-5" />,
+    color: "bg-[#00A8E1] hover:bg-[#0080B0] text-white", // Azul/verde Amazon Music
+    baseUrl: "https://music.amazon.com/albums/"
+  },
   AMAZON: {
     name: "Amazon",
     icon: <FaAmazon className="w-5 h-5" />,

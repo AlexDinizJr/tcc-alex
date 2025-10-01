@@ -26,9 +26,9 @@ export default function MediaCard({ media }) {
       </div>
 
       {/* Conteúdo */}
-      <div className="flex flex-col justify-between flex-1 p-3"> {/* Seção compacta e ajustável */}
+      <div className="flex flex-col justify-between flex-1 p-4"> {/* Seção compacta e ajustável */}
         {/* Título */}
-        <h3 className="font-bold text-white text-base line-clamp-2 mb-1">
+        <h3 className="font-bold text-white text-base line-clamp-2">
           {media.title}
         </h3>
         
