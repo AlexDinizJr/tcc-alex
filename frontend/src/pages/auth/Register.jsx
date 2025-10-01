@@ -148,7 +148,7 @@ export default function Signup() {
               onClick={() => setShowPassword(!showPassword)}
               disabled={loading}
             >
-              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
             </button>
           </div>
         </div>
@@ -174,7 +174,7 @@ export default function Signup() {
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
               disabled={loading}
             >
-              {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              {showConfirmPassword ? <Eye size={20} /> : <EyeOff size={20} />}
             </button>
           </div>
         </div>

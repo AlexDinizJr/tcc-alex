@@ -7,14 +7,12 @@ import {
   toggleHelpful
 } from "../../services/reviewService";
 import { useToast } from "../../hooks/useToast";
-import { useAuth } from "../../hooks/useAuth"; 
 
 import ReviewGrid from "../reviews/ReviewGrid";
 import ReviewForm from "../media/ReviewForm";
 
 export default function ReviewSection({ mediaId, currentUser }) {
   const { showToast } = useToast();
-  const { refreshUserOnInteraction } = useAuth()
 
   const [reviews, setReviews] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -73,7 +71,7 @@ export default function ReviewSection({ mediaId, currentUser }) {
     e.preventDefault();
 
     if (!currentUser) return showToast("Faça login para enviar uma avaliação.", "warning");
-    if (userReview) return showToast("Você já avaliou esta mídia.", "warning");
+    if (userReview) return showToast("Você já avaliou esta mídia. Remova ou edite a sua review existente!", "warning");
 
     const { rating, comment } = newReview;
     if (!rating || rating <= 0) return showToast("Selecione uma nota.", "warning");

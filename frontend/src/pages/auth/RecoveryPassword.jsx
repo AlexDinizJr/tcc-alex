@@ -71,7 +71,7 @@ export default function RecoveryPassword() {
         onClick={() => setShow(!show)}
         disabled={loading}
       >
-        {show ? <EyeOff size={20} /> : <Eye size={20} />}
+        {show ? <Eye size={20} /> : <EyeOff size={20} />}
       </button>
     </div>
   );

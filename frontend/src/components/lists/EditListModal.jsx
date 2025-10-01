@@ -65,7 +65,7 @@ export default function EditListModal({
   const isBusy = isSaving || isDeleting;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
       <div className="bg-gray-800 rounded-2xl p-6 max-w-md w-full border border-gray-700">
         <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
           <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

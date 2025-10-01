@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { recoverPassword } from "../../services/authService";
+import useLockBodyScroll from "../../hooks/useLockBodyScroll";
 
 export default function ForgotPasswordModal({ isOpen, onClose }) {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  useLockBodyScroll(isOpen);
 
   if (!isOpen) return null;
 
@@ -30,7 +32,7 @@ export default function ForgotPasswordModal({ isOpen, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
       <div className="bg-gray-800 p-6 rounded-lg w-full max-w-md">
         <h2 className="text-white text-lg font-semibold mb-4">Recuperar senha</h2>
         <p className="text-gray-300 text-sm mb-4">

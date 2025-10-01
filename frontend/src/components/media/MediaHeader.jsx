@@ -12,7 +12,13 @@ export default function MediaHeader({ mediaItem, description }) {
           <img
             src={mediaItem.image}
             alt={mediaItem.title}
-            className="w-full h-96 object-cover rounded-2xl shadow-lg border border-white/10"
+            className={`w-full object-cover rounded-2xl shadow-lg border border-white/10 ${
+              mediaItem.type === "MOVIE" || mediaItem.type === "SERIES"
+                ? "h-120" 
+                : mediaItem.type === "MUSIC" || mediaItem.type === "GAME"
+                  ? "h-90" 
+                  : "h-110"
+            }`}
           />
         </div>
 

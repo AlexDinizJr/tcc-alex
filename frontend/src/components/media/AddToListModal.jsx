@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { FiX } from "react-icons/fi";
+
 
 export default function AddToListModal({ mediaItem, userLists, onAddToList, onClose }) {
   const [selectedList, setSelectedList] = useState("");
@@ -7,7 +9,6 @@ export default function AddToListModal({ mediaItem, userLists, onAddToList, onCl
   const [newListIsPublic, setNewListIsPublic] = useState(false);
   const [lists, setLists] = useState(userLists || []);
 
-  // 🔹 Atualiza as listas quando userLists mudar
   useEffect(() => {
     setLists(userLists || []);
   }, [userLists]);
@@ -15,121 +16,125 @@ export default function AddToListModal({ mediaItem, userLists, onAddToList, onCl
   const handleAddToList = () => {
     if (createNewList && newListName.trim()) {
       onAddToList(null, newListName.trim(), newListIsPublic);
-      // limpa input após adicionar
       setNewListName("");
       setNewListIsPublic(false);
       setCreateNewList(false);
     } else if (selectedList) {
       onAddToList(parseInt(selectedList));
-      setSelectedList(""); // limpa seleção após adicionar
+      setSelectedList("");
     }
   };
 
   const handleOverlayClick = (e) => {
-    if (e.target === e.currentTarget) {
-      onClose();
-    }
+    if (e.target === e.currentTarget) onClose();
   };
 
   return (
-    <div 
-      className="fixed inset-0 flex items-center justify-center z-50 p-4"
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
       onClick={handleOverlayClick}
     >
-      <div className="bg-gray-900 rounded-lg shadow-lg border border-gray-700 w-full max-w-md">
-        <div className="p-4">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold text-gray-100">Adicionar à lista</h3>
-            <button onClick={onClose} className="text-gray-400 hover:text-gray-200">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
+      <div className="bg-gray-900 border border-gray-700 rounded-2xl shadow-2xl w-full max-w-md p-6 relative">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-bold text-white">Adicionar à lista</h2>
+          <button
+            onClick={onClose}
+            className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
+          >
+            <FiX size={20} />
+          </button>
+        </div>
+
+        {/* Preview da mídia */}
+        <div className="flex items-center gap-4 mb-6 p-4 bg-gray-800/50 rounded-xl border border-gray-700">
+          <img
+            src={mediaItem.image}
+            alt={mediaItem.title}
+            className="w-16 h-16 object-cover rounded-lg"
+          />
+          <div className="flex-1 min-w-0">
+            <h3 className="text-white font-semibold truncate">{mediaItem.title}</h3>
+            <p className="text-gray-400 text-sm">{mediaItem.type}</p>
+          </div>
+        </div>
+
+        {/* Seletor de listas */}
+        <div className="space-y-4 text-gray-100">
+          <div className="flex items-center gap-2">
+            <input
+              type="radio"
+              id="existing-list"
+              checked={!createNewList}
+              onChange={() => setCreateNewList(false)}
+              className="mr-2"
+            />
+            <label htmlFor="existing-list" className="text-sm">Lista existente</label>
           </div>
 
-          <div className="space-y-4 text-gray-100">
-            <div className="text-sm">
-              Adicionando: <span className="font-medium">{mediaItem.title}</span>
-            </div>
+          {!createNewList && (
+            <select
+              value={selectedList}
+              onChange={(e) => setSelectedList(e.target.value)}
+              className="w-full p-2 bg-gray-800 text-gray-100 border border-gray-700 rounded text-sm"
+            >
+              <option value="">Selecione uma lista</option>
+              {lists.map((list) => (
+                <option key={list.id} value={list.id}>
+                  {list.name}
+                </option>
+              ))}
+            </select>
+          )}
 
+          <div className="flex items-center gap-2">
+            <input
+              type="radio"
+              id="new-list"
+              checked={createNewList}
+              onChange={() => setCreateNewList(true)}
+              className="mr-2"
+            />
+            <label htmlFor="new-list" className="text-sm">Nova lista</label>
+          </div>
+
+          {createNewList && (
             <div className="space-y-2">
-              <div className="flex items-center">
+              <input
+                type="text"
+                placeholder="Nome da lista"
+                value={newListName}
+                onChange={(e) => setNewListName(e.target.value)}
+                className="w-full p-2 bg-gray-800 text-gray-100 border border-gray-700 rounded text-sm"
+              />
+              <label className="flex items-center text-sm">
                 <input
-                  type="radio"
-                  id="existing-list"
-                  checked={!createNewList}
-                  onChange={() => setCreateNewList(false)}
+                  type="checkbox"
+                  checked={newListIsPublic}
+                  onChange={(e) => setNewListIsPublic(e.target.checked)}
                   className="mr-2"
                 />
-                <label htmlFor="existing-list">Lista existente</label>
-              </div>
-              
-              {!createNewList && (
-                <select
-                  value={selectedList}
-                  onChange={(e) => setSelectedList(e.target.value)}
-                  className="w-full p-2 bg-gray-800 text-gray-100 border border-gray-700 rounded text-sm"
-                >
-                  <option value="">Selecione uma lista</option>
-                  {lists.map((list) => (
-                    <option key={list.id} value={list.id}>
-                      {list.name}
-                    </option>
-                  ))}
-                </select>
-              )}
+                Lista pública
+              </label>
             </div>
+          )}
+        </div>
 
-            <div className="space-y-2">
-              <div className="flex items-center">
-                <input
-                  type="radio"
-                  id="new-list"
-                  checked={createNewList}
-                  onChange={() => setCreateNewList(true)}
-                  className="mr-2"
-                />
-                <label htmlFor="new-list">Nova lista</label>
-              </div>
-              
-              {createNewList && (
-                <div className="space-y-2">
-                  <input
-                    type="text"
-                    placeholder="Nome da lista"
-                    value={newListName}
-                    onChange={(e) => setNewListName(e.target.value)}
-                    className="w-full p-2 bg-gray-800 text-gray-100 border border-gray-700 rounded text-sm"
-                  />
-                  <label className="flex items-center text-sm">
-                    <input
-                      type="checkbox"
-                      checked={newListIsPublic}
-                      onChange={(e) => setNewListIsPublic(e.target.checked)}
-                      className="mr-2"
-                    />
-                    Lista pública
-                  </label>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="flex gap-2 mt-4">
-            <button
-              onClick={onClose}
-              className="flex-1 py-2 px-3 border border-gray-700 rounded text-sm hover:bg-gray-800"
-            >
-              Cancelar
-            </button>
-            <button
-              onClick={handleAddToList}
-              disabled={(createNewList && !newListName.trim()) || (!createNewList && !selectedList)}
-              className="flex-1 py-2 px-3 bg-blue-500 text-white rounded text-sm hover:bg-blue-600 disabled:opacity-50"
-            >
-              Adicionar
-            </button>
-          </div>
+        {/* Botões */}
+        <div className="flex gap-2 mt-4">
+          <button
+            onClick={onClose}
+            className="flex-1 py-2 px-3 border border-gray-700 rounded text-sm hover:bg-gray-800"
+          >
+            Cancelar
+          </button>
+          <button
+            onClick={handleAddToList}
+            disabled={(createNewList && !newListName.trim()) || (!createNewList && !selectedList)}
+            className="flex-1 py-2 px-3 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 disabled:opacity-50"
+          >
+            Adicionar
+          </button>
         </div>
       </div>
     </div>

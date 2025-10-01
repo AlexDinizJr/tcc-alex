@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { searchMediaByQuery } from "../../services/mediaService";
+import useLockBodyScroll from "../../hooks/useLockBodyScroll";
 
 export default function MediaSearchModal({ isOpen, onClose, onSelect }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [mediaList, setMediaList] = useState([]);
   const [loading, setLoading] = useState(false);
+  useLockBodyScroll(isOpen);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -33,8 +35,8 @@ export default function MediaSearchModal({ isOpen, onClose, onSelect }) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
-      <div className="bg-gray-800 rounded-2xl w-full max-w-2xl p-6 relative max-h-[80vh] overflow-y-auto shadow-lg">
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 backdrop-blur-sm scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-700">
+      <div className="bg-gray-800 rounded-2xl w-full max-w-2xl p-6 relative max-h-[80vh] overflow-y-auto shadow-lg ">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-300 hover:text-white bg-gray-700/60 rounded-full p-1 transition-colors"

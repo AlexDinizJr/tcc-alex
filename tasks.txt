@@ -1,24 +1,23 @@
 ***REVISÃO DA APLICAÇÃO***
 
-# AJUSTES NECESSÁRIOS - SEXTA:
+# AJUSTES CRÍTICOS NECESSÁRIOS - SEXTA:
 
-- Ajuste na imagem na header da página;
-- Melhoria Visual da Logo da Home;
-- Ajustar o ícone de MarkedHelpful para ficar verde caso o usuário já tenha avaliado como útil;
-- Ajustar a Estrela de Review cortada com fundo cinza;
 - Algoritmo de GetUserRecommendations - não está funcionando corretamente;
+
+# MELHORIAS DE USABILIDADE E CONSISTÊNCIA - SEXTA:
+
+- Ajustar o ícone de MarkedHelpful para ficar verde caso o usuário já tenha avaliado como útil;
 - Função de Busca:
-    - No SearchPage - mostrar todos os resultados;
-    - No MediaPage - Não funciona se não estiver na página 1;
-    - Busca - Ser mais leniente com as buscas como aceitar termos escritos errados, faltando ":", " ", "-"; não estando em Lower ou Upper Case;
-- Ordenação nas páginas de conteúdos - parecem estar com uma certa incosistencia quando usado outros filtros fora ordem alfabetica;
-- Encontrar uma solução criativa para o usuário mexer melhor com filtragem;
-- Consistência na Visibilidade de Listas;
+    - Busca - Otimizar, ser mais leniente com as buscas para aceitar termos escritos errados, faltando ":", " ", "-"; não estando em Lower ou Upper Case;
+- Ordenação nas páginas de conteúdos - incosistencia quando usado outros filtros fora ordem alfabetica;
+- Voltar para página anterior quando busca e acessa a página de mídias;
+- Consistência na Visibilidade de Listas (Se houver ao menos 1 lista pública a página de listas deve ser acessível com essa lista);
 
 # BÔNUS: FUNCIONALIDADES EXTRAS - SÁBADO:
 
-- Adcionar Formulário de Pedidos e Aviso de Erros;
+- Adicionar Formulário de Pedidos e Aviso de Erros;
 - Adicionar página de All Lists - todas as listas do site;
+- Adicionar opções de Filtragem para Páginas de Conteúdo;
 - Implementar no footer as seções de suporte, newsletter, termos de uso, cookies;
 - Adicionar campos de idade, gênero e localidade aos usuários.
 
@@ -33,13 +32,26 @@
 
 # DEPLOY E HOSPEDAGEM:
 
-- Escolher servidor online para hospedar (do que eu pesquisei, o digital ocean é um gratuito bom);
-- Alocar um domínio do site (seria algo como www.mediahub.com.br)
-- Configurar o GitHub Actions;
-- Configurar o Docker para rodar o servidor corretamente;
+- Instalar o Docker Desktop;
+- Preparação local - Verificar que frontend e backend funcionam localmente;
+- Dockerizar aplicação - Criar backend/Dockerfile, frontend/Dockerfile e Docker Compose;
+- Configurar banco remoto:
+    - Criar instância PostgreSQL gratuita no Render ou Railway;
+    - Obter DATABASE_URL e colocar no .env do backend;
+    - Fazer dump do banco local;
+    - Importar no servidor remoto;
+    - Rodar migrations do Prisma no servidor;
+- Configurar GitHub Actions;
+- Registrar domínio:
+    - Registrar gratuitamente no Freenom ou comprar um domínio barato;
+    - Configurar DNS;
+    - HTTPS: Render gera certificado automaticamente;
+- Testes finais;
 
 # POST LAUNCH - TRATAMENTO DE ERROS E FEEDBACKS:
 
+- Adicionar os Modais de Confirmação de Logout e Delete Review;
+- Ajustar todos os Modais para usarem o hook useBodyLockScroll;
 - Ajustar o Toast de feedback para o usuário informando que ele já adicionou o item aos excluídos;
 - Ajustar o Toast de feedback para o usuário informando que ele está tentando marcar a própria review como útil;
 - Ajustar o Toast de feedback para o usuário informando se o item já está na lista;

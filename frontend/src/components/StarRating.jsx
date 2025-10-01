@@ -86,8 +86,6 @@ const StarRating = ({ maxStars = 5, onRatingChange, initialRating = 0, readOnly 
             {/* Overlay para modo leitura (exibe a "meia estrela") */}
             {readOnly && halfStar && (
               <div className="absolute top-0 left-0 w-full h-full" style={{ pointerEvents: "none" }}>
-                <div className="absolute top-0 left-1/2 w-1/2 h-full bg-gray-300 opacity-30"></div>
-                <div className="absolute top-0 left-1/2 w-px h-full bg-gray-500"></div>
               </div>
             )}
           </div>

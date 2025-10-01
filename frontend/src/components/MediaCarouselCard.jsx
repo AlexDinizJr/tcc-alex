@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { useState, useRef, useEffect } from "react";
 import { useToast } from "../hooks/useToast";
+import { FaStar } from "react-icons/fa";
 import ShareMediaModal from "./ShareMediaModal";
 import { excludeFromRecommendations } from "../services/recommendationService";
 import { toggleSaveMedia, toggleFavoriteMedia, fetchUserFavorites, fetchUserSavedMedia } from "../services/listsService";
@@ -169,7 +170,7 @@ export default function MediaCarouselCard({ media }) {
       </Link>
 
       {/* Conteúdo */}
-      <Link to={`/media/${media.id}`} className="block p-4 flex flex-col justify-between h-[120px]">
+      <Link to={`/media/${media.id}`} className="block p-4 flex flex-col justify-between h-[105px]">
         <h3 className="text-sm font-semibold text-white line-clamp-2 mb-2 leading-tight">{media.title}</h3>
         <div className="flex items-center justify-between">
           {media.type && (
@@ -178,12 +179,12 @@ export default function MediaCarouselCard({ media }) {
             </span>
           )}
           {media.rating && (
-            <span className="text-xs text-yellow-400 font-semibold flex items-center gap-1">
-              ⭐ {media.rating}
-            </span>
+            <div className="flex items-center bg-gray-700/50 rounded-full px-2 py-0.5 border border-gray-600/50">
+              <FaStar className="text-yellow-400 w-3.5 h-3.5 mr-1" />
+              <span className="text-gray-200 text-xs font-medium">{media.rating}</span>
+            </div>
           )}
         </div>
-        {media.year && <p className="text-xs text-gray-400 text-right">{media.year}</p>}
       </Link>
 
       {shareOpen && (

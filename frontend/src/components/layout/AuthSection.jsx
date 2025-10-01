@@ -65,7 +65,7 @@ export default function AuthSection({ user, isAuthenticated, onLogout, mobile = 
 
   // Versão desktop
   return (
-    <div className="flex items-center gap-4">
+    <div className="text-sm font-medium flex items-center gap-4">
       {isAuthenticated ? (
         <>
           {/* Avatar + nome como botão do perfil */}

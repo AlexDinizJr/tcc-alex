@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+/* ========================= */
+/*        ANIMAÇÕES          */
+/* ========================= */
+
+/* Slide-in mais forte: desliza + zoom */
 @keyframes slide-in {
   from {
     opacity: 0;
@@ -11,42 +16,19 @@
   }
 }
 
-.animate-slide-in {
-  animation: slide-in 0.3s ease-out;
-}
-
-.scrollbar-thin::-webkit-scrollbar {
-  height: 6px;
-}
-
-.scrollbar-thin::-webkit-scrollbar-track {
-  background: #1f2937; /* bg-gray-800 */
-}
-
-.scrollbar-thin::-webkit-scrollbar-thumb {
-  background-color: #4b5563;
-  border-radius: 10px;
-  border: 1px solid #1f2937;
-}
-
-.scrollbar-thin {
-  scrollbar-width: thin;
-  scrollbar-color: #4b5563 #1f2937;
-}
-
+/* Slide-in suave: desliza levemente */
 @keyframes fadeSlideIn {
-  0% { opacity: 0; transform: translateY(-5px); }
-  100% { opacity: 1; transform: translateY(0); }
+  0% {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.animate-fadeIn {
-  animation: fadeSlideIn 0.3s ease-out;
-}
-
-.animate-fadeIn {
-  animation: fadeIn 0.2s ease-out forwards;
-}
-
+/* Fade-in com zoom + leve deslize */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -56,4 +38,44 @@
     opacity: 1;
     transform: scale(1) translateY(0);
   }
+}
+
+/* ========================= */
+/*     ESTILOS UTILITÁRIOS   */
+/* ========================= */
+
+/* Scrollbar customizada */
+.scrollbar-thin::-webkit-scrollbar {
+  height: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: #1f2937; /* bg-gray-800 */
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: #4b5563; /* cinza médio */
+  border-radius: 10px;
+  border: 1px solid #1f2937;
+}
+
+.scrollbar-thin {
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: #4b5563 #1f2937; /* Firefox */
+}
+
+/* ========================= */
+/*     CLASSES DE ANIMAÇÃO   */
+/* ========================= */
+
+.animate-slide-in {
+  animation: slide-in 0.3s ease-out;
+}
+
+.animate-fadeSlideIn {
+  animation: fadeSlideIn 0.3s ease-out;
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.2s ease-out forwards;
 }

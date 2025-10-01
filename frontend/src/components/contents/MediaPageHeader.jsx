@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export default function MediaPageHeader({ searchQuery, setSearchQuery, sortBy, setSortBy, onSearchOrSortChange }) {
+export default function MediaPageHeader({ searchQuery, setSearchQuery, sortBy, setSortBy, onSearchOrSortChange, currentPage }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const sortOptions = [
@@ -12,13 +12,16 @@ export default function MediaPageHeader({ searchQuery, setSearchQuery, sortBy, s
   const handleOptionClick = (value) => {
     setSortBy(value);
     setIsDropdownOpen(false);
-    if (onSearchOrSortChange) onSearchOrSortChange(searchQuery, value);
+    if (onSearchOrSortChange) onSearchOrSortChange(searchQuery, value, 1);
   };
 
   const handleSearchChange = (e) => {
     const value = e.target.value;
     setSearchQuery(value);
-    if (onSearchOrSortChange) onSearchOrSortChange(value, sortBy);
+
+    const pageToUse = value.trim() === "" ? currentPage : 1;
+
+    if (onSearchOrSortChange) onSearchOrSortChange(value, sortBy, pageToUse);
   };
 
   return (
@@ -45,9 +48,7 @@ export default function MediaPageHeader({ searchQuery, setSearchQuery, sortBy, s
               <div
                 key={option.value}
                 onClick={() => handleOptionClick(option.value)}
-                className={`px-4 py-2 cursor-pointer hover:bg-blue-500 hover:text-white ${
-                  sortBy === option.value ? "bg-blue-600" : ""
-                }`}
+                className={`px-4 py-2 cursor-pointer hover:bg-blue-500 hover:text-white ${sortBy === option.value ? "bg-blue-600" : ""}`}
               >
                 {option.label}
               </div>

@@ -4,10 +4,12 @@ import { FaXTwitter } from "react-icons/fa6";
 import { useEffect, useState } from "react";
 import Portal from "./Portal";
 import { useToast } from "../hooks/useToast";
+import useLockBodyScroll from "../hooks/useLockBodyScroll";
 
 export default function ShareMediaModal({ isOpen, onClose, media }) {
   const [copied, setCopied] = useState(false);
   const { showToast } = useToast();
+  useLockBodyScroll(isOpen);
 
   useEffect(() => {
     const handleEscape = (e) => {

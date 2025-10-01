@@ -27,6 +27,12 @@ export default function MoviesPage() {
     loadMovies();
   }, [currentPage, searchQuery, sortBy]);
 
+  const handleSearchOrSortChange = (query, sort, page = 1) => {
+    setSearchQuery(query);
+    setSortBy(sort);
+    setCurrentPage(page);
+  };
+
   return (
     <div className="px-4 py-8 max-w-6xl mx-auto">
       <h2 className="text-2xl font-bold mb-4">Filmes</h2>
@@ -36,6 +42,8 @@ export default function MoviesPage() {
         setSearchQuery={setSearchQuery}
         sortBy={sortBy}
         setSortBy={setSortBy}
+        onSearchOrSortChange={handleSearchOrSortChange}
+        currentPage={currentPage}
       />
 
       <MediaGrid items={movies} />
