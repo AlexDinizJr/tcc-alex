@@ -133,7 +133,7 @@ export default function UserList() {
   if (!id || isNaN(parsedListId)) return <div className="flex justify-center items-center min-h-screen"><p className="text-lg text-gray-600">ID da lista inválido</p></div>;
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container w-full max-w-6xl mx-auto px-4 py-8">
       <div className="max-w-6xl mx-auto">
         <BackToProfile username={username} className="mb-4" />
 

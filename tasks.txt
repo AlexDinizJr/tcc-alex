@@ -6,12 +6,20 @@
 
 # MELHORIAS DE USABILIDADE E CONSISTÊNCIA - SEXTA:
 
-- Ajustar o ícone de MarkedHelpful para ficar verde caso o usuário já tenha avaliado como útil;
+Navegação:
+
 - Função de Busca:
     - Busca - Otimizar, ser mais leniente com as buscas para aceitar termos escritos errados, faltando ":", " ", "-"; não estando em Lower ou Upper Case;
 - Ordenação nas páginas de conteúdos - incosistencia quando usado outros filtros fora ordem alfabetica;
+- Ordenação padrão das páginas de conteúdos: virar popularidade/rating;
 - Voltar para página anterior quando busca e acessa a página de mídias;
+- Adicionar Actions no Card de Media;
+- Se for na página de buscar mostrar tipo;
+
+Reviews e Lists:
+
 - Consistência na Visibilidade de Listas (Se houver ao menos 1 lista pública a página de listas deve ser acessível com essa lista);
+- Ajustar o ícone de MarkedHelpful para ficar verde caso o usuário já tenha avaliado como útil;
 
 # BÔNUS: FUNCIONALIDADES EXTRAS - SÁBADO:
 
@@ -24,6 +32,7 @@
 # BÔNUS: REFINAMENTOS VISUAIS - SÁBADO:
 
 - Ajustar o componente de PlataformFilterSection;
+- Ajustar o componente de MediaCardwithActions;
 - Trocar emojis por icons;
 - Adicionar cursor-pointer no que for necessário;
 - Largura padrão das páginas;

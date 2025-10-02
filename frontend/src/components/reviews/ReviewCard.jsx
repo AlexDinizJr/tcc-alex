@@ -17,10 +17,6 @@ export default function ReviewCard({
 
   const helpfulCount = review.helpfulCount ?? 0;
 
-  // 🔥 ADICIONE ESTE CONSOLE.LOG - É MUITO IMPORTANTE!
-  console.log('ReviewCard - userMarkedHelpful:', review.userMarkedHelpful, 'Review ID:', review.id);
-
-
   const handleHelpful = () => {
     if (!onHelpfulClick) return;
     if (review.userId === currentUserId) return;

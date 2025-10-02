@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import { fetchMediaFiltered } from "../../services/mediaService";
-import MediaGrid from "../../components/contents/MediaGrid";
+import MediaCarousel from "../../components/MediaCarousel";
 import MediaPageHeader from "../../components/contents/MediaPageHeader";
 import Pagination from "../../components/Pagination";
 
 export default function MoviesPage() {
-  const itemsPerPage = 20;
+  const itemsPerPage = 30;
   const [movies, setMovies] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
@@ -46,7 +46,7 @@ export default function MoviesPage() {
         currentPage={currentPage}
       />
 
-      <MediaGrid items={movies} />
+      <MediaCarousel items={movies} />
 
       <Pagination
         currentPage={currentPage}

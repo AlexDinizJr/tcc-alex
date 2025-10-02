@@ -137,16 +137,14 @@ const reviewController = {
     }
   },
 
-  // 🔥 CORREÇÃO: Criar avaliação - Aceitar notas decimais
   async createReview(req, res) {
     try {
       const userId = req.user.id;
       const mediaId = parseInt(req.body.mediaId);
       
-      // 🔥 CORREÇÃO CRÍTICA: Validação correta de notas decimais
       let rating;
       if (typeof req.body.rating === 'string') {
-        rating = parseFloat(req.body.rating.replace(',', '.')); // Suporte a vírgula
+        rating = parseFloat(req.body.rating.replace(',', '.'));
       } else {
         rating = parseFloat(req.body.rating);
       }
@@ -161,14 +159,12 @@ const reviewController = {
         typeOfRating: typeof req.body.rating
       });
 
-      // 🔥 VALIDAÇÃO CORRIGIDA: Aceitar notas de 0.5 a 5.0
       if (!mediaId || isNaN(rating) || rating < 0.5 || rating > 5) {
         return res.status(400).json({ 
           error: 'Rating inválido. Deve ser um número entre 0.5 e 5.0' 
         });
       }
 
-      // Verifica se já existe
       const existingReview = await prisma.review.findUnique({
         where: { userId_mediaId: { userId, mediaId } }
       });
@@ -184,7 +180,7 @@ const reviewController = {
         data: { 
           userId, 
           mediaId, 
-          rating, // 🔥 Já é um float válido
+          rating,
           comment, 
           date: new Date() 
         },
@@ -207,7 +203,6 @@ const reviewController = {
     }
   },
 
-  // 🔥 CORREÇÃO: Atualizar avaliação - Aceitar notas decimais
   async updateReview(req, res) {
     try {
       const reviewId = parseInt(req.params.reviewId);
@@ -218,7 +213,6 @@ const reviewController = {
       if (!review) return res.status(404).json({ error: 'Avaliação não encontrada' });
       if (review.userId !== userId) return res.status(403).json({ error: 'Você não pode editar esta avaliação' });
 
-      // 🔥 CORREÇÃO: Processar rating corretamente
       const updateData = { date: new Date() };
       
       if (rating !== undefined) {
@@ -262,7 +256,6 @@ const reviewController = {
     }
   },
 
-  // Excluir avaliação (mantida igual)
   async deleteReview(req, res) {
     try {
       const reviewId = parseInt(req.params.reviewId);
@@ -282,7 +275,6 @@ const reviewController = {
     }
   },
 
-  // Marcar avaliação como útil (mantida igual)
   async markHelpful(req, res) {
     try {
       const reviewId = parseInt(req.params.reviewId);

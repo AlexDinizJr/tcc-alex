@@ -31,7 +31,8 @@ class StreamingService {
       'BATTLENET',
       'HULU',
       'PEACOCK',
-      'HIDIVE'
+      'HIDIVE',
+      'APPLE_STORE',
     ];
   }
 

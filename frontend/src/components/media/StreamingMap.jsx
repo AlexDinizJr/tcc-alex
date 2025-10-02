@@ -5,7 +5,8 @@ import {
   FaPlaystation,
   FaXbox, 
   FaDeezer,
-  FaBattleNet
+  FaBattleNet,
+  FaApple
 } from 'react-icons/fa';
 
 import { 
@@ -199,6 +200,12 @@ export const SERVICES = {
     icon: <IoLogoGooglePlaystore className="w-5 h-5" />,
     color: "bg-[#4285F4] hover:bg-[#3A76D9] text-white", // Azul Google
     baseUrl: "https://play.google.com/store/music/album/"
+  },
+  APPLE_STORE: {
+    name: "Apple Store",
+    icon: <FaApple className="w-5 h-5" />,
+    color: "bg-[#0A84FF] hover:bg-[#0066CC] text-white", // Azul oficial App Store
+    baseUrl: "https://apps.apple.com/app/" // URL base para aplicativos na App Store
   },
   MICROSOFT: {
     name: "Microsoft Store",

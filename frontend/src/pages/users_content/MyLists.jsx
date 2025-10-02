@@ -79,7 +79,7 @@ export default function MyLists() {
   // 🔹 Render Loading
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
+      <div className="w-full max-w-6xl mx-auto flex justify-center items-center min-h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
           <p className="text-lg font-semibold text-gray-300">Carregando...</p>

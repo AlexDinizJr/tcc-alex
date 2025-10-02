@@ -31,7 +31,7 @@ export default function TrendingSection() {
   }, []);
 
   return (
-    <div className="w-full mb-8 flex flex-col">
+    <div className="w-full max-w-6xl mx-auto mt-10 flex flex-col gap-6">
       <h2 className="text-2xl font-semibold mb-4 flex items-center gap-2">
         <IoMdTrendingUp className="w-6 h-6 text-blue-500" />
         Trendings

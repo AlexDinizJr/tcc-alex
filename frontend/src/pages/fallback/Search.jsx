@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import MediaGrid from "../../components/contents/MediaGrid";
+import MediaCarousel from "../../components/MediaCarousel";
 import Pagination from "../../components/Pagination"
 import api from "../../services/api";
 
@@ -69,7 +70,7 @@ export default function Search() {
 
             {searchResults.length > 0 ? (
               <>
-                <MediaGrid items={searchResults} />
+                <MediaCarousel items={searchResults} />
 
                 {/* Paginação */}
                 <Pagination
