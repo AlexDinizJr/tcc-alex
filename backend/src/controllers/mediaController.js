@@ -5,10 +5,10 @@ const streamingService = require('../services/streamingService');
 const getSortOption = (sortBy) => {
   const sortOptions = {
     title: { title: 'asc' },
-    rating: { rating: 'desc' },
-    year: { year: 'desc' },
-    newest: { createdAt: 'desc' },
-    popular: { reviewCount: 'desc' }
+    rating: [{ rating: 'desc' }, { title: 'asc' }],
+    year: [{ year: 'desc' }, { title: 'asc' }],
+    newest: [{ createdAt: 'desc' }, { title: 'asc' }],
+    popular: [{ reviewCount: 'desc' }, { title: 'asc' }]
   };
   return sortOptions[sortBy] || { title: 'asc' };
 };
@@ -79,44 +79,104 @@ const mediaController = {
 
   async searchMedia(req, res) {
     try {
-      const { q, type, genre, year, minRating, page = 1, limit = 20 } = req.query;
+      let { q, type, genre, year, minRating, page = 1, limit = 5000 } = req.query;
       const skip = (page - 1) * limit;
-
-      const where = {
-        type: type || undefined,
-        genres: genre ? { has: genre } : undefined,
-        year: year ? parseInt(year) : undefined,
-        rating: minRating ? { gte: parseFloat(minRating) } : undefined,
-        OR: q ? [
-          { title: { contains: q, mode: 'insensitive' } },
-          { directors: { hasSome: [q] } },
-          { artists: { hasSome: [q] } },
-          { authors: { hasSome: [q] } }
-        ] : undefined
-      };
-
       const currentUserId = req.user?.id || null;
 
-      const [media, total] = await Promise.all([
-        prisma.media.findMany({
-          where,
-          skip,
-          take: parseInt(limit),
-          orderBy: { title: 'asc' },
-          include: {
-            savedBy: currentUserId
-              ? { where: { id: currentUserId }, select: { id: true } }
-              : false,
-            favoritedBy: currentUserId
-              ? { where: { id: currentUserId }, select: { id: true } }
-              : false,
-            _count: { select: { reviews: true } }
-          }
-        }),
-        prisma.media.count({ where })
-      ]);
+      q = q ? q.trim().toLowerCase().replace(/[\s\-:]+/g, ' ') : "";
 
-      const mediaWithFlags = media.map((item) => ({
+      let whereType = type ? `AND m.type = '${type}'` : '';
+      let whereGenre = genre ? `AND '${genre}' = ANY(m.genres)` : '';
+      let whereYear = year ? `AND m.year = ${parseInt(year)}` : '';
+      let whereRating = minRating ? `AND m.rating >= ${parseFloat(minRating)}` : '';
+
+      let media = [];
+      let total = 0;
+
+      if (q) {
+        // SQL cru com busca profunda e fuzzy
+        const sql = `
+          SELECT m.*,
+            CASE 
+              WHEN LOWER(m.title) = LOWER($1) THEN 3
+              WHEN m.title ILIKE $2 THEN 2
+              WHEN m.title % $3 THEN 1
+              ELSE 0
+            END AS relevance
+          FROM "Media" m
+          WHERE (
+              m.title ILIKE '%' || $1 || '%'
+              OR m.title % $1
+              OR EXISTS (
+                SELECT 1 FROM unnest(m.directors) AS d(director)
+                WHERE d.director ILIKE '%' || $1 || '%'
+              )
+              OR EXISTS (
+                SELECT 1 FROM unnest(m.artists) AS a(artist)
+                WHERE a.artist ILIKE '%' || $1 || '%'
+              )
+              OR EXISTS (
+                SELECT 1 FROM unnest(m.authors) AS au(author)
+                WHERE au.author ILIKE '%' || $1 || '%'
+              )
+              OR m.publisher ILIKE '%' || $1 || '%'
+              OR m.developer ILIKE '%' || $1 || '%'
+          )
+          ${whereType} ${whereGenre} ${whereYear} ${whereRating}
+          ORDER BY relevance DESC, similarity(m.title, $1) DESC, m.title ASC
+          LIMIT $4 OFFSET $5
+        `;
+
+        media = await prisma.$queryRawUnsafe(sql, q, `${q}%`, q, limit, skip);
+
+        const countSql = `
+          SELECT COUNT(*)::int as total
+          FROM "Media" m
+          WHERE (
+              m.title ILIKE '%' || $1 || '%'
+              OR m.title % $1
+              OR EXISTS (
+                SELECT 1 FROM unnest(m.directors) AS d(director)
+                WHERE d.director ILIKE '%' || $1 || '%'
+              )
+              OR EXISTS (
+                SELECT 1 FROM unnest(m.artists) AS a(artist)
+                WHERE a.artist ILIKE '%' || $1 || '%'
+              )
+              OR EXISTS (
+                SELECT 1 FROM unnest(m.authors) AS au(author)
+                WHERE au.author ILIKE '%' || $1 || '%'
+              )
+              OR m.publisher ILIKE '%' || $1 || '%'
+              OR m.developer ILIKE '%' || $1 || '%'
+          )
+          ${whereType} ${whereGenre} ${whereYear} ${whereRating}
+        `;
+        const count = await prisma.$queryRawUnsafe(countSql, q);
+        total = count[0]?.total || 0;
+      } else {
+        // fallback: lista normal
+        [media, total] = await Promise.all([
+          prisma.media.findMany({
+            skip,
+            take: parseInt(limit),
+            orderBy: { title: "asc" },
+            include: {
+              savedBy: currentUserId
+                ? { where: { id: currentUserId }, select: { id: true } }
+                : false,
+              favoritedBy: currentUserId
+                ? { where: { id: currentUserId }, select: { id: true } }
+                : false,
+              _count: { select: { reviews: true } }
+            }
+          }),
+          prisma.media.count()
+        ]);
+      }
+
+      // flags de usuário
+      const mediaWithFlags = media.map(item => ({
         ...item,
         isSavedByUser: currentUserId ? item.savedBy?.length > 0 : false,
         isFavoritedByUser: currentUserId ? item.favoritedBy?.length > 0 : false
@@ -132,8 +192,10 @@ const mediaController = {
         },
         filters: { query: q, type, genre, year, minRating }
       });
-    } catch (error) {
-      res.status(500).json({ error: 'Erro interno do servidor' });
+
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Erro interno no servidor" });
     }
   },
   

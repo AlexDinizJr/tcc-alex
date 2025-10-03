@@ -25,7 +25,17 @@ export async function register(newUser) {
     const response = await api.post("/auth/register", newUser);
     return { success: true, data: response.data };
   } catch (err) {
-    return { success: false, error: err.response?.data?.message || "Erro ao registrar" };
+    let errorMessage = "Erro ao registrar";
+
+    const backendError = err.response?.data?.error || err.response?.data?.message;
+    
+    if (backendError) {
+      if (backendError.includes("Email")) errorMessage = "Este email já está cadastrado.";
+      else if (backendError.includes("Username")) errorMessage = "Este username já está em uso.";
+      else errorMessage = backendError;
+    }
+
+    return { success: false, error: errorMessage };
   }
 }
 

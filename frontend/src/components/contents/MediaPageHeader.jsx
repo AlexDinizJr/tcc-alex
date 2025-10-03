@@ -7,6 +7,8 @@ export default function MediaPageHeader({ searchQuery, setSearchQuery, sortBy, s
     { label: "Título", value: "title" },
     { label: "Avaliação", value: "rating" },
     { label: "Ano de lançamento", value: "year" },
+    { label: "Popularidade", value: "popular" },
+    { label: "Recente", value: "newest" },
   ];
 
   const handleOptionClick = (value) => {

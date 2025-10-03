@@ -157,15 +157,18 @@ export async function deleteUserCover() {
 /**
  * Deleta o perfil do usuário autenticado
  */
-export async function deleteUserProfile() {
+export async function deleteUserProfile(password) {
+  if (!password) throw new Error("Senha é obrigatória para deletar a conta");
+
   try {
-    const response = await api.delete("/users/profile");
+    const response = await api.delete("/users/profile", { data: { password } }); // aqui enviamos o body
     return response.data;
   } catch (error) {
-    const backendMessage = error.response?.data?.error || 
-                          error.response?.data?.message || 
-                          error.message || 
-                          "Erro desconhecido";
+    const backendMessage =
+      error.response?.data?.error ||
+      error.response?.data?.message ||
+      error.message ||
+      "Erro desconhecido";
 
     const deleteError = new Error(backendMessage);
     deleteError.statusCode = error.response?.status;

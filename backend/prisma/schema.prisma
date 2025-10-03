@@ -51,6 +51,7 @@ model Media {
   type           MediaType
   classification ClassificationRating?
   reviewCount    Int?                  @default(0)
+  createdAt DateTime @default(now())
 
   // Relacionamentos
   genres             String[]
@@ -69,6 +70,7 @@ model Media {
   authors   String[]
   seasons   Int?
   duration  Int?
+  tracks    Int?
   pages     Int?
   publisher String?
   developer String?

@@ -39,7 +39,7 @@ const validateMediaData = (data) => {
   });
 
   // Campos numéricos opcionais
-  ['seasons', 'duration', 'pages'].forEach((field) => {
+  ['seasons', 'duration', 'pages', 'tracks'].forEach((field) => {
     if (data[field] && isNaN(parseInt(data[field]))) {
       errors.push(`${field} deve ser um número válido.`);
     }
@@ -113,6 +113,7 @@ const adminMediaController = {
           seasons: data.seasons ? parseInt(data.seasons) : null,
           duration: data.duration ? parseInt(data.duration) : null,
           pages: data.pages ? parseInt(data.pages) : null,
+          tracks: data.tracks ? parseInt(data.tracks) : null,
           publisher: data.publisher || null
         }
         // REMOVIDO include - arrays já vêm na resposta
@@ -171,6 +172,7 @@ const adminMediaController = {
           seasons: data.seasons !== undefined ? (data.seasons ? parseInt(data.seasons) : null) : existingMedia.seasons,
           duration: data.duration !== undefined ? (data.duration ? parseInt(data.duration) : null) : existingMedia.duration,
           pages: data.pages !== undefined ? (data.pages ? parseInt(data.pages) : null) : existingMedia.pages,
+          tracks: data.tracks !== undefined ? (data.tracks ? parseInt(data.tracks) : null) : existingMedia.tracks,
           publisher: data.publisher !== undefined ? data.publisher : existingMedia.publisher
         }
         // REMOVIDO include

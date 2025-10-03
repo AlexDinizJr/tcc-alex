@@ -8,19 +8,19 @@ export default function DeleteAccountModal({ onClose }) {
   const navigate = useNavigate();
   const { showToast } = useToast();
 
-  const [confirmationText, setConfirmationText] = useState("");
+  const [password, setPassword] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
 
   const handleDeleteAccount = async () => {
-    if (confirmationText !== "EXCLUIR CONTA") {
-      showToast("Por favor, digite 'EXCLUIR CONTA' para confirmar.", "warning");
+    if (!password) {
+      showToast("Por favor, digite sua senha para confirmar.", "warning");
       return;
     }
 
     setIsDeleting(true);
 
     try {
-      await deleteAccount();
+      await deleteAccount(password); // envia a senha
       navigate("/");
       showToast("Sua conta foi excluída com sucesso.", "success");
     } catch (error) {
@@ -43,13 +43,13 @@ export default function DeleteAccountModal({ onClose }) {
 
           <div className="bg-red-800/30 p-4 rounded-lg border border-red-700/50">
             <p className="text-sm text-red-300 font-medium mb-2">
-              Para confirmar, digite <strong>EXCLUIR CONTA</strong> abaixo:
+              Para confirmar, digite sua senha:
             </p>
             <input
-              type="text"
-              value={confirmationText}
-              onChange={(e) => setConfirmationText(e.target.value.toUpperCase())}
-              placeholder="EXCLUIR CONTA"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Senha"
               className="w-full px-3 py-2 border border-red-600 rounded-lg bg-gray-800 text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
             />
           </div>
@@ -64,7 +64,7 @@ export default function DeleteAccountModal({ onClose }) {
             </button>
             <button
               onClick={handleDeleteAccount}
-              disabled={isDeleting || confirmationText !== "EXCLUIR CONTA"}
+              disabled={isDeleting || !password}
               className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
             >
               {isDeleting ? "Excluindo..." : "Excluir Conta"}

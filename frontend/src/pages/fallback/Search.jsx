@@ -1,57 +1,54 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import MediaGrid from "../../components/contents/MediaGrid";
 import MediaCarousel from "../../components/MediaCarousel";
-import Pagination from "../../components/Pagination"
-import api from "../../services/api";
+import Pagination from "../../components/Pagination"; // seu componente de paginação
+import { searchMediaByQuery } from "../../services/mediaService";
 
 export default function Search() {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
-  const query = queryParams.get("q") || "";
+  const query = String(queryParams.get("q") || "").trim();
 
   const [searchResults, setSearchResults] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const itemsPerPage = 20;
 
-  const [totalResults, setTotalResults] = useState(0);
+  // calcular total de páginas com base nos resultados
+  const totalPages = Math.ceil(searchResults.length / itemsPerPage);
+
+  // slice dos resultados para mostrar apenas a página atual
+  const paginatedResults = searchResults.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   useEffect(() => {
     const fetchResults = async () => {
-      if (!query.trim()) {
+      if (!query) {
         setSearchResults([]);
         setCurrentPage(1);
-        setTotalPages(1);
-        setTotalResults(0);
         return;
       }
 
       setLoading(true);
       try {
-        const response = await api.get("/media/search", {
-          params: { q: query, page: currentPage, limit: itemsPerPage },
-        });
-
-        const { results, pagination } = response.data;
-
-        setSearchResults(Array.isArray(results) ? results : []);
-        setTotalPages(pagination?.pages || 1);
-        setTotalResults(pagination?.total || 0); // <-- total de resultados
+        // busca todos os resultados do backend
+        const results = await searchMediaByQuery(query);
+        setSearchResults(results || []);
+        setCurrentPage(1); // resetar página ao mudar query
       } catch (error) {
         console.error("Erro ao buscar mídias:", error);
         setSearchResults([]);
-        setTotalPages(1);
-        setTotalResults(0);
+        setCurrentPage(1);
       } finally {
         setLoading(false);
       }
     };
 
     fetchResults();
-  }, [query, currentPage]);
+  }, [query]);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -65,14 +62,13 @@ export default function Search() {
         ) : query ? (
           <>
             <p className="text-gray-600 mb-6 text-center">
-              {totalResults} resultado(s) encontrado(s)
+              {searchResults.length} resultado(s) encontrado(s)
             </p>
 
-            {searchResults.length > 0 ? (
+            {paginatedResults.length > 0 ? (
               <>
-                <MediaCarousel items={searchResults} />
+                <MediaCarousel items={paginatedResults} />
 
-                {/* Paginação */}
                 <Pagination
                   currentPage={currentPage}
                   totalPages={totalPages}

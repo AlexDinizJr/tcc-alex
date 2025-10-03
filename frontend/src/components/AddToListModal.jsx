@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { FiX } from "react-icons/fi";
 
-
 export default function AddToListModal({ mediaItem, userLists, onAddToList, onClose }) {
   const [selectedList, setSelectedList] = useState("");
   const [createNewList, setCreateNewList] = useState(false);

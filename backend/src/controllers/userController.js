@@ -385,27 +385,45 @@ const userController = {
   async deleteProfile(req, res) {
     try {
       const userId = req.user.id;
+      const { password } = req.body;
 
-      // Opcional: deletar imagens associadas
-      const user = await prisma.user.findUnique({ where: { id: userId }, select: { avatar: true, coverImage: true } });
-
-      if (user.avatar) {
-        const avatarFilename = user.avatar.split('/').pop();
-        await imageProcessingService.deleteOldImages([avatarFilename], 'avatar');
+      if (!password) {
+        return res.status(400).json({ error: "Senha é obrigatória para excluir a conta." });
       }
 
+      // Buscar usuário com hash da senha
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { password: true, avatar: true, coverImage: true }
+      });
+
+      if (!user) {
+        return res.status(404).json({ error: "Usuário não encontrado." });
+      }
+
+      // Verificar senha
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+      if (!isPasswordValid) {
+        return res.status(401).json({ error: "Senha incorreta." });
+      }
+
+      // Deletar imagens associadas, se houver
+      if (user.avatar) {
+        const avatarFilename = user.avatar.split("/").pop();
+        await imageProcessingService.deleteOldImages([avatarFilename], "avatar");
+      }
       if (user.coverImage) {
-        const coverFilename = user.coverImage.split('/').pop();
-        await imageProcessingService.deleteOldImages([coverFilename], 'cover');
+        const coverFilename = user.coverImage.split("/").pop();
+        await imageProcessingService.deleteOldImages([coverFilename], "cover");
       }
 
       // Deletar usuário do banco
       await prisma.user.delete({ where: { id: userId } });
 
-      res.json({ message: 'Perfil deletado com sucesso' });
+      res.json({ message: "Perfil deletado com sucesso" });
     } catch (error) {
-      console.error('Erro ao deletar perfil:', error);
-      res.status(500).json({ error: 'Erro interno do servidor' });
+      console.error("Erro ao deletar perfil:", error);
+      res.status(500).json({ error: "Erro interno do servidor" });
     }
   }
   

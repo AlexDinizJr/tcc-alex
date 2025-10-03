@@ -240,10 +240,12 @@ export function AuthProvider({ children }) {
 
   // --- DELETE ACCOUNT ---
 
-    const deleteAccount = async () => {
+  const deleteAccount = async (password) => {
     if (!user) return;
+    if (!password) throw new Error("Senha é obrigatória para deletar a conta");
+
     try {
-      await deleteUserProfile();
+      await deleteUserProfile(password); // envia a senha para o backend
       logout();
       return true;
     } catch (error) {

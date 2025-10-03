@@ -4,37 +4,23 @@
 
 - Algoritmo de GetUserRecommendations - não está funcionando corretamente;
 
-# MELHORIAS DE USABILIDADE E CONSISTÊNCIA - SEXTA:
-
-Navegação:
-
-- Função de Busca:
-    - Busca - Otimizar, ser mais leniente com as buscas para aceitar termos escritos errados, faltando ":", " ", "-"; não estando em Lower ou Upper Case;
-- Ordenação nas páginas de conteúdos - incosistencia quando usado outros filtros fora ordem alfabetica;
-- Ordenação padrão das páginas de conteúdos: virar popularidade/rating;
-- Voltar para página anterior quando busca e acessa a página de mídias;
-- Adicionar Actions no Card de Media;
-- Se for na página de buscar mostrar tipo;
-
-Reviews e Lists:
-
-- Consistência na Visibilidade de Listas (Se houver ao menos 1 lista pública a página de listas deve ser acessível com essa lista);
-- Ajustar o ícone de MarkedHelpful para ficar verde caso o usuário já tenha avaliado como útil;
-
 # BÔNUS: FUNCIONALIDADES EXTRAS - SÁBADO:
 
 - Adicionar Formulário de Pedidos e Aviso de Erros;
 - Adicionar página de All Lists - todas as listas do site;
 - Adicionar opções de Filtragem para Páginas de Conteúdo;
+
 - Implementar no footer as seções de suporte, newsletter, termos de uso, cookies;
-- Adicionar campos de idade, gênero e localidade aos usuários.
+- Adicionar campos de idade, gênero e localidade aos usuários;
+
+- Pesquisa de Filmes e Séries em Sites relacionados.
 
 # BÔNUS: REFINAMENTOS VISUAIS - SÁBADO:
 
 - Ajustar o componente de PlataformFilterSection;
-- Ajustar o componente de MediaCardwithActions;
 - Trocar emojis por icons;
 - Adicionar cursor-pointer no que for necessário;
+- Wallpaper Overlay nas páginas dedicadas;
 - Largura padrão das páginas;
 
 # BÔNUS: ADIÇÃO DE IMAGENS AS MÍDIAS - DOMINGO:
@@ -59,8 +45,11 @@ Reviews e Lists:
 
 # POST LAUNCH - TRATAMENTO DE ERROS E FEEDBACKS:
 
+- Consistência na Visibilidade de Listas (Se houver ao menos 1 lista pública a página de listas deve ser acessível com essa lista);
+- Ajustar o ícone de MarkedHelpful para ficar verde caso o usuário já tenha avaliado como útil;
 - Adicionar os Modais de Confirmação de Logout e Delete Review;
 - Ajustar todos os Modais para usarem o hook useBodyLockScroll;
+
 - Ajustar o Toast de feedback para o usuário informando que ele já adicionou o item aos excluídos;
 - Ajustar o Toast de feedback para o usuário informando que ele está tentando marcar a própria review como útil;
 - Ajustar o Toast de feedback para o usuário informando se o item já está na lista;

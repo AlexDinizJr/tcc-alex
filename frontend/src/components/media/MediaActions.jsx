@@ -3,7 +3,7 @@ import { FaBookmark, FaHeart, FaPlus } from "react-icons/fa";
 import { FiShare2 } from "react-icons/fi";
 import { useAuth } from "../../hooks/useAuth";
 import { useToast } from "../../hooks/useToast";
-import AddToListModal from "./AddToListModal";
+import AddToListModal from "../AddToListModal";
 import ShareMediaModal from "../ShareMediaModal";
 
 export default function MediaActions({ mediaItem }) {
