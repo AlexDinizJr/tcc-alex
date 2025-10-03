@@ -3,43 +3,46 @@ import api from "./api";
 /**
  * Busca recomendações para o usuário logado
  */
+/**
+ * Busca recomendações para o usuário logado
+ */
 export async function fetchUserRecommendations(params = {}) {
   try {
     console.log("🌐 [FRONT] Chamando API de recomendações com params:", params);
     const response = await api.get("/recommendations", { params });
     console.log("✅ [FRONT] Resposta da API:", response.data);
-    return response.data;
+    return response.data?.data || []; // retorna só o array de recomendações
   } catch (error) {
     console.error("❌ [FRONT] Erro na API de recomendações:", error);
-    throw error;
+    return []; // fallback
   }
 }
 
 /**
- * Busca recomendações personalizadas para o usuário logado
+ * Busca recomendações personalizadas (com filtros)
  */
 export async function fetchCustomRecommendations(params = {}) {
   try {
-    console.log("🌐 [FRONT] Chamando API de recomendações com params:", params);
     const response = await api.get("/recommendations/custom", { params });
-    console.log("✅ [FRONT] Resposta da API:", response.data);
-    return response.data;
+    return response.data?.data.slice(0, 4) || [];
   } catch (error) {
     console.error("❌ [FRONT] Erro na API de recomendações:", error);
-    throw error;
+    return [];
   }
 }
-
 /**
  * Busca conteúdo em alta (trending)
  */
-export async function fetchTrending() {
-  const res = await fetch(`${import.meta.env.VITE_API_URL}/recommendations/trending`);
-  if (!res.ok) throw new Error("Erro ao buscar trending");
-
-  const result = await res.json();
-  
-  return result.data?.trending.slice(0, 5) || [];
+export async function fetchTrending(limit = 5) {
+  try {
+    const response = await api.get("/recommendations/trending", {
+      params: { limit: parseInt(limit) },
+    });
+    return response.data; // { success, data, count }
+  } catch (error) {
+    console.error("❌ [FRONT] Erro em fetchTrending:", error);
+    throw error;
+  }
 }
 
 /**
@@ -51,7 +54,6 @@ export async function fetchSimilarMedia(mediaId, options = {}) {
     const response = await api.get(`/recommendations/similar/${mediaId}`, { params: options });
     console.log("✅ Resposta da API (similar):", response.data);
 
-    // ⚡ Aqui pegamos o array correto dentro de data
     const similarArray = Array.isArray(response.data?.data?.similarMedia)
       ? response.data.data.similarMedia.slice(0, 4) // Limitando a 4 itens
       : [];
@@ -64,63 +66,38 @@ export async function fetchSimilarMedia(mediaId, options = {}) {
 }
 
 /**
- * Pegar as preferências iniciais do usuário com base nas mídias selecionadas
+ * Preferências iniciais (onboarding)
  */
 export async function buildUserInitialPreferences(selectedMediaIds = []) {
   try {
-    console.log("🌐 [FRONT] Enviando mídias selecionadas para gerar preferências iniciais:", selectedMediaIds);
+    if (!Array.isArray(selectedMediaIds) || selectedMediaIds.length === 0) {
+      throw new Error("❌ selectedMediaIds deve ser um array não vazio");
+    }
 
     const response = await api.post("/recommendations/initial-preferences", {
-      selectedMediaIds
+      selectedMediaIds,
     });
 
-    console.log("✅ [FRONT] Preferências iniciais recebidas:", response.data);
-    return response.data;
+    return response.data; // { success, data }
   } catch (error) {
-    console.error("❌ [FRONT] Erro ao gerar preferências iniciais:", error.response?.data || error);
-    return null;
+    console.error("❌ [FRONT] Erro em buildUserInitialPreferences:", error);
+    throw error;
   }
 }
 
 /**
- * Excluir mídia das recomendações do usuário
+ * Excluir mídia das recomendações
  */
 export async function excludeFromRecommendations(mediaId, body = {}) {
   try {
+    if (!mediaId || isNaN(parseInt(mediaId))) {
+      throw new Error("❌ mediaId inválido para exclusão");
+    }
+
     const response = await api.post(`/recommendations/exclude/${mediaId}`, body);
-    return response.data; // Retorna o que a API manda
+    return response.data; // { success, message, data }
   } catch (error) {
-    console.error(`Erro ao excluir mídia ${mediaId} das recomendações:`, error.response?.data || error);
-    throw error; // Propaga o erro em vez de retornar null
-  }
-}
-
-/**
- * As funções abaixo são para métricas e tracking de engajamento não necessárias para o funcionamento básico das recomendações
- */
-
-/**
- * Buscar métricas de recomendações
- */
-export async function fetchRecommendationMetrics(params = {}) {
-  try {
-    const response = await api.get("/recommendations/metrics", { params });
-    return response.data;
-  } catch (error) {
-    console.error("Erro ao buscar métricas de recomendações:", error.response?.data || error);
-    return null;
-  }
-}
-
-/**
- * Registrar engajamento do usuário com uma mídia
- */
-export async function trackEngagement(data) {
-  try {
-    const response = await api.post("/recommendations/track", data);
-    return response.data;
-  } catch (error) {
-    console.error("Erro ao registrar engajamento:", error.response?.data || error);
-    return null;
+    console.error(`❌ [FRONT] Erro em excludeFromRecommendations(${mediaId}):`, error);
+    throw error;
   }
 }

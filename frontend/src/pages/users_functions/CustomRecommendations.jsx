@@ -87,12 +87,10 @@ export default function CustomRecommendations() {
       console.log("📤 Enviando parâmetros para API:", params);
 
       // Chama a API do backend
-      const result = await fetchCustomRecommendations(params);
-
-      const recommendationsArray = result?.data?.recommendations.slice(0, 5) ?? [];
+      const recommendationsArray = await fetchCustomRecommendations(params);
       setRecommendations(recommendationsArray);
       
-      console.log("📥 Resposta da API:", result);
+      console.log("📥 Resposta da API:", recommendationsArray);
 
     } catch (error) {
       console.error('❌ Erro ao gerar recomendações:', error);

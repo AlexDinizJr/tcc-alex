@@ -8,9 +8,8 @@ const {
   getSimilarMedia,
   getInitialPreferences,
   excludeFromRecommendations,
-  getRecommendationMetrics,
-  trackEngagement,
-  getCustomRecommendations
+  getCustomRecommendations,
+  getUserPreferences
 } = require('../controllers/recommendationController');
 
 /**
@@ -36,18 +35,17 @@ const {
  *           type: integer
  *           default: 10
  *       - in: query
- *         name: algorithm
+ *         name: userId
  *         schema:
- *           type: string
- *           enum: [collaborative, content-based, engagement, trending, hybrid]
- *           default: hybrid
+ *           type: integer
+ *         description: ID do usuário (alternativa ao JWT)
  *     responses:
  *       200:
  *         description: Lista de recomendações personalizadas
  *       401:
  *         description: Usuário não autenticado
  */
-router.get('/', getUserRecommendations);
+router.get('/', authenticateToken, getUserRecommendations);
 
 /**
  * @swagger
@@ -107,7 +105,6 @@ router.get('/', getUserRecommendations);
  */
 router.get('/custom', authenticateToken, getCustomRecommendations);
 
-
 /**
  * @swagger
  * /api/recommendations/trending:
@@ -148,7 +145,7 @@ router.get('/trending', getTrending);
  *         name: limit
  *         schema:
  *           type: integer
- *           default: 6
+ *           default: 4
  *       - in: query
  *         name: excludeOriginal
  *         schema:
@@ -225,58 +222,27 @@ router.post('/initial-preferences', authenticateToken, getInitialPreferences);
 
 /**
  * @swagger
- * /api/recommendations/metrics:
+ * /api/recommendations/preferences:
  *   get:
- *     summary: Buscar métricas de recomendações (para admin/dashboard)
- *     tags: [Recommendations]
- *     parameters:
- *       - in: query
- *         name: timeRange
- *         schema:
- *           type: integer
- *           default: 30
- *       - in: query
- *         name: detailed
- *         schema:
- *           type: boolean
- *           default: false
- *     responses:
- *       200:
- *         description: Métricas de recomendações
- */
-router.get('/metrics', getRecommendationMetrics);
-
-/**
- * @swagger
- * /api/recommendations/track:
- *   post:
- *     summary: Registrar engajamento do usuário com uma mídia
+ *     summary: Obter preferências do usuário
+ *     description: Retorna as preferências do usuário com base em reviews, saved e favoritos. Pode ser testado no Swagger usando o token de autenticação ou passando userId.
  *     tags: [Recommendations]
  *     security:
  *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - mediaId
- *               - action
- *             properties:
- *               mediaId:
- *                 type: integer
- *               action:
- *                 type: string
- *                 enum: [view, save, favorite, share, click, watch]
- *               metadata:
- *                 type: object
- *               source:
- *                 type: string
+ *     parameters:
+ *       - in: query
+ *         name: userId
+ *         schema:
+ *           type: integer
+ *         description: ID do usuário (opcional se JWT fornecido)
  *     responses:
  *       200:
- *         description: Engajamento registrado com sucesso
+ *         description: Preferências do usuário
+ *       400:
+ *         description: ID do usuário inválido
+ *       500:
+ *         description: Erro ao buscar preferências
  */
-router.post('/track', trackEngagement);
+router.get('/preferences', authenticateToken, getUserPreferences);
 
 module.exports = router;

@@ -29,6 +29,7 @@ model User {
   favorites  Media[]  @relation("Favorites")
   excludedMedia      UserExcludedMedia[]
   recommendationEngagements RecommendationEngagement[]
+  initialPreferences UserInitialPreference[]
 
   // Configurações de privacidade
   profileVisibility String             @default("public")
@@ -62,6 +63,7 @@ model Media {
   lists              List[]
   excludedBy         UserExcludedMedia[]
   recommendationEngagements RecommendationEngagement[]
+  initialPreferences UserInitialPreference[]
 
   // Campos opcionais específicos
   artists   String[]
@@ -165,6 +167,17 @@ model UserExcludedMedia {
 
   user      User     @relation(fields: [userId], references: [id])
   media     Media    @relation(fields: [mediaId], references: [id])
+
+  @@unique([userId, mediaId])
+}
+
+model UserInitialPreference {
+  id      Int    @id @default(autoincrement())
+  userId  Int
+  mediaId Int
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  media Media @relation(fields: [mediaId], references: [id])
 
   @@unique([userId, mediaId])
 }

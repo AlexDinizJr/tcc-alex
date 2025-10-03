@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { FaStar } from "react-icons/fa";
 import { useAppNavigate } from "../../hooks/useAppNavigate";
 import { fetchMediaFiltered } from "../../services/mediaService";
 import { useToast } from "../../hooks/useToast";
@@ -125,11 +126,6 @@ export default function Preferences() {
                   <p className="font-semibold text-xs mb-1 line-clamp-2">{media.title}</p>
                   <span className="text-xs text-gray-300 block capitalize">{media.type || 'Sem tipo'}</span>
                   {media.year && <span className="text-xs text-gray-400">({media.year})</span>}
-                  {media.rating && (
-                    <span className="text-xs text-yellow-400 block mt-1">
-                      ⭐ {media.rating}
-                    </span>
-                  )}
                 </div>
               ))}
             </div>

@@ -2,24 +2,20 @@ import { useState, useEffect, useCallback } from "react";
 import MediaCarousel from "../MediaCarousel";
 import { SlLike } from "react-icons/sl";
 import { fetchUserRecommendations } from "../../services/recommendationService";
+import { useAuth } from "../../hooks/useAuth"
 
 export default function RecommendationGrid() {
   const [recommendations, setRecommendations] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const { user } = useAuth();
 
   const loadRecommendations = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
-      const data = await fetchUserRecommendations({ limit: 5, algorithm: "content-based" });
-      setRecommendations(() => {
-        if (Array.isArray(data)) return data;
-        if (Array.isArray(data?.recommendations)) return data.recommendations;
-        if (Array.isArray(data?.data?.recommendations)) return data.data.recommendations;
-        console.warn("⚠️ [FRONT] Nenhuma recomendação encontrada no payload:", data);
-        return [];
-      });
+      const recommendations = await fetchUserRecommendations({ limit: 5, userId: user.id });
+      setRecommendations(recommendations);
     } catch {
       setError("Não foi possível carregar as recomendações.");
     } finally {

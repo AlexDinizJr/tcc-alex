@@ -1,58 +1,13 @@
 const recommendationEngine = require('../algorithms/recommendationEngine');
-
-// --- Configuração do cache ---
-const CACHE_TTL = 1000 * 60 * 5; // 5 minutos
-const cachedUserRecs = new Map(); // userId -> { data, updatedAt }
+const prisma = require('../utils/database');
 
 const recommendationService = {
 
   // ------------------------------
-  // Função privada: atualiza recomendações do usuário
+  // Recomendações baseadas no usuário
   // ------------------------------
-  async refreshUserRecommendations(userId, limit = 5) {
-    const prefs = await recommendationEngine.getUserPreferences(userId);
-    const interactionCount = Object.keys(prefs).length;
-
-    let recommendations;
-    if (interactionCount < 3) {
-      recommendations = await recommendationEngine.getHybridRecommendations(userId, limit);
-    } else {
-      recommendations = await recommendationEngine.getUserRecommendations(userId, limit);
-    }
-
-    cachedUserRecs.set(userId, {
-      data: recommendations,
-      updatedAt: Date.now()
-    });
-
-    return recommendations;
-  },
-
-  // ------------------------------
-  // Função pública: retorna cache ou atualiza se necessário
-  // ------------------------------
-  async getCachedUserRecommendations(userId, limit = 5) {
-    const cacheEntry = cachedUserRecs.get(userId);
-    const now = Date.now();
-
-    if (cacheEntry && (now - cacheEntry.updatedAt < CACHE_TTL)) {
-      return cacheEntry.data;
-    }
-
-    return this.refreshUserRecommendations(userId, limit);
-  },
-
-  // ------------------------------
-  // Recomendações baseadas no usuário (usa cache automaticamente)
-  // ------------------------------
-  async getUserRecommendations(userId, options = {}) {
-    const { limit = 5 } = options;
-
-    if (!userId) {
-      return recommendationEngine.getColdStartRecommendations(userId, limit);
-    }
-
-    return this.getCachedUserRecommendations(userId, limit);
+  async getUserRecommendations(userId) {
+    return recommendationEngine.getUserRecommendations(userId, limit = 5, {});
   },
 
   // ------------------------------
@@ -63,17 +18,23 @@ const recommendationService = {
   },
 
   // ------------------------------
-  // Preferências iniciais do usuário (cold start)
+  // Preferências iniciais do usuário (onboarding)
   // ------------------------------
   async getInitialPreferences(userId, selectedMediaIds = []) {
-    return recommendationEngine.buildUserInitialPreferences(userId, selectedMediaIds);
+    await prisma.userInitialPreference.deleteMany({ where: { userId } });
+
+    // Criar novas preferências
+    const createData = selectedMediaIds.map(mediaId => ({ userId, mediaId }));
+    await prisma.userInitialPreference.createMany({ data: createData });
+
+    // Retornar algo útil, por exemplo as mídias selecionadas
+    return prisma.media.findMany({ where: { id: { in: selectedMediaIds } } });
   },
 
   // ------------------------------
-  // Excluir mídia das recomendações (invalida cache)
+  // Excluir mídia das recomendações
   // ------------------------------
   async excludeMedia(userId, mediaId, months = 3) {
-    cachedUserRecs.delete(userId); // invalida cache
     return recommendationEngine.excludeMediaForUser(userId, mediaId, months);
   },
 
@@ -81,19 +42,8 @@ const recommendationService = {
   // Conteúdo em alta
   // ------------------------------
   async getTrendingMedia(options = {}) {
-    const { limit = 5, type, genre } = options;
-
-    let trending = await recommendationEngine.getTrendingMedia(limit * 2);
-
-    if (type || genre) {
-      trending = trending.filter(media => {
-        const typeMatch = !type || media.type === type;
-        const genreMatch = !genre || media.genres.includes(genre);
-        return typeMatch && genreMatch;
-      });
-    }
-
-    return trending.slice(0, limit);
+    const { limit = 5 } = options;
+    return recommendationEngine.getTrendingMedia(limit);
   },
 
   // ------------------------------
@@ -105,26 +55,11 @@ const recommendationService = {
   },
 
   // ------------------------------
-  // Track de engajamento (invalida cache)
+  // Preferências de Usuário
   // ------------------------------
-  async trackEngagement(userId, mediaId, action, metadata = {}) {
-    cachedUserRecs.delete(userId); // invalida cache
-    return recommendationEngine.trackRecommendationEngagement(userId, mediaId, action, metadata);
-  },
-
-  // ------------------------------
-  // Métricas de recomendação
-  // ------------------------------
-  async getMetrics(timeRange = 30) {
-    return recommendationEngine.getRecommendationMetrics(timeRange);
-  },
-
-  // ------------------------------
-  // Métricas de similaridade
-  // ------------------------------
-  async getSimilarityMetrics(mediaId, similarMedia) {
-    return recommendationEngine.getSimilarityMetrics(mediaId, similarMedia);
-  },
+  async getUserPreferences(userId) {
+    return recommendationEngine.getUserPreferences(userId);
+  }
 
 };
 

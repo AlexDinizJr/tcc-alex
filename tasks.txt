@@ -1,17 +1,10 @@
 ***REVISÃO DA APLICAÇÃO***
 
-# AJUSTES CRÍTICOS NECESSÁRIOS - SEXTA:
-
-- Algoritmo de GetUserRecommendations - não está funcionando corretamente;
-
 # BÔNUS: FUNCIONALIDADES EXTRAS - SÁBADO:
 
 - Adicionar Formulário de Pedidos e Aviso de Erros;
 - Adicionar página de All Lists - todas as listas do site;
 - Adicionar opções de Filtragem para Páginas de Conteúdo;
-
-- Implementar no footer as seções de suporte, newsletter, termos de uso, cookies;
-- Adicionar campos de idade, gênero e localidade aos usuários;
 
 - Pesquisa de Filmes e Séries em Sites relacionados.
 
@@ -45,6 +38,8 @@
 
 # POST LAUNCH - TRATAMENTO DE ERROS E FEEDBACKS:
 
+- Implementar no footer as seções de suporte, newsletter, termos de uso, cookies;
+- Adicionar campos de idade, gênero e localidade aos usuários;
 - Consistência na Visibilidade de Listas (Se houver ao menos 1 lista pública a página de listas deve ser acessível com essa lista);
 - Ajustar o ícone de MarkedHelpful para ficar verde caso o usuário já tenha avaliado como útil;
 - Adicionar os Modais de Confirmação de Logout e Delete Review;
