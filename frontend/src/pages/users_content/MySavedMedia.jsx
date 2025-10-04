@@ -1,14 +1,12 @@
 import { useState, useMemo, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
-import MediaPageHeader from "../../components/contents/MediaPageHeader";
 import MediaGrid from "../../components/contents/MediaGrid";
 import Pagination from "../../components/Pagination";
 import { BackToProfile } from "../../components/profile/BackToProfile";
 import { fetchUserByUsername } from "../../services/userService";
 import { fetchUserSavedMedia } from "../../services/listsService";
 
-// normaliza diferentes formatos de dados que a API pode retornar
 function normalizeMediaList(data) {
   if (!data) return [];
   if (Array.isArray(data)) return data;
@@ -29,10 +27,8 @@ export default function MySavedItems() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const itemsPerPage = 20;
+  const itemsPerPage = 30;
   const [currentPage, setCurrentPage] = useState(1);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [sortBy, setSortBy] = useState("");
 
   useEffect(() => {
     let active = true;
@@ -83,22 +79,8 @@ export default function MySavedItems() {
   const filteredAndSortedMedia = useMemo(() => {
     let items = [...savedMedia];
 
-    if (searchQuery.trim() !== "") {
-      items = items.filter((m) =>
-        (m.title || "").toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-
-    if (sortBy === "title") {
-      items.sort((a, b) => (a.title || "").localeCompare(b.title || ""));
-    } else if (sortBy === "rating") {
-      items.sort((a, b) => (b.rating || 0) - (a.rating || 0));
-    } else if (sortBy === "year") {
-      items.sort((a, b) => (b.year || 0) - (a.year || 0));
-    }
-
     return items;
-  }, [savedMedia, searchQuery, sortBy]);
+  }, [savedMedia]);
 
   const totalPages = Math.max(
     1,
@@ -143,7 +125,7 @@ export default function MySavedItems() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-6xl mx-auto">
-        <div className="mb-4">
+        <div className="mb-8">
           <BackToProfile username={username} />
         </div>
 
@@ -153,15 +135,6 @@ export default function MySavedItems() {
           </h1>
           <p className="text-gray-400">{savedMedia.length} itens salvos</p>
         </div>
-
-        <MediaPageHeader
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          sortBy={sortBy}
-          setSortBy={setSortBy}
-          sortOptions={["title", "rating", "year"]}
-          searchPlaceholder="Pesquisar itens salvos..."
-        />
 
         <MediaGrid
           items={savedMediaToShow}

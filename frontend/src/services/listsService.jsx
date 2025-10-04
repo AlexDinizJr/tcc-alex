@@ -1,15 +1,41 @@
 import api from "./api";
 
+
+/**
+ * Busca todas as listas com filtros simples
+ */
+export async function fetchAllLists({ search = "", page = 1, limit = 12 } = {}) {
+  try {
+    const response = await api.get("/lists", {
+      params: { search, page, limit }
+    });
+
+    return {
+      lists: response.data.lists || [],
+      pagination: response.data.pagination || { page, pages: 1, total: 0 }
+    };
+  } catch (err) {
+    console.error("Erro ao buscar listas:", err.response?.data || err);
+    return { lists: [], pagination: { page, pages: 1, total: 0 } };
+  }
+}
+
 /**
  * Busca todas as listas de um usuário
  */
-export async function fetchUserLists(userId, includeItems = true) {
+export async function fetchUserLists(userId, page = 1, limit = 6) {
   try {
-    const params = { includeItems }; 
-    const response = await api.get(`/lists/user/${userId}`, { params });
+    const response = await api.get(`/lists/user/${userId}`, {
+      params: {
+        page,
+        limit,
+        includeItems: true // garante que os items venham
+      }
+    });
     return response.data;
   } catch (err) {
-    throw new Error(err.response?.data?.message || "Erro ao buscar listas do usuário");
+    console.error("Erro ao buscar listas do usuário:", err);
+    return { lists: [], pagination: { total: 0 } };
   }
 }
 

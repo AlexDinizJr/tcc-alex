@@ -51,4 +51,56 @@ async function sendPasswordRecovery(to, token) {
   }
 }
 
-module.exports = { sendPasswordRecovery, sendWelcomeEmail };
+async function sendReportEmail({ userEmail, mediaTitle, mediaId, issue, details }) {
+  const mailOptions = {
+    from: `"MediaHub Reports" <${process.env.SMTP_USER}>`, // remetente válido
+    replyTo: userEmail, // se você clicar em "responder", vai para o usuário
+    to: process.env.SMTP_USER, // seu email de suporte
+    subject: `🚨 Report de problema - ${mediaTitle}`,
+    html: `
+      <h3>Problema reportado no MediaHub</h3>
+      <p><strong>Mídia:</strong> ${mediaTitle} (ID: ${mediaId})</p>
+      <p><strong>Problema:</strong> ${issue}</p>
+      <p><strong>Detalhes adicionais:</strong> ${details || "Nenhum detalhe informado"}</p>
+      <p><em>Enviado por: ${userEmail}</em></p>
+    `
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`Email de relatório enviado para ${process.env.SMTP_USER}`);
+  } catch (err) {
+    console.error("Erro ao enviar email de relatório:", err);
+    throw err;
+  }
+}
+
+async function sendRequestEmail({ userEmail, requestType, details }) {
+  const mailOptions = {
+    from: `"MediaHub Requests" <${process.env.SMTP_USER}>`, // remetente válido
+    replyTo: userEmail, // replyTo para responder ao usuário
+    to: process.env.SMTP_USER,
+    subject: `📬 Pedido de ${requestType} - MediaHub`,
+    html: `
+      <h3>Novo pedido recebido</h3>
+      <p><strong>Tipo de pedido:</strong> ${requestType}</p>
+      <p><strong>Detalhes:</strong> ${details}</p>
+      <p><em>Enviado por: ${userEmail || 'Usuário anônimo'}</em></p>
+    `
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`Email de pedido enviado para ${process.env.SMTP_USER}`);
+  } catch (err) {
+    console.error("Erro ao enviar email de pedido:", err);
+    throw err;
+  }
+}
+
+module.exports = {
+  sendPasswordRecovery,
+  sendWelcomeEmail,
+  sendReportEmail,
+  sendRequestEmail
+};

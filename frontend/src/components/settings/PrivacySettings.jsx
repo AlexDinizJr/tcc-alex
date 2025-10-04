@@ -1,14 +1,14 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../../hooks/useAuth";
-import { useToast } from "../../hooks/useToast"; // 🔥 IMPORTE O HOOK DO TOAST
+import { useToast } from "../../hooks/useToast";
 
 export default function PrivacySettings() {
   const { user, updatePrivacy } = useAuth();
-  const { showToast } = useToast(); // 🔥 INICIALIZE O HOOK
+  const { showToast } = useToast();
 
   const [privacySettings, setPrivacySettings] = useState({
     profileVisibility: "public",
-    showSavedItems: false,
+    showSavedItems: true,
     showFavorites: true,
     showReviews: true,
     showStats: true,

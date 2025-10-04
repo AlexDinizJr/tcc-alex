@@ -344,7 +344,7 @@ const excludeMediaForUser = async (userId, mediaId, months = 3) => {
   });
 };
 
-const getSimilarMedia = async (mediaId, limit = 4) => {
+const getSimilarMedia = async (mediaId, limit = 5) => {
   const media = await prisma.media.findUnique({ 
     where: { id: mediaId },
     include: { recommendationEngagements: true }

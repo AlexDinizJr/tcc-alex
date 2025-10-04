@@ -17,16 +17,45 @@ const getSortOption = (sortBy) => {
 const mediaController = {
   async getAllMedia(req, res) {
     try {
-      const { type, search, page = 1, limit = 20, sortBy = 'title', genre } = req.query;
+      const {
+        type,
+        search,
+        page = 1,
+        limit = 20,
+        sortBy = 'title',
+        year,
+        classification,
+        genres,      // espera array ou string
+        platforms    // espera array ou string
+      } = req.query;
 
       const pageNumber = parseInt(page) > 0 ? parseInt(page) : 1;
       const limitNumber = parseInt(limit) > 0 ? parseInt(limit) : 20;
       const skip = (pageNumber - 1) * limitNumber;
 
+      // Constrói o filtro
       const where = {};
       if (type) where.type = type;
       if (search) where.title = { contains: search, mode: 'insensitive' };
-      if (genre) where.genres = { has: genre };
+      if (year) where.year = parseInt(year);
+      if (classification) where.classification = classification;
+
+      // Gêneros e plataformas podem ser arrays
+      if (genres) {
+        if (Array.isArray(genres)) {
+          where.genres = { hasSome: genres };
+        } else {
+          where.genres = { has: genres };
+        }
+      }
+
+      if (platforms) {
+        if (Array.isArray(platforms)) {
+          where.platforms = { hasSome: platforms };
+        } else {
+          where.platforms = { has: platforms };
+        }
+      }
 
       const currentUserId = req.user?.id || null;
 
@@ -43,16 +72,14 @@ const mediaController = {
             favoritedBy: currentUserId
               ? { where: { id: currentUserId }, select: { id: true } }
               : false,
-            _count: {
-              select: { reviews: true, savedBy: true, favoritedBy: true }
-            }
+            _count: { select: { reviews: true } }
           }
         }),
         prisma.media.count({ where })
       ]);
 
-      // Mapeia e adiciona os flags
-      const mediaWithFlags = media.map((item) => ({
+      // Flags para o usuário
+      const mediaWithFlags = media.map(item => ({
         ...item,
         isSavedByUser: currentUserId ? item.savedBy?.length > 0 : false,
         isFavoritedByUser: currentUserId ? item.favoritedBy?.length > 0 : false
@@ -67,13 +94,10 @@ const mediaController = {
           pages: Math.ceil(total / limitNumber)
         }
       });
+
     } catch (error) {
       console.error('Erro no getAllMedia:', error);
-      res.status(500).json({
-        error: 'Erro interno do servidor',
-        details: error.message,
-        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
-      });
+      res.status(500).json({ error: 'Erro interno do servidor', details: error.message });
     }
   },
 

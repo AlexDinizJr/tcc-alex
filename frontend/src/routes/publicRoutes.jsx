@@ -1,11 +1,8 @@
 import Home from "../pages/Home";
-import Movies from "../pages/media_content/Movies";
-import Games from "../pages/media_content/Games";
-import Musics from "../pages/media_content/Musics";
-import TVSeries from "../pages/media_content/TVSeries";
-import Books from "../pages/media_content/Books";
+import { MoviesPage, GamesPage, MusicsPage, TVSeriesPage, BooksPage }  from "../pages/media_content/MediaPage";
 import Media from "../pages/media_content/Media";
 import Users from "../pages/users_content/Users";
+import Lists from "../pages/users_content/Lists";
 import UserPage from "../pages/users_content/UserPage";
 import Search from "../pages/fallback/Search";
 import { ROUTES } from "./paths";
@@ -15,24 +12,24 @@ export const publicRoutes = [
   { path: ROUTES.HOME, element: <Home /> },
 
   // Movies
-  { path: ROUTES.MOVIES, element: <Movies /> },
-  { path: ROUTES.MOVIES_PAGE, element: <Movies /> },
+  { path: ROUTES.MOVIES, element: <MoviesPage /> },
+  { path: ROUTES.MOVIES_PAGE, element: <MoviesPage /> },
 
   // Games
-  { path: ROUTES.GAMES, element: <Games /> },
-  { path: ROUTES.GAMES_PAGE, element: <Games /> },
+  { path: ROUTES.GAMES, element: <GamesPage /> },
+  { path: ROUTES.GAMES_PAGE, element: <GamesPage /> },
 
   // Musics
-  { path: ROUTES.MUSICS, element: <Musics /> },
-  { path: ROUTES.MUSICS_PAGE, element: <Musics /> },
+  { path: ROUTES.MUSICS, element: <MusicsPage /> },
+  { path: ROUTES.MUSICS_PAGE, element: <MusicsPage /> },
 
   // TV Series
-  { path: ROUTES.TVSERIES, element: <TVSeries /> },
-  { path: ROUTES.TVSERIES_PAGE, element: <TVSeries /> },
+  { path: ROUTES.TVSERIES, element: <TVSeriesPage /> },
+  { path: ROUTES.TVSERIES_PAGE, element: <TVSeriesPage /> },
 
   // Books
-  { path: ROUTES.BOOKS, element: <Books /> },
-  { path: ROUTES.BOOKS_PAGE, element: <Books /> },
+  { path: ROUTES.BOOKS, element: <BooksPage /> },
+  { path: ROUTES.BOOKS_PAGE, element: <BooksPage /> },
 
   // Media details
   { path: ROUTES.MEDIA, element: <Media /> },
@@ -40,6 +37,10 @@ export const publicRoutes = [
   // Users
   { path: ROUTES.USERS, element: <Users /> },
   { path: ROUTES.USERS_PAGES, element: <Users /> },
+
+  // Lists
+  { path: ROUTES.LISTS, element: <Lists /> },
+  { path: ROUTES.LISTS_PAGES, element: <Lists /> },
 
   { path: ROUTES.USER_PAGE, element: <UserPage /> },
 

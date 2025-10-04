@@ -3,10 +3,9 @@ import { useSearchParams } from "react-router-dom";
 import { fetchMediaFiltered } from "../services/mediaService";
 
 /**
- * Hook genérico para páginas de mídia com paginação, busca e ordenação.
+ * Hook genérico para páginas de mídia com paginação, busca, ordenação e filtros.
  * @param {string} type Tipo de mídia ("GAME", "MOVIE", "MUSIC", "SERIES", "BOOK")
  * @param {number} itemsPerPage Número de itens por página
- * @returns {object} { items, currentPage, totalPages, searchQuery, sortBy, setPage, setSearchOrSort }
  */
 export function useMediaPageState(type, itemsPerPage = 30) {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -22,6 +21,12 @@ export function useMediaPageState(type, itemsPerPage = 30) {
   const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [sortBy, setSortBy] = useState(initialSort);
 
+  // Filtros
+  const [selectedYear, setSelectedYear] = useState("");
+  const [selectedClassification, setSelectedClassification] = useState("");
+  const [selectedGenres, setSelectedGenres] = useState([]);
+  const [selectedPlatforms, setSelectedPlatforms] = useState([]);
+
   // Atualiza a URL
   const updateParams = (page, query, sort) => {
     const params = {};
@@ -31,21 +36,38 @@ export function useMediaPageState(type, itemsPerPage = 30) {
     setSearchParams(params);
   };
 
-  // Efeito para carregar dados da API
+  // Carrega dados da API
+  const loadItems = async () => {
+    const data = await fetchMediaFiltered({
+      type,
+      search: searchQuery,
+      sortBy,
+      page: currentPage,
+      limit: itemsPerPage,
+      year: selectedYear || undefined,
+      classification: selectedClassification || undefined,
+      genres: selectedGenres.length > 0 ? selectedGenres : undefined,
+      platforms: selectedPlatforms.length > 0 ? selectedPlatforms : undefined,
+    });
+
+    setItems(data.media || []);
+    setTotalPages(data.pagination?.pages || 1);
+  };
+
+  // Sempre que algum estado mudar, recarrega os itens
   useEffect(() => {
-    async function loadItems() {
-      const data = await fetchMediaFiltered({
-        type,
-        search: searchQuery,
-        sortBy,
-        page: currentPage,
-        limit: itemsPerPage,
-      });
-      setItems(data.media || []);
-      setTotalPages(data.pagination?.pages || 1);
-    }
     loadItems();
-  }, [type, currentPage, searchQuery, sortBy, itemsPerPage]);
+  }, [
+    type,
+    currentPage,
+    searchQuery,
+    sortBy,
+    itemsPerPage,
+    selectedYear,
+    selectedClassification,
+    selectedGenres,
+    selectedPlatforms,
+  ]);
 
   // Funções para atualizar estado e URL
   const setPage = (page) => {
@@ -60,6 +82,15 @@ export function useMediaPageState(type, itemsPerPage = 30) {
     updateParams(page, query, sort);
   };
 
+  // Aplica filtros do MediaPageHeader
+  const applyFilters = ({ year, classification, genres, platforms }) => {
+    setSelectedYear(year || "");
+    setSelectedClassification(classification || "");
+    setSelectedGenres(genres || []);
+    setSelectedPlatforms(platforms || []);
+    setCurrentPage(1); // resetar página ao aplicar filtros
+  };
+
   return {
     items,
     currentPage,
@@ -68,5 +99,14 @@ export function useMediaPageState(type, itemsPerPage = 30) {
     sortBy,
     setPage,
     setSearchOrSort,
+    selectedYear,
+    selectedClassification,
+    selectedGenres,
+    selectedPlatforms,
+    setSelectedYear,
+    setSelectedClassification,
+    setSelectedGenres,
+    setSelectedPlatforms,
+    applyFilters, // 🔹 função para aplicar filtros
   };
 }

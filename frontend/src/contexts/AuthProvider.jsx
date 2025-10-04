@@ -334,9 +334,12 @@ export function AuthProvider({ children }) {
   const createList = async (listData) => {
     if (!user) return { success: false, error: "Usuário não autenticado" };
     try {
-      await createListService(listData);
-      await fetchAndSetUser();
-      return { success: true };
+      // Supondo que createListService retorne a lista criada
+      const createdList = await createListService(listData);
+
+      await fetchAndSetUser(); // atualizar usuário se necessário
+
+      return { success: true, list: createdList };
     } catch (error) {
       return { success: false, error: error.message };
     }

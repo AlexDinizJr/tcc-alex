@@ -129,17 +129,32 @@ export async function fetchMediaByMinRating(rating) {
 /**
  * Busca as midias com filtros de pesquisa, ordenação e paginação
  */
-export async function fetchMediaFiltered({ type, search = "", sortBy = "title", page = 1, limit = 20 }) {
+export async function fetchMediaFiltered({
+  type,
+  search = "",
+  sortBy = "title",
+  page = 1,
+  limit = 20,
+  year,
+  classification,
+  genres,
+  platforms,
+}) {
   try {
-    const response = await api.get("/media", {
-      params: {
-        type,
-        search,   // deve bater com o query do backend
-        sortBy,   // deve bater com getSortOption do backend
-        page,
-        limit,
-      },
-    });
+    const params = {
+      type,
+      search,
+      sortBy,
+      page,
+      limit,
+    };
+
+    if (year) params.year = year;
+    if (classification) params.classification = classification;
+    if (genres && genres.length > 0) params.genres = genres.join(","); // ou o formato que seu backend espera
+    if (platforms && platforms.length > 0) params.platforms = platforms.join(",");
+
+    const response = await api.get("/media", { params });
     return response.data; // { media, pagination }
   } catch (error) {
     console.error(`Erro ao buscar mídias (${type}):`, error.response?.data || error);

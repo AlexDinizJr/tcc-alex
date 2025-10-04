@@ -50,7 +50,7 @@ const recommendationService = {
   // Mídias similares
   // ------------------------------
   async getSimilarMedia(mediaId, options = {}) {
-    const { limit = 4 } = options;
+    const { limit = 5 } = options;
     return recommendationEngine.getSimilarMedia(mediaId, limit);
   },
 

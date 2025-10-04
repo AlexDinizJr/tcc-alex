@@ -212,7 +212,7 @@ const recommendationController = {
     try {
       const mediaId = parseInt(req.params.id);
       const { 
-        limit = 6, 
+        limit = 5, 
         excludeOriginal = true,
       } = req.query;
 

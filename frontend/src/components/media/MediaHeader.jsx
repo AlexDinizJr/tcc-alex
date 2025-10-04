@@ -2,6 +2,7 @@ import MediaActions from "./MediaActions";
 import MediaMetadata from "./MediaMetadata";
 import MediaDetails from "./MediaDetails";
 import StreamingServices from "./StreamingServices";
+import ReportButtonModal from "./ReportButtonModal"; 
 
 export default function MediaHeader({ mediaItem, description }) {
   return (
@@ -19,6 +20,7 @@ export default function MediaHeader({ mediaItem, description }) {
                   ? "h-90" 
                   : "h-110"
             }`}
+            
           />
         </div>
 
@@ -63,6 +65,7 @@ export default function MediaHeader({ mediaItem, description }) {
           </div>
         </div>
       </div>
+      <ReportButtonModal mediaItem={mediaItem} />
     </div>
   );
 }

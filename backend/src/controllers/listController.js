@@ -1,6 +1,72 @@
 const prisma = require('../utils/database');
 
 const listController = {
+  async getAllLists(req, res) {
+    try {
+      const { page = 1, limit = 12, search = "", includeItems = true } = req.query;
+      const skip = (page - 1) * limit;
+
+      // Busca listas com filtro pelo nome
+      const [lists, total] = await Promise.all([
+        prisma.list.findMany({
+          where: {
+            name: {
+              contains: search,
+              mode: "insensitive"
+            },
+            isPublic: true // apenas listas públicas
+          },
+          skip: parseInt(skip),
+          take: parseInt(limit),
+          orderBy: { updatedAt: "desc" },
+          include: {
+            _count: { select: { items: true } },
+            items: includeItems === "true" || includeItems === true ? {
+              take: 4,
+              select: {
+                id: true,
+                title: true,
+                image: true,
+                type: true,
+                year: true
+              }
+            } : false,
+            user: {
+              select: {
+                id: true,
+                username: true,
+                avatar: true
+              }
+            }
+          }
+        }),
+        prisma.list.count({
+          where: {
+            name: {
+              contains: search,
+              mode: "insensitive"
+            },
+            isPublic: true
+          }
+        })
+      ]);
+
+      res.json({
+        lists,
+        pagination: {
+          page: parseInt(page),
+          limit: parseInt(limit),
+          total,
+          pages: Math.ceil(total / limit)
+        }
+      });
+
+    } catch (error) {
+      console.error("Error getting all lists:", error);
+      res.status(500).json({ error: "Erro interno do servidor" });
+    }
+  },
+
   async getUserLists(req, res) {
     try {
       const { userId } = req.params;

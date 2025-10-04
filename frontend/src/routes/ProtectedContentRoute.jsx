@@ -63,14 +63,22 @@ export default function ProtectedContentRoute({ children, contentType }) {
 
     switch (contentType) {
       case "lists":
-        return profileUser.showSavedItems !== false && 
-               (profileUser.lists || []).some(list => list.isPublic);
+        if (profileUser.showLists === false) {
+          return (profileUser.lists || []).some(
+            (list) => list.isPublic && list.isPublicallyViewable === true
+          );
+        }
+        return (profileUser.lists || []).some((list) => list.isPublic);
+
       case "list":
-        // tslint:disable-next-line: eqeq
         const targetListId = parseInt(id);
-        // tslint:disable-next-line: eqeq
-        const targetList = (profileUser.lists || []).find(l => l.id === targetListId);
-        return targetList?.isPublic === true;
+        const targetList = (profileUser.lists || []).find((l) => l.id === targetListId);
+        if (!targetList) return false;
+
+        if (targetList.isPublic) return true;
+        if (targetList.isPublicallyViewable === true) return true;
+
+        return false;
       case "reviews":
         return profileUser.showReviews === true;
       case "favorites":

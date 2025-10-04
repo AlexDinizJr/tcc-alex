@@ -1,21 +1,5 @@
 ***REVISÃO DA APLICAÇÃO***
 
-# BÔNUS: FUNCIONALIDADES EXTRAS - SÁBADO:
-
-- Adicionar Formulário de Pedidos e Aviso de Erros;
-- Adicionar página de All Lists - todas as listas do site;
-- Adicionar opções de Filtragem para Páginas de Conteúdo;
-
-- Pesquisa de Filmes e Séries em Sites relacionados.
-
-# BÔNUS: REFINAMENTOS VISUAIS - SÁBADO:
-
-- Ajustar o componente de PlataformFilterSection;
-- Trocar emojis por icons;
-- Adicionar cursor-pointer no que for necessário;
-- Wallpaper Overlay nas páginas dedicadas;
-- Largura padrão das páginas;
-
 # BÔNUS: ADIÇÃO DE IMAGENS AS MÍDIAS - DOMINGO:
 
 # DEPLOY E HOSPEDAGEM:
@@ -40,10 +24,10 @@
 
 - Implementar no footer as seções de suporte, newsletter, termos de uso, cookies;
 - Adicionar campos de idade, gênero e localidade aos usuários;
-- Consistência na Visibilidade de Listas (Se houver ao menos 1 lista pública a página de listas deve ser acessível com essa lista);
-- Ajustar o ícone de MarkedHelpful para ficar verde caso o usuário já tenha avaliado como útil;
 - Adicionar os Modais de Confirmação de Logout e Delete Review;
 - Ajustar todos os Modais para usarem o hook useBodyLockScroll;
+- Ajustar o uso de filtros quando usado filtro do tipo na seção platform;
+- Ajustar o ícone de MarkedHelpful para ficar verde caso o usuário já tenha avaliado como útil;
 
 - Ajustar o Toast de feedback para o usuário informando que ele já adicionou o item aos excluídos;
 - Ajustar o Toast de feedback para o usuário informando que ele está tentando marcar a própria review como útil;

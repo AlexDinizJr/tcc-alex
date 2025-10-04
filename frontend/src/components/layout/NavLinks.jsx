@@ -4,7 +4,8 @@ import {
   FiTv, 
   FiMusic, 
   FiBookOpen, 
-  FiUser 
+  FiUser,
+  FiClipboard 
 } from "react-icons/fi";
 
 import { FaGamepad } from "react-icons/fa";
@@ -15,7 +16,8 @@ const navItems = [
   { to: "/games", label: "Games", icon: <FaGamepad size={18} /> },
   { to: "/musics", label: "Músicas", icon: <FiMusic size={18} /> },
   { to: "/books", label: "Livros", icon: <FiBookOpen size={18} /> },
-  { to: "/users", label: "Usuários", icon: <FiUser size={18} /> }
+  { to: "/users", label: "Usuários", icon: <FiUser size={18} /> },
+  { to: "/lists", label: "Listas", icon: <FiClipboard size={18} /> }
 ];
 
 export default function NavLinks({ mobile = false }) {

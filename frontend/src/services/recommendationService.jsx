@@ -55,7 +55,7 @@ export async function fetchSimilarMedia(mediaId, options = {}) {
     console.log("✅ Resposta da API (similar):", response.data);
 
     const similarArray = Array.isArray(response.data?.data?.similarMedia)
-      ? response.data.data.similarMedia.slice(0, 4) // Limitando a 4 itens
+      ? response.data.data.similarMedia
       : [];
 
     return similarArray;

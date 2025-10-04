@@ -8,6 +8,7 @@ export const ROUTES = {
   BOOKS: "/books",
   MEDIA: "/media/:id",
   USERS: "/users",
+  LISTS: "/lists",
   USER_PAGE: "/users/:username",
 
   // Protected Content

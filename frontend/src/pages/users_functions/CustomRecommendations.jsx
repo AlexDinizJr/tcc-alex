@@ -261,6 +261,7 @@ export default function CustomRecommendations() {
                 genres={platforms}
                 selectedGenres={filters.platforms}
                 onGenreChange={(platforms) => handleFilterChange("platforms", platforms)}
+                label="plataforma"
               />
             </FilterSection>
           </div>

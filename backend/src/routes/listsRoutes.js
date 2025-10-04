@@ -1,5 +1,6 @@
 const express = require('express');
 const {
+  getAllLists,
   getUserLists,
   getListById,
   createList,
@@ -22,6 +23,44 @@ const router = express.Router();
  *   name: Lists
  *   description: Gerenciamento de listas de mídia do usuário
  */
+
+/**
+ * @swagger
+ * /api/lists:
+ *   get:
+ *     summary: Retorna todas as listas do site com pesquisa opcional pelo nome
+ *     tags: [Lists]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Número da página
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 12
+ *         description: Número de listas por página
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Pesquisa pelo nome da lista (opcional)
+ *       - in: query
+ *         name: includeItems
+ *         schema:
+ *           type: boolean
+ *           default: false
+ *         description: Incluir até 4 itens da lista (opcional)
+ *     responses:
+ *       200:
+ *         description: Listas retornadas com sucesso
+ *       500:
+ *         description: Erro interno do servidor
+ */
+router.get('/', getAllLists);
 
 /**
  * @swagger

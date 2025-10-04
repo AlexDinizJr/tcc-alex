@@ -145,7 +145,7 @@ router.get('/trending', getTrending);
  *         name: limit
  *         schema:
  *           type: integer
- *           default: 4
+ *           default: 5
  *       - in: query
  *         name: excludeOriginal
  *         schema:

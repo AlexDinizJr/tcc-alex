@@ -176,7 +176,8 @@ export function useRecommendationFilters() {
         });
       }
     });
-    
+
+  
     const fallbackPlatforms = Array.from(platformSet).sort();
     
     // Fallback final: lista fixa
@@ -184,11 +185,33 @@ export function useRecommendationFilters() {
       ['Netflix', 'Amazon Prime', 'Disney+', 'HBO Max', 'Spotify', 'YouTube'];
   }, [streamingServices, allMedia, loading]);
 
+  
+  // Listas de Anos
+  const years = useMemo(() => {
+      if (loading) return [];
+      if (allMedia.length === 0) return [];
+
+      const yearSet = new Set();
+      allMedia.forEach((media) => {
+        if (media.year) {
+          const parsedYear = parseInt(media.year, 10);
+          if (!isNaN(parsedYear) && parsedYear > 1900 && parsedYear <= new Date().getFullYear()) {
+            yearSet.add(parsedYear);
+          }
+        }
+      });
+
+      // Ordena do mais recente para o mais antigo
+      return Array.from(yearSet).sort((a, b) => b - a);
+    }, [allMedia, loading]);
+
   return { 
     mediaTypes, 
     genres, 
     platforms, 
+    streamingServices,
     classifications,
+    years,
     loading,
     error
   };

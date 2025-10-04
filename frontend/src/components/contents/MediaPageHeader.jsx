@@ -1,7 +1,28 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { FiFilter, FiChevronDown, FiChevronUp, FiCheck } from "react-icons/fi";
+import GenreFilterSection from "../recommendations/GenreFilterSection";
+import { useRecommendationFilters } from "../../hooks/useRecommendationFilters";
 
-export default function MediaPageHeader({ searchQuery, setSearchQuery, sortBy, setSortBy, onSearchOrSortChange, currentPage }) {
+export default function MediaPageHeader({
+  searchQuery,
+  sortBy,
+  setSearchOrSort,
+  currentPage,
+  selectedYear,
+  selectedClassification,
+  selectedGenres,
+  selectedPlatforms,
+  applyFilters,
+}) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
+
+  const [tempYear, setTempYear] = useState(selectedYear);
+  const [tempClassification, setTempClassification] = useState(selectedClassification);
+  const [tempGenres, setTempGenres] = useState(selectedGenres || []);
+  const [tempPlatforms, setTempPlatforms] = useState(selectedPlatforms || []);
+
+  const { genres, streamingServices, years, classifications, loading } = useRecommendationFilters();
 
   const sortOptions = [
     { label: "Título", value: "title" },
@@ -12,52 +33,155 @@ export default function MediaPageHeader({ searchQuery, setSearchQuery, sortBy, s
   ];
 
   const handleOptionClick = (value) => {
-    setSortBy(value);
     setIsDropdownOpen(false);
-    if (onSearchOrSortChange) onSearchOrSortChange(searchQuery, value, 1);
+    setSearchOrSort(searchQuery, value, 1);
   };
 
   const handleSearchChange = (e) => {
     const value = e.target.value;
-    setSearchQuery(value);
-
     const pageToUse = value.trim() === "" ? currentPage : 1;
-
-    if (onSearchOrSortChange) onSearchOrSortChange(value, sortBy, pageToUse);
+    setSearchOrSort(value, sortBy, pageToUse);
   };
 
+  const toggleGenre = (genre) => {
+    setTempGenres(tempGenres.includes(genre)
+      ? tempGenres.filter(g => g !== genre)
+      : [...tempGenres, genre]);
+  };
+
+  const togglePlatform = (platform) => {
+    setTempPlatforms(tempPlatforms.includes(platform)
+      ? tempPlatforms.filter(p => p !== platform)
+      : [...tempPlatforms, platform]);
+  };
+
+  useEffect(() => {
+    if (showFilters) {
+      setTempYear(selectedYear);
+      setTempClassification(selectedClassification);
+      setTempGenres(selectedGenres || []);
+      setTempPlatforms(selectedPlatforms || []);
+    }
+  }, [showFilters, selectedYear, selectedClassification, selectedGenres, selectedPlatforms]);
+
   return (
-    <div className="bg-gray-800/80 rounded-2xl shadow-md border border-gray-700/50 p-6 mb-8 flex flex-col md:flex-row items-center gap-4">
-      <input
-        type="text"
-        placeholder="Pesquisar..."
-        value={searchQuery}
-        onChange={handleSearchChange}
-        className="flex-1 px-3 py-2 bg-gray-800/80 text-white placeholder-gray-400 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-      />
+    <div className="bg-gray-900/90 rounded-2xl shadow-xl border border-gray-700 p-6 mb-8 transition-all duration-300">
+      {/* Busca + Ordenação + Filtros */}
+      <div className="flex flex-col md:flex-row items-center gap-4">
+        <input
+          type="text"
+          placeholder="Pesquisar..."
+          value={searchQuery}
+          onChange={handleSearchChange}
+          className="flex-1 px-4 py-2 bg-gray-800 text-white placeholder-gray-400 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+        />
 
-      <div className="relative">
+        <div className="relative">
+          <button
+            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            className="flex items-center gap-2 px-4 py-2 bg-gray-800 text-white rounded-full border border-gray-700 hover:bg-blue-600 hover:text-white transition-colors"
+          >
+            Ordenar: {sortOptions.find(opt => opt.value === sortBy)?.label || "Selecione"}
+            {isDropdownOpen ? <FiChevronUp /> : <FiChevronDown />}
+          </button>
+
+          {isDropdownOpen && (
+            <div className="absolute right-0 mt-2 w-52 bg-gray-800/95 text-white border border-gray-700 rounded-lg shadow-lg z-10 animate-fadeIn">
+              {sortOptions.map((option) => (
+                <div
+                  key={option.value}
+                  onClick={() => handleOptionClick(option.value)}
+                  className={`flex items-center justify-between px-4 py-2 cursor-pointer hover:bg-blue-600 hover:text-white transition-colors ${
+                    sortBy === option.value ? "bg-blue-700" : ""
+                  }`}
+                >
+                  {option.label}
+                  {sortBy === option.value && <FiCheck />}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
         <button
-          onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-          className="px-4 py-2 bg-gray-800/80 text-white rounded-full border border-gray-700 hover:bg-blue-500 hover:text-white transition-colors"
+          onClick={() => setShowFilters(!showFilters)}
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
         >
-          Ordenar por: {sortOptions.find(opt => opt.value === sortBy)?.label || "Selecione"}
+          {showFilters ? "Fechar filtros" : "Filtros"} <FiFilter />
         </button>
-
-        {isDropdownOpen && (
-          <div className="absolute right-0 mt-2 w-48 bg-gray-800/90 text-white border border-gray-700 rounded-lg shadow-lg z-10">
-            {sortOptions.map((option) => (
-              <div
-                key={option.value}
-                onClick={() => handleOptionClick(option.value)}
-                className={`px-4 py-2 cursor-pointer hover:bg-blue-500 hover:text-white ${sortBy === option.value ? "bg-blue-600" : ""}`}
-              >
-                {option.label}
-              </div>
-            ))}
-          </div>
-        )}
       </div>
+
+      {/* Painel de filtros */}
+      {showFilters && !loading && (
+        <div className="mt-6 space-y-6 bg-gray-800 p-4 rounded-xl border border-gray-700 shadow-inner animate-fadeIn">
+          {/* Ano */}
+          <div>
+            <h3 className="text-white font-medium mb-2">Ano de lançamento</h3>
+            <select
+              value={tempYear || ""}
+              onChange={(e) => setTempYear(e.target.value)}
+              className="w-full px-3 py-2 bg-gray-700 text-white rounded-lg border border-gray-600"
+            >
+              <option value="">Todos</option>
+              {years.map(year => <option key={year} value={year}>{year}</option>)}
+            </select>
+          </div>
+
+          {/* Classificação */}
+          <div>
+            <h3 className="text-white font-medium mb-2">Classificação</h3>
+            <select
+              value={tempClassification || ""}
+              onChange={(e) => setTempClassification(e.target.value)}
+              className="w-full px-3 py-2 bg-gray-700 text-white rounded-lg border border-gray-600"
+            >
+              <option value="">Todas</option>
+              {classifications.map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
+          </div>
+
+          {/* Gêneros */}
+          <div>
+            <h3 className="text-white font-medium mb-2">Gêneros</h3>
+            <GenreFilterSection
+              genres={genres}
+              selectedGenres={tempGenres}
+              onGenreChange={toggleGenre}
+              label="gênero"
+            />
+          </div>
+
+          {/* Plataformas */}
+          <div>
+            <h3 className="text-white font-medium mb-2">Plataformas</h3>
+            <GenreFilterSection
+              genres={streamingServices || []}
+              selectedGenres={tempPlatforms}
+              onGenreChange={togglePlatform}
+              label="plataforma"
+            />
+          </div>
+
+          {/* Botão aplicar */}
+          <div className="flex justify-end mt-4">
+            <button
+              onClick={() => {
+                setShowFilters(false);
+
+                applyFilters({
+                  year: tempYear,
+                  classification: tempClassification,
+                  genres: tempGenres,
+                  platforms: tempPlatforms,
+                });
+              }}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Aplicar filtros
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

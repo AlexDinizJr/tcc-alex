@@ -11,6 +11,7 @@ const userRoutes = require('./routes/usersRoutes');
 const mediaRoutes = require('./routes/mediaRoutes');
 const reviewRoutes = require('./routes/reviewsRoutes');
 const listRoutes = require('./routes/listsRoutes');
+const reportRoutes = require('./routes/reportRoutes');
 const recommendationRoutes = require('./routes/recommendationRoutes');
 
 // Rotas de admin
@@ -58,6 +59,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/media', mediaRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/lists', listRoutes);
+app.use('/api/reports', reportRoutes);
 app.use('/api/recommendations', recommendationRoutes);
 
 // Rotas de administração

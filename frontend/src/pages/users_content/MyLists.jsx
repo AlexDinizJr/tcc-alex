@@ -63,8 +63,14 @@ export default function MyLists() {
     }
   }, [username, isOwner, loggedInUser]);
 
-  // 🔹 Ajustar página caso total de páginas mude
-  const visibleLists = allLists.filter((list) => isOwner || list.isPublic);
+  const visibleLists = allLists.filter((list) => {
+    if (isOwner) return true; // O dono vê tudo
+    if (profileUser.showLists === false) {
+      // exceção: lista pública específica
+      return list.isPublic && list.isPublicallyViewable === true; 
+    }
+    return list.isPublic;
+  });
   const totalPages = Math.max(1, Math.ceil(visibleLists.length / itemsPerPage));
 
   useEffect(() => {
@@ -116,7 +122,7 @@ export default function MyLists() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-6xl mx-auto">
-        <div className="mb-4">
+        <div className="mb-8">
           <BackToProfile username={username} />
         </div>
 
@@ -146,7 +152,7 @@ export default function MyLists() {
               <ListCard 
                 key={list.id} 
                 list={list} 
-                username={profileUser.username} 
+                username={profileUser.username}
                 isOwner={isOwner} 
               />
             );
