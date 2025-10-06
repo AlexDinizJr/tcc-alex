@@ -23,12 +23,11 @@ export async function fetchAllLists({ search = "", page = 1, limit = 12 } = {}) 
 /**
  * Busca todas as listas de um usuário
  */
-export async function fetchUserLists(userId, page = 1, limit = 6) {
+export async function fetchUserLists(userId, page = 1) {
   try {
     const response = await api.get(`/lists/user/${userId}`, {
       params: {
         page,
-        limit,
         includeItems: true // garante que os items venham
       }
     });

@@ -30,6 +30,7 @@ export default function Footer() {
               <li><Link to="/games" className="text-gray-300 hover:text-blue-400 transition-colors">Jogos</Link></li>
               <li><Link to="/books" className="text-gray-300 hover:text-blue-400 transition-colors">Livros</Link></li>
               <li><Link to="/users" className="text-gray-300 hover:text-blue-400 transition-colors">Usuários</Link></li>
+              <li><Link to="/lists" className="text-gray-300 hover:text-blue-400 transition-colors">Listas</Link></li>
             </ul>
           </div>
 
@@ -37,9 +38,8 @@ export default function Footer() {
           <div>
             <h4 className="text-lg font-semibold mb-4 text-blue-300">Suporte</h4>
             <ul className="space-y-2">
-              <li><a href="#" className="text-gray-300 hover:text-blue-400 transition-colors">Ajuda</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-blue-400 transition-colors">FAQ</a></li>
               <li><a href="#" className="text-gray-300 hover:text-blue-400 transition-colors">Contato</a></li>
+              <li><a href="#" className="text-gray-300 hover:text-blue-400 transition-colors">FAQ</a></li>
               <li><a href="#" className="text-gray-300 hover:text-blue-400 transition-colors">Sobre</a></li>
             </ul>
           </div>

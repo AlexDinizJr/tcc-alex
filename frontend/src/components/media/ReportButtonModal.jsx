@@ -68,7 +68,7 @@ export default function ReportButtonModal({ mediaItem, type = "report" }) {
   };
 
   return (
-    <div className="bottom-2 left-2">
+    <div className="bottom-2 left-2 mt-4">
       {/* Botão discreto com ícone */}
       <button
         onClick={() => setIsOpen(true)}

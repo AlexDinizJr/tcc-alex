@@ -33,7 +33,7 @@ export default function UserCard({ user: userProp }) {
   return (
     <Link to={`/users/${user.username}`} className="block mx-auto w-full max-w-xs">
     <div className="bg-gray-800/80 rounded-2xl shadow-md p-4 flex justify-between items-center 
-      hover:shadow-white/20 transition-shadow cursor-pointer border border-gray-700/50
+      transition-transform transform-gpu duration-300 hover:scale-105 hover:z-10 cursor-pointer border border-gray-700/50
       min-w-[250px] max-w-[350px] w-full h-30"
     >
       {/* Informações do usuário */}

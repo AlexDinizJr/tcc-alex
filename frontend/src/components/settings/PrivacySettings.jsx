@@ -131,7 +131,7 @@ export default function PrivacySettings() {
                 </div>
                 <button
                   onClick={() => !disabled && handleToggle(key)}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${
                     privacySettings[key] ? "bg-blue-500" : "bg-gray-600"
                   }`}
                   disabled={disabled}
@@ -161,7 +161,7 @@ export default function PrivacySettings() {
           </div>
           <button
             onClick={() => handleToggle("dataCollection")}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${
               privacySettings.dataCollection ? "bg-blue-500" : "bg-gray-600"
             }`}
           >
@@ -179,7 +179,7 @@ export default function PrivacySettings() {
         <button
           onClick={handleSave}
           disabled={isLoading}
-          className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50"
+          className="cursor-pointer bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50"
         >
           {isLoading ? "Salvando..." : "Salvar Configurações"}
         </button>

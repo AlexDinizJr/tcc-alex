@@ -3,64 +3,32 @@ const prisma = require('../utils/database');
 const listController = {
   async getAllLists(req, res) {
     try {
-      const { page = 1, limit = 12, search = "", includeItems = true } = req.query;
-      const skip = (page - 1) * limit;
+      const { search = "", includeItems = true } = req.query;
 
-      // Busca listas com filtro pelo nome
-      const [lists, total] = await Promise.all([
-        prisma.list.findMany({
-          where: {
-            name: {
-              contains: search,
-              mode: "insensitive"
-            },
-            isPublic: true // apenas listas públicas
-          },
-          skip: parseInt(skip),
-          take: parseInt(limit),
-          orderBy: { updatedAt: "desc" },
-          include: {
-            _count: { select: { items: true } },
-            items: includeItems === "true" || includeItems === true ? {
-              take: 4,
-              select: {
-                id: true,
-                title: true,
-                image: true,
-                type: true,
-                year: true
-              }
-            } : false,
-            user: {
-              select: {
-                id: true,
-                username: true,
-                avatar: true
-              }
+      const lists = await prisma.list.findMany({
+        where: {
+          name: { contains: search, mode: "insensitive" },
+          isPublic: true
+        },
+        orderBy: { updatedAt: "desc" },
+        include: {
+          _count: { select: { items: true } },
+          items: includeItems === "true" || includeItems === true ? {
+            select: {
+              id: true,
+              title: true,
+              image: true,
+              type: true,
+              year: true
             }
+          } : false,
+          user: {
+            select: { id: true, username: true, avatar: true }
           }
-        }),
-        prisma.list.count({
-          where: {
-            name: {
-              contains: search,
-              mode: "insensitive"
-            },
-            isPublic: true
-          }
-        })
-      ]);
-
-      res.json({
-        lists,
-        pagination: {
-          page: parseInt(page),
-          limit: parseInt(limit),
-          total,
-          pages: Math.ceil(total / limit)
         }
       });
 
+      res.json({ lists, total: lists.length });
     } catch (error) {
       console.error("Error getting all lists:", error);
       res.status(500).json({ error: "Erro interno do servidor" });
@@ -70,52 +38,26 @@ const listController = {
   async getUserLists(req, res) {
     try {
       const { userId } = req.params;
-      const { page = 1, limit = 10, includeItems = false } = req.query;
-      
-      const skip = (page - 1) * limit;
+      const { includeItems = false } = req.query;
 
-      const [lists, total] = await Promise.all([
-        prisma.list.findMany({
-          where: { 
-            userId: parseInt(userId)
-          },
-          skip,
-          take: parseInt(limit),
-          orderBy: { updatedAt: 'desc' },
-          include: {
-            _count: {
-              select: {
-                items: true
-              }
-            },
-            items: includeItems ? {
-              take: 4,
-              select: {
-                id: true,
-                title: true,
-                image: true,
-                type: true,
-                year: true
-              }
-            } : false
-          }
-        }),
-        prisma.list.count({
-          where: { 
-            userId: parseInt(userId)
-          }
-        })
-      ]);
-
-      res.json({
-        lists,
-        pagination: {
-          page: parseInt(page),
-          limit: parseInt(limit),
-          total,
-          pages: Math.ceil(total / limit)
+      const lists = await prisma.list.findMany({
+        where: { userId: parseInt(userId) },
+        orderBy: { updatedAt: 'desc' },
+        include: {
+          _count: { select: { items: true } },
+          items: includeItems ? {
+            select: {
+              id: true,
+              title: true,
+              image: true,
+              type: true,
+              year: true
+            }
+          } : false
         }
       });
+
+      res.json({ lists, total: lists.length });
     } catch (error) {
       console.error('Error getting user lists:', error);
       res.status(500).json({ error: 'Erro interno do servidor' });
@@ -165,91 +107,73 @@ const listController = {
       res.status(500).json({ error: 'Erro interno do servidor' });
     }
   },
+  async getUserSavedMedia(req, res) {
+    try {
+      const { userId } = req.params;
 
- async getUserSavedMedia(req, res) {
-  try {
-    const { userId } = req.params;
-    const { page = 1, limit = 10 } = req.query;
-    const skip = (page - 1) * limit;
-
-    const user = await prisma.user.findUnique({
-      where: { id: parseInt(userId) },
-      select: {
-        savedMedia: {
-          skip,
-          take: parseInt(limit),
-          select: {
-            id: true,
-            title: true,
-            image: true,
-            type: true,
-            year: true,
-            rating: true,
-            genres: true
-          }
-        },
-        _count: {
-          select: { savedMedia: true }
+      const user = await prisma.user.findUnique({
+        where: { id: parseInt(userId) },
+        select: {
+          savedMedia: {
+            select: {
+              id: true,
+              title: true,
+              image: true,
+              type: true,
+              year: true,
+              rating: true,
+              genres: true
+            }
+          },
+          _count: { select: { savedMedia: true } }
         }
-      }
-    });
+      });
 
-    if (!user) {
-      return res.status(404).json({ error: 'Usuário não encontrado' });
+      if (!user) return res.status(404).json({ error: 'Usuário não encontrado' });
+
+      res.json({
+        savedMedia: user.savedMedia,
+        totalSaved: user._count.savedMedia
+      });
+    } catch (error) {
+      console.error('Error getting saved media:', error);
+      res.status(500).json({ error: 'Erro interno do servidor' });
     }
-    res.json({
-      savedMedia: user.savedMedia,
-      totalSaved: user._count.savedMedia
-    });
+  },
 
-  } catch (error) {
-    console.error('Error getting saved media:', error);
-    res.status(500).json({ error: 'Erro interno do servidor' });
-  }
-},
+  async getUserFavorites(req, res) {
+    try {
+      const { userId } = req.params;
 
-async getUserFavorites(req, res) {
-  try {
-    const { userId } = req.params;
-    const { page = 1, limit = 10 } = req.query;
-    const skip = (page - 1) * limit;
-
-    const user = await prisma.user.findUnique({
-      where: { id: parseInt(userId) },
-      select: {
-        favorites: {
-          skip,
-          take: parseInt(limit),
-          select: {
-            id: true,
-            title: true,
-            image: true,
-            type: true,
-            year: true,
-            rating: true,
-            genres: true
-          }
-        },
-        _count: {
-          select: { favorites: true }
+      const user = await prisma.user.findUnique({
+        where: { id: parseInt(userId) },
+        select: {
+          favorites: {
+            select: {
+              id: true,
+              title: true,
+              image: true,
+              type: true,
+              year: true,
+              rating: true,
+              genres: true
+            }
+          },
+          _count: { select: { favorites: true } }
         }
-      }
-    });
+      });
 
-    if (!user) {
-      return res.status(404).json({ error: 'Usuário não encontrado' });
+      if (!user) return res.status(404).json({ error: 'Usuário não encontrado' });
+
+      res.json({
+        favorites: user.favorites,
+        totalFavorites: user._count.favorites
+      });
+    } catch (error) {
+      console.error('Error getting favorite media:', error);
+      res.status(500).json({ error: 'Erro interno do servidor' });
     }
-
-    res.json({
-      favorites: user.favorites,
-      totalFavorites: user._count.favorites
-    });
-
-  } catch (error) {
-    console.error('Error getting favorite media:', error);
-    res.status(500).json({ error: 'Erro interno do servidor' });
-  }
-},
+  },
 
   async createList(req, res) {
     try {

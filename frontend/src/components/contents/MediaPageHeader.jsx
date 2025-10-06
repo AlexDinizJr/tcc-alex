@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { FiFilter, FiChevronDown, FiChevronUp, FiCheck } from "react-icons/fi";
+import { IoMdCloseCircleOutline } from "react-icons/io";
+import { GrAscend } from "react-icons/gr";
 import GenreFilterSection from "../recommendations/GenreFilterSection";
 import { useRecommendationFilters } from "../../hooks/useRecommendationFilters";
 
@@ -22,7 +24,7 @@ export default function MediaPageHeader({
   const [tempGenres, setTempGenres] = useState(selectedGenres || []);
   const [tempPlatforms, setTempPlatforms] = useState(selectedPlatforms || []);
 
-  const { genres, streamingServices, years, classifications, loading } = useRecommendationFilters();
+  const { genres, years, classifications, loading } = useRecommendationFilters();
 
   const sortOptions = [
     { label: "Título", value: "title" },
@@ -49,12 +51,6 @@ export default function MediaPageHeader({
       : [...tempGenres, genre]);
   };
 
-  const togglePlatform = (platform) => {
-    setTempPlatforms(tempPlatforms.includes(platform)
-      ? tempPlatforms.filter(p => p !== platform)
-      : [...tempPlatforms, platform]);
-  };
-
   useEffect(() => {
     if (showFilters) {
       setTempYear(selectedYear);
@@ -73,20 +69,20 @@ export default function MediaPageHeader({
           placeholder="Pesquisar..."
           value={searchQuery}
           onChange={handleSearchChange}
-          className="flex-1 px-4 py-2 bg-gray-800 text-white placeholder-gray-400 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+          className="flex-1 px-4 py-2 bg-gray-800 text-white placeholder-gray-400 border border-gray-700 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
         />
 
         <div className="relative">
           <button
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-800 text-white rounded-full border border-gray-700 hover:bg-blue-600 hover:text-white transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-gray-800 text-white rounded-2xl border border-gray-700 hover:bg-blue-600 hover:text-white transition-colors"
           >
-            Ordenar: {sortOptions.find(opt => opt.value === sortBy)?.label || "Selecione"}
+            <GrAscend /> {sortOptions.find(opt => opt.value === sortBy)?.label || "Selecione"}
             {isDropdownOpen ? <FiChevronUp /> : <FiChevronDown />}
           </button>
 
           {isDropdownOpen && (
-            <div className="absolute right-0 mt-2 w-52 bg-gray-800/95 text-white border border-gray-700 rounded-lg shadow-lg z-10 animate-fadeIn">
+            <div className="absolute right-0 mt-2 w-52 bg-gray-800/95 text-white border border-gray-700 rounded-2xl shadow-lg z-10 animate-fadeIn">
               {sortOptions.map((option) => (
                 <div
                   key={option.value}
@@ -105,15 +101,15 @@ export default function MediaPageHeader({
 
         <button
           onClick={() => setShowFilters(!showFilters)}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          className="flex items-center gap-2 px-4 py-3 bg-gray-800 text-white rounded-2xl border border-gray-700 hover:bg-blue-600 hover:text-white transition-colors"
         >
-          {showFilters ? "Fechar filtros" : "Filtros"} <FiFilter />
+          {showFilters ? <IoMdCloseCircleOutline /> : <FiFilter />}
         </button>
       </div>
 
       {/* Painel de filtros */}
       {showFilters && !loading && (
-        <div className="mt-6 space-y-6 bg-gray-800 p-4 rounded-xl border border-gray-700 shadow-inner animate-fadeIn">
+        <div className="mt-6 space-y-6 bg-gray-800 p-4 rounded-2xl border border-gray-700 shadow-inner animate-fadeIn">
           {/* Ano */}
           <div>
             <h3 className="text-white font-medium mb-2">Ano de lançamento</h3>
@@ -148,17 +144,6 @@ export default function MediaPageHeader({
               selectedGenres={tempGenres}
               onGenreChange={toggleGenre}
               label="gênero"
-            />
-          </div>
-
-          {/* Plataformas */}
-          <div>
-            <h3 className="text-white font-medium mb-2">Plataformas</h3>
-            <GenreFilterSection
-              genres={streamingServices || []}
-              selectedGenres={tempPlatforms}
-              onGenreChange={togglePlatform}
-              label="plataforma"
             />
           </div>
 

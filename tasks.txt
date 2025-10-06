@@ -2,6 +2,9 @@
 
 # BÔNUS: ADIÇÃO DE IMAGENS AS MÍDIAS - DOMINGO:
 
+- Adicionar campos de idade, gênero e localidade aos usuários;
+- Implementar no footer as seções de suporte, newsletter, termos de uso, cookies;
+
 # DEPLOY E HOSPEDAGEM:
 
 - Instalar o Docker Desktop;
@@ -22,8 +25,6 @@
 
 # POST LAUNCH - TRATAMENTO DE ERROS E FEEDBACKS:
 
-- Implementar no footer as seções de suporte, newsletter, termos de uso, cookies;
-- Adicionar campos de idade, gênero e localidade aos usuários;
 - Adicionar os Modais de Confirmação de Logout e Delete Review;
 - Ajustar todos os Modais para usarem o hook useBodyLockScroll;
 - Ajustar o uso de filtros quando usado filtro do tipo na seção platform;

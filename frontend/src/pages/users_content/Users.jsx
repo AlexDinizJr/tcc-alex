@@ -25,7 +25,7 @@ export default function UsersPage() {
 
   return (
     <div className="px-4 py-8 max-w-6xl mx-auto">
-      <h2 className="text-2xl font-bold mb-4">Usuários</h2>
+      <h2 className="md:text-4xl font-extrabold mb-8 tracking-wide drop-shadow-lg">Usuários</h2>
 
       {/* Barra de pesquisa */}
       <input

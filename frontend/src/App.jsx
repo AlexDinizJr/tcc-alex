@@ -15,7 +15,7 @@ function App() {
       <div className="min-h-screen flex flex-col bg-gray-900 text-white">
         <ScrollToTop />
         <Navbar />
-        <main className="flex-1 mx-auto px-4 py-6 max-w-[1500px] w-full">
+        <main className="flex-1 mx-auto w-full">
           <Routes>
             {[...publicRoutes, ...userRoutes, ...authRoutes, ...protectedRoutes, ...fallbackRoutes].map(
               ({ path, element }) => (

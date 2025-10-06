@@ -194,7 +194,7 @@ export default function ProfileSettings({ user }) {
         <button
           type="submit"
           disabled={isLoading}
-          className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50"
+          className="cursor-pointer bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50"
         >
           {isLoading ? "Salvando..." : "Salvar Alterações"}
         </button>

@@ -14,7 +14,7 @@ export default function MediaHeader({ mediaItem, description }) {
             src={mediaItem.image}
             alt={mediaItem.title}
             className={`w-full object-cover rounded-2xl shadow-lg border border-white/10 ${
-              mediaItem.type === "MOVIE" || mediaItem.type === "SERIES"
+              mediaItem.type === "MOVIE" || mediaItem.type === "SERIES" || mediaItem.type === "BOOK"
                 ? "h-120" 
                 : mediaItem.type === "MUSIC" || mediaItem.type === "GAME"
                   ? "h-90" 
