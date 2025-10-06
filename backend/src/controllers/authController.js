@@ -11,7 +11,7 @@ const generateToken = (userId) => {
 const authController = {
   async register(req, res) {
     try {
-      const { email, password, name, username } = req.body;
+      const { email, password, name, username, gender, location, birthDate } = req.body;
 
       if (!email || !password || !name || !username) {
         return res.status(400).json({ error: 'Todos os campos obrigatórios devem ser preenchidos' });
@@ -33,9 +33,20 @@ const authController = {
           password: hashedPassword,
           name,
           username,
-
+          gender,
+          location,
+          birthDate: birthDate ? new Date(birthDate) : null
         },
-        select: { id: true, email: true, name: true, username: true, createdAt: true }
+        select: { 
+          id: true, 
+          email: true, 
+          name: true, 
+          username: true, 
+          createdAt: true,
+          gender: true,
+          location: true,
+          birthDate: true
+        }
       });
 
       const token = generateToken(user.id);

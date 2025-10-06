@@ -72,7 +72,7 @@ export default function ReportButtonModal({ mediaItem, type = "report" }) {
       {/* Botão discreto com ícone */}
       <button
         onClick={() => setIsOpen(true)}
-        className="p-2 rounded-full bg-gray-700/80 hover:bg-gray-600 text-white shadow-md transition-colors"
+        className="p-2 rounded-full bg-gray-700/80 hover:bg-gray-600 text-white shadow-md transition-colors cursor-pointer"
         title={type === "report" ? "Reportar problema" : "Enviar pedido"}
       >
         <MdOutlineReport className="w-5 h-5" />

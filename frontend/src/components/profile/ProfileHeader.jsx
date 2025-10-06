@@ -1,13 +1,58 @@
 import { Link } from "react-router-dom";
+import { FaUser, FaGenderless, FaMapMarkerAlt } from "react-icons/fa";
+import { IoMdMale, IoMdFemale } from "react-icons/io";
+import { calculateAge } from "../../utils/calculateAge"
 
 export default function ProfileHeader({ user, isOwner }) {
   const hasBio = user?.bio && user.bio.trim().length > 0;
+  
+  // Calcular idade a partir da data de nascimento
+  const age = user?.birthDate ? calculateAge(user.birthDate) : null;
+  
+  // Verificar se há informações adicionais para mostrar
+  const hasAdditionalInfo = age || user?.gender || user?.location;
 
   // Formatar data de criação
   const createdAt = user?.createdAt ? new Date(user.createdAt) : null;
   const formattedDate = createdAt
     ? new Intl.DateTimeFormat("pt-BR", { month: "short", year: "numeric" }).format(createdAt)
     : "Data desconhecida";
+
+  // Formatar gênero para exibição com ícones
+  const renderGenderInfo = (gender) => {
+    const genderConfig = {
+      'MALE': { 
+        label: 'Masculino', 
+        icon: <IoMdMale />,
+      },
+      'FEMALE': { 
+        label: 'Feminino', 
+        icon: <IoMdFemale />,
+      },
+      'OTHER': { 
+        label: 'Outro', 
+        icon: <FaUser />,
+      },
+      'NONE': { 
+        label: 'Não informado', 
+        icon: <FaGenderless />,
+      }
+    };
+
+    const config = genderConfig[gender] || genderConfig['NONE'];
+    
+    return (
+      <div className="flex items-center gap-2">
+        <span className={`text-lg ${config.color}`}>
+          {config.icon}
+        </span>
+        <div className="flex flex-col">
+          <span className="text-gray-400 text-xs">Gênero:</span>
+          <span className="text-white font-medium text-sm">{config.label}</span>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="bg-gray-800/80 rounded-2xl shadow-md overflow-hidden mb-8 border border-gray-700/50">
@@ -55,9 +100,40 @@ export default function ProfileHeader({ user, isOwner }) {
           {/* Conteúdo principal: nome, username e bio */}
           <div className="flex-1">
             <h1 className="text-2xl font-bold text-white mb-1">{user.name}</h1>
-            <p className="text-gray-400 mb-1 py-1 flex items-center gap-1">
+            <p className="text-gray-400 mb-3 py-1 flex items-center gap-1">
               @{user.username}
             </p>
+
+            {/* Informações adicionais - idade, gênero e localidade */}
+            {hasAdditionalInfo && (
+              <div className="mb-4 p-4 bg-gray-700/30 rounded-lg border border-gray-600/30">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {/* Idade */}
+                  {age && (
+                    <div className="flex items-center gap-3">
+                      <div className="flex flex-col">
+                        <span className="text-gray-400 text-xs">Idade:</span>
+                        <span className="text-white font-medium text-sm">{age} anos</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Gênero */}
+                  {user.gender && renderGenderInfo(user.gender)}
+
+                  {/* Localização */}
+                  {user.location && (
+                    <div className="flex items-center gap-3">
+                      <FaMapMarkerAlt />
+                      <div className="flex flex-col">
+                        <span className="text-gray-400 text-xs">Localização:</span>
+                        <span className="text-white font-medium text-sm">{user.location}</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
             {hasBio ? (
               <div className="mb-4 p-4 bg-gray-700/50 rounded-lg border border-gray-600/50">

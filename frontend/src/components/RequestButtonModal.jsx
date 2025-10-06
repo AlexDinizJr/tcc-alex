@@ -48,7 +48,7 @@ export default function RequestButtonModal() {
       {/* Botão discreto apenas com ícone */}
       <button
         onClick={() => setIsOpen(true)}
-        className="p-2 rounded-full bg-gray-700/80 hover:bg-gray-600 text-white shadow-md transition-colors"
+        className="p-2 rounded-full bg-gray-700/80 hover:bg-gray-600 text-white shadow-md transition-colors cursor-pointer"
         title="Enviar pedido"
       >
         <CiSquareQuestion className="w-5 h-5" />

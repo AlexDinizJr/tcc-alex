@@ -1,8 +1,23 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import countries from 'world-countries';
 import { useAuth } from "../../hooks/useAuth";
 import AuthContainer from "../../components/auth/AuthContainer";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Calendar } from "lucide-react";
+
+// Lista de países
+const countryList = countries
+  .map(country => country.translations.por?.common || country.name.common)
+  .filter(Boolean)
+  .sort((a, b) => a.localeCompare(b, 'pt'));
+
+// Opções de gênero
+const genderOptions = [
+  { value: "MALE", label: "Masculino" },
+  { value: "FEMALE", label: "Feminino" },
+  { value: "OTHER", label: "Outro" },
+  { value: "NONE", label: "Prefiro não informar" }
+];
 
 export default function Signup() {
   const [name, setName] = useState("");
@@ -10,13 +25,27 @@ export default function Signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [birthDate, setBirthDate] = useState("");
+  const [gender, setGender] = useState("");
+  const [location, setLocation] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showCountryList, setShowCountryList] = useState(false);
 
   const { register, login } = useAuth();
   const navigate = useNavigate();
+
+  const calculateAge = (birthDate) => {
+    if (!birthDate) return null;
+    const today = new Date();
+    const birth = new Date(birthDate);
+    let age = today.getFullYear() - birth.getFullYear();
+    const monthDiff = today.getMonth() - birth.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) age--;
+    return age;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -40,6 +69,25 @@ export default function Signup() {
       return;
     }
 
+    // Validação de idade (mínimo 13 anos)
+    if (birthDate) {
+      const age = calculateAge(birthDate);
+      if (age < 13) {
+        setError("Você deve ter pelo menos 13 anos para se cadastrar");
+        return;
+      }
+      if (age > 120) {
+        setError("Por favor, insira uma data de nascimento válida");
+        return;
+      }
+    }
+
+    // Validação de gênero
+    if (gender && !["MALE", "FEMALE", "OTHER", "NONE"].includes(gender)) {
+      setError("Selecione um gênero válido");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -48,6 +96,9 @@ export default function Signup() {
         username: username.trim().toLowerCase(),
         email: email.toLowerCase().trim(),
         password,
+        birthDate: birthDate || null,
+        gender: gender || "NONE",
+        location: location || null
       });
 
       if (result.success) {
@@ -64,6 +115,23 @@ export default function Signup() {
     }
   };
 
+  const handleBirthDateChange = (e) => {
+    const value = e.target.value;
+    setBirthDate(value);
+    
+    // Validação em tempo real da idade
+    if (value) {
+      const age = calculateAge(value);
+      if (age < 13) {
+        setError("Você deve ter pelo menos 13 anos para se cadastrar");
+      } else if (age > 120) {
+        setError("Por favor, insira uma data de nascimento válida");
+      } else {
+        setError("");
+      }
+    }
+  };
+
   return (
     <AuthContainer title="Criar Conta" subtitle="Junte-se à nossa comunidade">
       {error && (
@@ -72,11 +140,13 @@ export default function Signup() {
         </div>
       )}
 
+      <p className="text-gray-400 text-sm mb-6 text-center">* Campos Obrigatórios</p>
+
       <form className="space-y-5" onSubmit={handleSubmit}>
         {/* Nome */}
         <div>
           <label className="block text-gray-300 text-sm font-medium mb-2">
-            Nome Completo
+            Nome Completo *
           </label>
           <input
             type="text"
@@ -92,7 +162,7 @@ export default function Signup() {
         {/* Username */}
         <div>
           <label className="block text-gray-300 text-sm font-medium mb-2">
-            Username
+            Username *
           </label>
           <input
             type="text"
@@ -113,7 +183,7 @@ export default function Signup() {
         {/* Email */}
         <div>
           <label className="block text-gray-300 text-sm font-medium mb-2">
-            E-mail
+            E-mail *
           </label>
           <input
             type="email"
@@ -126,10 +196,86 @@ export default function Signup() {
           />
         </div>
 
+        {/* Data de Nascimento */}
+        <div>
+          <label className="block text-gray-300 text-sm font-medium mb-2">
+            Data de Nascimento
+          </label>
+          <div className="relative">
+            <input
+              type="date"
+              className="w-full p-4 rounded-lg bg-gray-700/60 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 border border-gray-600 transition-all duration-200 pr-12"
+              value={birthDate}
+              onChange={handleBirthDateChange}
+              max={new Date().toISOString().split('T')[0]} // Não permite data futura
+              disabled={loading}
+            />
+            <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+          </div>
+          <p className="text-xs text-gray-500 mt-1">
+            {birthDate && calculateAge(birthDate) && `Idade: ${calculateAge(birthDate)} anos`}
+          </p>
+        </div>
+
+        {/* Gênero */}
+        <div>
+          <label className="block text-gray-300 text-sm font-medium mb-2">
+            Gênero
+          </label>
+          <select
+            className="w-full p-4 rounded-lg bg-gray-700/60 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 border border-gray-600 transition-all duration-200"
+            value={gender}
+            onChange={(e) => setGender(e.target.value)}
+            disabled={loading}
+          >
+            <option value="">Selecione seu gênero</option>
+            {genderOptions.map(option => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Localização */}
+        <div>
+          <label className="block text-gray-300 text-sm font-medium mb-2">
+            Localização
+          </label>
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Selecione seu país"
+              className="w-full p-4 rounded-lg bg-gray-700/60 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 border border-gray-600 transition-all duration-200"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              onFocus={() => setShowCountryList(true)}
+              onBlur={() => setTimeout(() => setShowCountryList(false), 200)}
+              disabled={loading}
+            />
+              {showCountryList && (
+                <div className="absolute z-10 w-full mt-1 max-h-48 overflow-y-auto bg-gray-700 border border-gray-600 rounded-lg shadow-lg">
+                  {countryList.map(country => ( // ← MUDEI countries PARA countryList
+                    <div
+                      key={country}
+                      className="px-4 py-2 hover:bg-gray-600 cursor-pointer text-white"
+                      onClick={() => {
+                        setLocation(country);
+                        setShowCountryList(false);
+                      }}
+                    >
+                      {country}
+                    </div>
+                  ))}
+                </div>
+              )}
+          </div>
+        </div>
+
         {/* Senha */}
         <div>
           <label className="block text-gray-300 text-sm font-medium mb-2">
-            Senha
+            Senha *
           </label>
           <div className="relative">
             <input
@@ -156,7 +302,7 @@ export default function Signup() {
         {/* Confirmar Senha */}
         <div>
           <label className="block text-gray-300 text-sm font-medium mb-2">
-            Confirmar Senha
+            Confirmar Senha *
           </label>
           <div className="relative">
             <input

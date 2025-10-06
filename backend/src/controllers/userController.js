@@ -32,6 +32,9 @@ const userController = {
             username: true,
             avatar: true,
             bio: true,
+            gender: true,
+            location: true,
+            birthDate: true,
             coverImage: true,
             createdAt: true,
             _count: { select: { reviews: true, lists: true, savedMedia: true, favorites: true } }
@@ -68,6 +71,9 @@ const userController = {
           avatar: true,
           coverImage: true,
           bio: true,
+          gender: true,
+          location: true,
+          birthDate: true,
           createdAt: true,
           profileVisibility: true,
           showActivity: true,
@@ -112,6 +118,9 @@ const userController = {
           avatar: true,
           coverImage: true,
           bio: true,
+          gender: true,
+          location: true,
+          birthDate: true,
           createdAt: true,
           profileVisibility: true,
           showActivity: true,
@@ -146,11 +155,14 @@ const userController = {
   // Atualizar nome, bio e configurações de privacidade
   async updateUser(req, res) {
     try {
-      const { name, bio, privacySettings } = req.body;
+      const { name, bio, privacySettings, gender, location, birthDate } = req.body;
 
       const dataToUpdate = {};
       if (name !== undefined) dataToUpdate.name = name;
       if (bio !== undefined) dataToUpdate.bio = bio;
+      if (gender !== undefined) dataToUpdate.gender = gender;
+      if (location !== undefined) dataToUpdate.location = location;
+      if (birthDate !== undefined) dataToUpdate.birthDate = birthDate ? new Date(birthDate) : null;
 
       if (privacySettings && typeof privacySettings === 'object') {
         const allowedFields = [
@@ -181,6 +193,9 @@ const userController = {
           avatar: true,
           coverImage: true,
           bio: true,
+          gender: true,
+          location: true,
+          birthDate: true,
           profileVisibility: true,
           showActivity: true,
           showSavedItems: true,

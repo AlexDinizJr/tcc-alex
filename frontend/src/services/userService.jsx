@@ -3,9 +3,9 @@ import api from "./api";
 /**
  * Busca todos os usuários com paginação e busca
  */
-export async function fetchUsers({ page = 1, limit = 20, search = "" } = {}) {
+export async function fetchUsers({ page = 1, search = "" } = {}) {
   try {
-    const response = await api.get("/users", { params: { page, limit, search } });
+    const response = await api.get("/users", { params: { page, search } });
     return response.data;
   } catch (error) {
     console.error("Erro ao buscar usuários:", error.response?.data || error);

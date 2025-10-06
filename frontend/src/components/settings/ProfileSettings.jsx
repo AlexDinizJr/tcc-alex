@@ -2,6 +2,14 @@ import { useState, useEffect } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import { useToast } from "../../hooks/useToast";
 
+// Opções de gênero (mesmas do cadastro)
+const genderOptions = [
+  { value: "MALE", label: "Masculino" },
+  { value: "FEMALE", label: "Feminino" },
+  { value: "OTHER", label: "Outro" },
+  { value: "NONE", label: "Prefiro não informar" }
+];
+
 export default function ProfileSettings({ user }) {
   const { updateProfile, uploadAvatarFile, uploadCoverFile, removeAvatar, removeCover } = useAuth();
   const { showToast } = useToast();
@@ -9,6 +17,8 @@ export default function ProfileSettings({ user }) {
   const [formData, setFormData] = useState({
     name: user.name || "",
     bio: user.bio || "",
+    gender: user.gender || "NONE",
+    location: user.location || "",
   });
 
   const [preview, setPreview] = useState({
@@ -17,6 +27,12 @@ export default function ProfileSettings({ user }) {
   });
 
   useEffect(() => {
+    setFormData({
+      name: user.name || "",
+      bio: user.bio || "",
+      gender: user.gender || "NONE",
+      location: user.location || "",
+    });
     setPreview({
       avatar: user.avatar,
       coverImage: user.coverImage
@@ -69,8 +85,13 @@ export default function ProfileSettings({ user }) {
     e.preventDefault();
     setIsLoading(true);
     try {
-      // Atualiza nome e bio
-      await updateProfile({ name: formData.name, bio: formData.bio });
+      // Atualiza todos os dados do perfil
+      await updateProfile({ 
+        name: formData.name, 
+        bio: formData.bio,
+        gender: formData.gender,
+        location: formData.location
+      });
 
       // Upload avatar
       if (formData.avatar) {
@@ -188,6 +209,36 @@ export default function ProfileSettings({ user }) {
             rows={4}
             className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent text-white bg-gray-800/90"
             placeholder="Conte um pouco sobre você..."
+          />
+        </div>
+
+        {/* Gênero */}
+        <div>
+          <label className="block text-sm font-medium text-white mb-2">Gênero</label>
+          <select
+            name="gender"
+            value={formData.gender}
+            onChange={handleChange}
+            className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent text-white bg-gray-800/90"
+          >
+            {genderOptions.map(option => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Localização */}
+        <div>
+          <label className="block text-sm font-medium text-white mb-2">Localização</label>
+          <input
+            type="text"
+            name="location"
+            value={formData.location}
+            onChange={handleChange}
+            className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent text-white bg-gray-800/90"
+            placeholder="Sua localização (cidade, país)"
           />
         </div>
 

@@ -1,6 +1,6 @@
 export default function AuthContainer({ title, subtitle, children, footer }) {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-900">
+    <div className="min-h-screen flex items-center justify-center bg-gray-900 py-8 px-8">
       <div className="relative z-10 bg-gray-800/80 p-8 rounded-2xl 
                       w-full max-w-md 
                       border border-gray-700/50 

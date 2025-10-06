@@ -4,7 +4,7 @@ import UserCard from "../../components/contents/UserCard";
 import Pagination from "../../components/Pagination";
 
 export default function UsersPage() {
-  const itemsPerPage = 12;
+  const itemsPerPage = 30;
 
   const [users, setUsers] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
