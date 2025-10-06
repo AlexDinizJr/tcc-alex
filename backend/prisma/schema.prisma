@@ -16,6 +16,9 @@ model User {
   avatar     String?
   coverImage String?
   bio        String?
+  birthDate  DateTime?       
+  gender     Gender?         
+  location   String?         
   createdAt  DateTime  @default(now())
   helpfuls   Helpful[]
 
@@ -202,4 +205,11 @@ enum ClassificationRating {
   FOURTEEN
   SIXTEEN
   EIGHTEEN
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+  NONE
 }

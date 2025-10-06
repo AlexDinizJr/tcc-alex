@@ -7,7 +7,7 @@ const userController = {
   // Pegar todos os usuários com paginação
   async getAllUsers(req, res) {
     try {
-      const { page = 1, limit = 20, search } = req.query;
+      const { page = 1, limit, search } = req.query;
       const pageNumber = parseInt(page) > 0 ? parseInt(page) : 1;
       const limitNumber = parseInt(limit) > 0 ? parseInt(limit) : 20;
       const skip = (pageNumber - 1) * limitNumber;

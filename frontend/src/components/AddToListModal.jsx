@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { FiX } from "react-icons/fi";
+import useLockBodyScroll from "../hooks/useLockBodyScroll";
 
 export default function AddToListModal({ mediaItem, userLists, onAddToList, onClose }) {
   const [selectedList, setSelectedList] = useState("");
@@ -7,6 +8,7 @@ export default function AddToListModal({ mediaItem, userLists, onAddToList, onCl
   const [newListName, setNewListName] = useState("");
   const [newListIsPublic, setNewListIsPublic] = useState(false);
   const [lists, setLists] = useState(userLists || []);
+  useLockBodyScroll(onAddToList);
 
   useEffect(() => {
     setLists(userLists || []);

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "../../hooks/useToast";
+import useLockBodyScroll from "../../hooks/useLockBodyScroll";
 
 export default function EditListModal({ 
   isOpen, 
@@ -18,6 +19,7 @@ export default function EditListModal({
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  useLockBodyScroll(isOpen);
 
   if (!isOpen) return null;
 

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useToast } from "../../hooks/useToast";
+import useLockBodyScroll from "../../hooks/useLockBodyScroll";
 
 export default function DeleteItemModal({ 
   isOpen, 
@@ -10,6 +11,7 @@ export default function DeleteItemModal({
 }) {
   const { showToast } = useToast();
   const [loading, setLoading] = useState(false);
+  useLockBodyScroll(isOpen);
 
   if (!isOpen) return null;
 

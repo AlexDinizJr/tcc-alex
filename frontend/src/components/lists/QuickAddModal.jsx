@@ -1,10 +1,12 @@
 import { useState } from "react";
 import ListSearchBar from "./ListSearchBar";
+import useLockBodyScroll from "../../hooks/useLockBodyScroll";
 
 export default function QuickAddModal({ onClose, onAddItem, currentListItems }) {
   const [selectedMedia, setSelectedMedia] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
   const [isAdding, setIsAdding] = useState(false);
+  useLockBodyScroll(onAddItem);
 
   const currentMediaObjects = currentListItems.map((item) =>
     typeof item === "object" ? item : { id: item }

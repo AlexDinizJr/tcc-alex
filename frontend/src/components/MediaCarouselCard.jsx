@@ -7,6 +7,7 @@ import ShareMediaModal from "./ShareMediaModal";
 import AddToListModal from "./AddToListModal";
 import { excludeFromRecommendations } from "../services/recommendationService";
 import { toggleSaveMedia, toggleFavoriteMedia, fetchUserFavorites, fetchUserSavedMedia } from "../services/listsService";
+import { MediaImage } from "../utils/MediaImage";
 
 export default function MediaCarouselCard({ media }) {
   const { user, updateProfile, refreshUserOnInteraction, addMediaToList, updateUser, isAuthenticated } = useAuth();
@@ -72,7 +73,7 @@ export default function MediaCarouselCard({ media }) {
       if (result?.success) {
         const updatedExcluded = [...(user.excludedMedia || []), media];
         updateProfile({ ...user, excludedMedia: updatedExcluded });
-        showToast("Você não receberá mais esse conteúdo", "success");
+        showToast("Você não receberá mais este conteúdo", "success");
         return;
       }
     } catch (err) {
@@ -106,7 +107,6 @@ export default function MediaCarouselCard({ media }) {
       const result = await addMediaToList(media, listId, listName, isPublic);
 
       if (result.success) {
-        // Atualiza as listas do usuário no frontend caso seja nova lista
         if (listName && result.list) {
           updateUser(prev => ({
             ...prev,
@@ -163,7 +163,7 @@ export default function MediaCarouselCard({ media }) {
     <>
       <div className="bg-gray-800/80 border border-gray-700/50 shadow-md hover:shadow-2xl transition-transform transform-gpu duration-300 relative rounded-2xl w-full h-auto hover:scale-105 hover:z-10">
 
-        {/* Botão + Dropdown no mesmo wrapper com ref */}
+        {/* Botão + Dropdown */}
         <div ref={menuRef} className="absolute top-3 left-3 z-20">
           <button
             onClick={toggleMenu}
@@ -233,9 +233,9 @@ export default function MediaCarouselCard({ media }) {
           </svg>
         </button>
 
-        {/* Imagem */}
-        <Link to={`/media/${media.id}`} className="block w-full h-[160px] sm:h-[180px] md:h-[200px] overflow-hidden rounded-t-2xl">
-          <img src={media.image} alt={media.title} className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"/>
+        {/* Imagem com lazy loading */}
+        <Link to={`/media/${media.id}`} className="block">
+          <MediaImage src={media.image} alt={media.title} />
         </Link>
 
         {/* Conteúdo */}
