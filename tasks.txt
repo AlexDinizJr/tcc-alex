@@ -2,8 +2,6 @@
 
 # BÔNUS: ADIÇÃO DE IMAGENS DE JOGOS
 
-- Implementar no footer as seções de suporte, newsletter, termos de uso, cookies;
-
 # DEPLOY E HOSPEDAGEM:
 
 - Instalar o Docker Desktop;
@@ -28,6 +26,7 @@
 
 - Adicionar os Modais de Confirmação de Logout e Delete Review;
 - Validação de Localidade no update;
+- Icones Contextuais de Password e Calendar;
 - Ajustar o Toast de feedback para o usuário informando que ele já adicionou o item aos excluídos;
 - Ajustar o Toast de feedback para o usuário informando que ele está tentando marcar a própria review como útil;
 - Ajustar o Toast de feedback para o usuário informando se o item já está na lista;

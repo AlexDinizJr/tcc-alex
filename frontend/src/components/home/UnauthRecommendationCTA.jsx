@@ -21,7 +21,7 @@ export default function UnauthRecommendationCTA() {
             to="/signup"
             className="bg-blue-600 text-white px-8 py-4 rounded-xl hover:bg-blue-700 transition-all duration-300 font-bold text-lg shadow-md hover:shadow-lg border border-blue-500/50"
           >
-            Começar Agora - Grátis
+            Começar Agora
           </Link>
           <Link
             to="/login"

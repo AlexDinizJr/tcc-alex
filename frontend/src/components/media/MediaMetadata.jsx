@@ -1,4 +1,5 @@
 import { FiCalendar, FiClock, FiBook, FiTv, FiFilm, FiMusic, FiShield } from "react-icons/fi";
+import ClassificationBadge from "./ClassificationBadge";
 
 export default function MediaMetadata({ mediaItem }) {
   return (
@@ -8,11 +9,9 @@ export default function MediaMetadata({ mediaItem }) {
           <FiCalendar /> {mediaItem.year}
         </span>
       )}
-      {mediaItem.classification && (
-        <span className="text-gray-200 font-medium flex items-center gap-1">
-          <FiShield /> {mediaItem.classification}
-        </span>
-      )}
+
+      {mediaItem.classification && <ClassificationBadge classification={mediaItem.classification} />}
+      
       {mediaItem.duration && (
         <span className="text-gray-200 font-medium flex items-center gap-1">
           <FiClock /> {mediaItem.duration} min

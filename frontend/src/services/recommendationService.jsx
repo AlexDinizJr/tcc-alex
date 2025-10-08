@@ -33,7 +33,7 @@ export async function fetchCustomRecommendations(params = {}) {
 /**
  * Busca conteúdo em alta (trending)
  */
-export async function fetchTrending(limit = 5) {
+export async function fetchTrending(limit = 15) {
   try {
     const response = await api.get("/recommendations/trending", {
       params: { limit: parseInt(limit) },

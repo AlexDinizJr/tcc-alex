@@ -1,16 +1,14 @@
 import { Link } from "react-router-dom";
 import { FaUser, FaGenderless, FaMapMarkerAlt } from "react-icons/fa";
 import { IoMdMale, IoMdFemale } from "react-icons/io";
-import { calculateAge } from "../../utils/calculateAge"
+import { calculateAge } from "../../utils/calculateAge";
+import { CiCalendar } from "react-icons/ci";
 
 export default function ProfileHeader({ user, isOwner }) {
   const hasBio = user?.bio && user.bio.trim().length > 0;
-  
+
   // Calcular idade a partir da data de nascimento
   const age = user?.birthDate ? calculateAge(user.birthDate) : null;
-  
-  // Verificar se há informações adicionais para mostrar
-  const hasAdditionalInfo = age || user?.gender || user?.location;
 
   // Formatar data de criação
   const createdAt = user?.createdAt ? new Date(user.createdAt) : null;
@@ -21,35 +19,16 @@ export default function ProfileHeader({ user, isOwner }) {
   // Formatar gênero para exibição com ícones
   const renderGenderInfo = (gender) => {
     const genderConfig = {
-      'MALE': { 
-        label: 'Masculino', 
-        icon: <IoMdMale />,
-      },
-      'FEMALE': { 
-        label: 'Feminino', 
-        icon: <IoMdFemale />,
-      },
-      'OTHER': { 
-        label: 'Outro', 
-        icon: <FaUser />,
-      },
-      'NONE': { 
-        label: 'Não informado', 
-        icon: <FaGenderless />,
-      }
+      MALE: { label: "Masculino", icon: <IoMdMale /> },
+      FEMALE: { label: "Feminino", icon: <IoMdFemale /> },
+      OTHER: { label: "Outro", icon: <FaUser /> },
+      NONE: { label: "Não informado", icon: <FaGenderless /> },
     };
-
-    const config = genderConfig[gender] || genderConfig['NONE'];
-    
+    const config = genderConfig[gender] || genderConfig["NONE"];
     return (
-      <div className="flex items-center gap-2">
-        <span className={`text-lg ${config.color}`}>
-          {config.icon}
-        </span>
-        <div className="flex flex-col">
-          <span className="text-gray-400 text-xs">Gênero:</span>
-          <span className="text-white font-medium text-sm">{config.label}</span>
-        </div>
+      <div className="flex items-center gap-1 text-white text-sm">
+        {config.icon}
+        <span>{config.label}</span>
       </div>
     );
   };
@@ -59,11 +38,7 @@ export default function ProfileHeader({ user, isOwner }) {
       {/* Header */}
       <div className="h-40 relative">
         {user.coverImage ? (
-          <img
-            src={user.coverImage}
-            alt="Capa"
-            className="w-full h-full object-cover"
-          />
+          <img src={user.coverImage} alt="Capa" className="w-full h-full object-cover" />
         ) : (
           <div className="w-full h-full bg-gradient-to-r from-blue-600/70 to-indigo-600/70"></div>
         )}
@@ -74,16 +49,14 @@ export default function ProfileHeader({ user, isOwner }) {
             {user.avatar ? (
               <img src={user.avatar} alt={user.name} className="h-full w-full object-cover" />
             ) : (
-              <span className="text-3xl text-gray-300 font-bold">
-                {user.name.charAt(0).toUpperCase()}
-              </span>
+              <span className="text-3xl text-gray-300 font-bold">{user.name.charAt(0).toUpperCase()}</span>
             )}
           </div>
         </div>
       </div>
 
       {/* Conteúdo */}
-      <div className="pt-16 pb-6 px-6 relative">
+      <div className="pt-12 pb-6 px-6 relative">
         {/* Botão de Configurações Desktop */}
         {isOwner && (
           <div className="hidden md:block absolute top-6 right-6">
@@ -96,45 +69,32 @@ export default function ProfileHeader({ user, isOwner }) {
           </div>
         )}
 
-        <div className="flex flex-col md:flex-row md:items-start md:justify-between">
-          {/* Conteúdo principal: nome, username e bio */}
+        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+          {/* Conteúdo principal */}
           <div className="flex-1">
-            <h1 className="text-2xl font-bold text-white mb-1">{user.name}</h1>
-            <p className="text-gray-400 mb-3 py-1 flex items-center gap-1">
-              @{user.username}
-            </p>
-
-            {/* Informações adicionais - idade, gênero e localidade */}
-            {hasAdditionalInfo && (
-              <div className="mb-4 p-4 bg-gray-700/30 rounded-lg border border-gray-600/30">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {/* Idade */}
-                  {age && (
-                    <div className="flex items-center gap-3">
-                      <div className="flex flex-col">
-                        <span className="text-gray-400 text-xs">Idade:</span>
-                        <span className="text-white font-medium text-sm">{age} anos</span>
+            <div className="flex flex-col md:flex-row md:items-center md:gap-2 mb-2">
+              <h1 className="text-2xl font-bold text-white">{user.name}</h1>
+              <p className="text-gray-400 py-2 flex items-center gap-1">@{user.username}</p>
+                {(age || user.gender || user.location) && (
+                  <div className="p-3 mb-2 bg-gray-700/50 rounded-lg border md:ml-4 border-gray-600/50 flex flex-wrap gap-4">
+                    {age && (
+                      <div className="flex items-center gap-1 text-white text-sm">
+                        <span>Idade:</span>
+                        <span>{age} anos</span>
                       </div>
-                    </div>
-                  )}
-
-                  {/* Gênero */}
-                  {user.gender && renderGenderInfo(user.gender)}
-
-                  {/* Localização */}
-                  {user.location && (
-                    <div className="flex items-center gap-3">
-                      <FaMapMarkerAlt />
-                      <div className="flex flex-col">
-                        <span className="text-gray-400 text-xs">Localização:</span>
-                        <span className="text-white font-medium text-sm">{user.location}</span>
+                    )}
+                    {user.gender && renderGenderInfo(user.gender)}
+                    {user.location && (
+                      <div className="flex items-center gap-1 text-white text-sm">
+                        <FaMapMarkerAlt />
+                        <span>{user.location}</span>
                       </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
+                    )}
+                  </div>
+                )}
+            </div>
 
+            {/* Biografia */}
             {hasBio ? (
               <div className="mb-4 p-4 bg-gray-700/50 rounded-lg border border-gray-600/50">
                 <h3 className="text-sm font-medium text-gray-300 mb-2 flex items-center gap-1">
@@ -151,7 +111,7 @@ export default function ProfileHeader({ user, isOwner }) {
             )}
 
             <p className="text-gray-400 text-xs flex items-center gap-1">
-              Membro desde {formattedDate}
+              <CiCalendar /> Membro desde {formattedDate}
             </p>
           </div>
         </div>

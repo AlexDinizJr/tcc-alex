@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import MediaCarousel from "../MediaCarousel";
+import MediaCarouselHome from "../MediaCarouselHome";
 import { IoMdTrendingUp } from "react-icons/io";
 import { fetchTrending } from "../../services/recommendationService";
 
@@ -31,7 +31,7 @@ export default function TrendingSection() {
   }, []);
 
   return (
-    <div className="w-full max-w-6xl mx-auto mt-10 flex flex-col gap-6">
+    <div className="w-full max-w-7xl mx-auto mt-10 flex flex-col gap-6">
       <h2 className="text-2xl font-semibold mb-4 flex items-center gap-2">
         <IoMdTrendingUp className="w-6 h-6 text-blue-500" />
         Trendings
@@ -40,7 +40,7 @@ export default function TrendingSection() {
       {isLoading && <p className="text-gray-400">Carregando...</p>}
       {error && <p className="text-red-500">{error}</p>}
       {!isLoading && !error && trendingItems.length > 0 && (
-        <MediaCarousel items={trendingItems} />
+        <MediaCarouselHome items={trendingItems} />
       )}
 
       {!isLoading && !error && trendingItems.length === 0 && (

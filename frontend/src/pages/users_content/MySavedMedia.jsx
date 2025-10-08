@@ -27,7 +27,7 @@ export default function MySavedItems() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const itemsPerPage = 30;
+  const itemsPerPage = 20;
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {

@@ -83,3 +83,32 @@ body {
 .animate-fadeIn {
   animation: fadeIn 0.2s ease-out forwards;
 }
+
+.scroll-hide::-webkit-scrollbar {
+  display: none; /* Chrome, Safari e Opera */
+}
+
+.scroll-hide {
+  -ms-overflow-style: none;  /* IE e Edge */
+  scrollbar-width: none;     /* Firefox */
+}
+
+.card-hover-zoom {
+  position: relative;
+  z-index: 0;
+  overflow: visible;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transform: translateZ(0); /* melhora performance (GPU) */
+}
+
+.card-hover-zoom:hover {
+  transform: scale(1.05);
+  z-index: 10; /* sobe acima dos outros */
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* Tailwind CSS */
+.snap-x {
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain; /* Evita scroll além das extremidades */
+}

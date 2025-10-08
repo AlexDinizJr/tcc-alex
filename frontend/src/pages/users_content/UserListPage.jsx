@@ -5,10 +5,11 @@ import { useToast } from "../../hooks/useToast";
 import QuickAddModal from "../../components/lists/QuickAddModal";
 import EditListModal from "../../components/lists/EditListModal";
 import MediaCardWithActions from "../../components/lists/MediaCardWithActions";
-import MediaHeader from "../../components/contents/MediaPageHeader";
 import Pagination from "../../components/Pagination";
 import { fetchUserByUsername } from "../../services/userService";
 import { fetchListById } from "../../services/listsService";
+import ShareListModal from "../../components/ShareListModal";
+import { FiShare2 } from "react-icons/fi";
 
 export default function UserList() {
   const { username, id } = useParams();
@@ -21,6 +22,7 @@ export default function UserList() {
   const [localList, setLocalList] = useState(undefined);
   const [showQuickAddModal, setShowQuickAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
 
   const isOwner = loggedInUser?.username === username;
@@ -131,6 +133,16 @@ export default function UserList() {
           {/* Linha 1: Título e botão de edição */}
           <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-4 gap-2">
             <h1 className="text-3xl font-bold text-white">{localList.name}</h1>
+            <div className = "justify-end">
+            {localList.isPublic && (
+              <button
+                onClick={() => setShowShareModal(true)}
+                className="p-2 text-gray-400 hover:text-green-500 hover:bg-green-50 rounded-full transition-colors cursor-pointer ml-2"
+                title="Compartilhar lista"
+              >
+                <FiShare2 className="w-5 h-5" />
+              </button>
+            )}
             {isOwner && (
               <button
                 onClick={() => setShowEditModal(true)}
@@ -147,6 +159,7 @@ export default function UserList() {
                 </svg>
               </button>
             )}
+            </div>
           </div>
 
           {/* Linha 2: Autor + Visibilidade */}
@@ -210,6 +223,13 @@ export default function UserList() {
 
         {isOwner && showQuickAddModal && <QuickAddModal onClose={() => setShowQuickAddModal(false)} onAddItem={handleQuickAdd} currentListItems={localList.items || []} />}
         {isOwner && showEditModal && <EditListModal isOpen={showEditModal} onClose={() => setShowEditModal(false)} onSave={handleSaveList} onDelete={handleDeleteList} list={localList} />}
+        {localList.isPublic && showShareModal && (
+          <ShareListModal
+            isOpen={showShareModal}
+            onClose={() => setShowShareModal(false)}
+            list={localList}
+          />
+        )}
       </div>
     </div>
   );

@@ -119,7 +119,7 @@ const getUserPreferences = async (userId) => {
 };
 
 // --- Recomendações Principais ---
-const getUserRecommendations = async (userId, limit = 5, filters = {}) => {
+const getUserRecommendations = async (userId, limit = 15, filters = {}) => {
   if (!userId) return [];
 
   try {
@@ -371,7 +371,7 @@ const getSimilarMedia = async (mediaId, limit = 5) => {
   return scoredMedia.slice(0, limit).map(item => item.media);
 };
 
-const getTrendingMedia = async (limit = 5) => {
+const getTrendingMedia = async (limit = 15) => {
   const media = await prisma.media.findMany({
     include: {
       recommendationEngagements: true,

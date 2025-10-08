@@ -161,7 +161,7 @@ export default function MediaCarouselCard({ media }) {
 
   return (
     <>
-      <div className="bg-gray-800/80 border border-gray-700/50 shadow-md hover:shadow-2xl transition-transform transform-gpu duration-300 relative rounded-2xl w-full h-auto hover:scale-105 hover:z-10">
+      <div className="bg-gray-800/80 border border-gray-700/50 shadow-md w-44 sm:w-40 md:w-52 flex flex-col rounded-2xl h-auto card-hover-zoom">
 
         {/* Botão + Dropdown */}
         <div ref={menuRef} className="absolute top-3 left-3 z-20">

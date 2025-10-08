@@ -65,7 +65,7 @@ export default function Pagination({ currentPage, totalPages, onPageChange }) {
         onClick={handleFirst}
         disabled={cp === 1}
         className={`px-3 py-1 rounded-lg transition-colors ${
-          cp === 1 ? "bg-gray-600 text-gray-300 cursor-not-allowed" : "bg-blue-500 text-white hover:bg-blue-600"
+          cp === 1 ? "bg-gray-600 text-gray-300 cursor-not-allowed" : "bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"
         }`}
         aria-label="Primeira página"
       >
@@ -76,7 +76,7 @@ export default function Pagination({ currentPage, totalPages, onPageChange }) {
         onClick={handlePrev}
         disabled={cp === 1}
         className={`px-3 py-1 rounded-lg transition-colors ${
-          cp === 1 ? "bg-gray-600 text-gray-300 cursor-not-allowed" : "bg-blue-500 text-white hover:bg-blue-600"
+          cp === 1 ? "bg-gray-600 text-gray-300 cursor-not-allowed" : "bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"
         }`}
         aria-label="Página anterior"
       >
@@ -97,7 +97,7 @@ export default function Pagination({ currentPage, totalPages, onPageChange }) {
             key={item}
             onClick={() => handlePageChange(item)}
             className={`px-3 py-1 rounded-lg transition-colors ${
-              item === cp ? "bg-blue-700 text-white" : "bg-blue-500 text-white hover:bg-blue-600"
+              item === cp ? "bg-blue-700 text-white" : "bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"
             }`}
             aria-current={item === cp ? "page" : undefined}
           >
@@ -110,7 +110,7 @@ export default function Pagination({ currentPage, totalPages, onPageChange }) {
         onClick={handleNext}
         disabled={cp === tp}
         className={`px-3 py-1 rounded-lg transition-colors ${
-          cp === tp ? "bg-gray-600 text-gray-300 cursor-not-allowed" : "bg-blue-500 text-white hover:bg-blue-600"
+          cp === tp ? "bg-gray-600 text-gray-300 cursor-not-allowed" : "bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"
         }`}
         aria-label="Próxima página"
       >
@@ -121,7 +121,7 @@ export default function Pagination({ currentPage, totalPages, onPageChange }) {
         onClick={handleLast}
         disabled={cp === tp}
         className={`px-3 py-1 rounded-lg transition-colors ${
-          cp === tp ? "bg-gray-600 text-gray-300 cursor-not-allowed" : "bg-blue-500 text-white hover:bg-blue-600"
+          cp === tp ? "bg-gray-600 text-gray-300 cursor-not-allowed" : "bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"
         }`}
         aria-label="Última página"
       >

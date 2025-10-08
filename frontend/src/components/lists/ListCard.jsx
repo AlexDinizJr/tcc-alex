@@ -43,7 +43,7 @@ export default function ListCard({  list, username, isOwner }) {
 
         {mediaItems.length > 0 ? (
           <div className="grid grid-cols-3 gap-2">
-            {mediaItems.slice(0, 4).map((item, index) => (
+            {mediaItems.slice(0, 5).map((item, index) => (
               <div key={item.id || index} className="aspect-square rounded-lg overflow-hidden bg-gray-700">
                 {(item.image || item.poster || item.coverImage) ? (
                   <img 

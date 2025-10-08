@@ -3,6 +3,7 @@ import { useState } from "react";
 import countries from 'world-countries';
 import { useAuth } from "../../hooks/useAuth";
 import AuthContainer from "../../components/auth/AuthContainer";
+import SimpleModal from "../../components/SimpleModal";
 import { Eye, EyeOff, Calendar } from "lucide-react";
 
 // Lista de países
@@ -204,7 +205,7 @@ export default function Signup() {
           <div className="relative">
             <input
               type="date"
-              className="w-full p-4 rounded-lg bg-gray-700/60 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 border border-gray-600 transition-all duration-200 pr-12"
+              className="w-full p-4 rounded-lg bg-gray-700/60 text-white placeholder-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 border border-gray-600 transition-all duration-200 pr-12"
               value={birthDate}
               onChange={handleBirthDateChange}
               max={new Date().toISOString().split('T')[0]} // Não permite data futura
@@ -223,7 +224,7 @@ export default function Signup() {
             Gênero
           </label>
           <select
-            className="w-full p-4 rounded-lg bg-gray-700/60 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 border border-gray-600 transition-all duration-200"
+            className="w-full p-4 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 border border-gray-600 transition-all duration-200"
             value={gender}
             onChange={(e) => setGender(e.target.value)}
             disabled={loading}
@@ -242,7 +243,7 @@ export default function Signup() {
           <label className="block text-gray-300 text-sm font-medium mb-2">
             Localização
           </label>
-          <div className="relative">
+          <div className="relative scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-700">
             <input
               type="text"
               placeholder="Selecione seu país"
@@ -294,7 +295,7 @@ export default function Signup() {
               onClick={() => setShowPassword(!showPassword)}
               disabled={loading}
             >
-              {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
+              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
             </button>
           </div>
         </div>
@@ -320,10 +321,25 @@ export default function Signup() {
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
               disabled={loading}
             >
-              {showConfirmPassword ? <Eye size={20} /> : <EyeOff size={20} />}
+              {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
             </button>
           </div>
         </div>
+
+
+      <div className="mt-6 text-center">
+        <p className="text-gray-400 text-sm">
+          Ao efetuar o cadastro, você reconhece e concorda com os {" "} 
+          <SimpleModal
+              triggerText="Termos de Uso"
+              title="Termos de Uso"
+              content={`Bem-vindo ao MediaHub! Ao utilizar nossa plataforma, você concorda com os termos e condições descritos aqui. 
+          Estes termos regem o uso do site, serviços e conteúdos oferecidos, incluindo regras sobre acesso, comportamento dos usuários e responsabilidade pelo uso das informações. 
+          O MediaHub reserva-se o direito de atualizar estes termos a qualquer momento, sendo responsabilidade do usuário acompanhar as alterações.`}
+            />{" "}
+          aplicáveis.
+        </p>
+      </div>
 
         {/* Botão */}
         <button

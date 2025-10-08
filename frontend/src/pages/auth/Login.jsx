@@ -13,7 +13,7 @@ export default function Login() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [isForgotModalOpen, setIsForgotModalOpen] = useState(false); // 👈 controle do modal
+  const [isForgotModalOpen, setIsForgotModalOpen] = useState(false);
 
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -83,7 +83,7 @@ export default function Login() {
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-200 transition z-index"
             >
-              {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
+              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
             </button>
           </div>
         </div>
@@ -92,7 +92,7 @@ export default function Login() {
         <div className="text-right text-sm mt-1">
           <button
             type="button"
-            className="text-blue-400 hover:text-blue-300 hover:underline font-medium"
+            className="text-blue-400 cursor-pointer hover:text-blue-300 hover:underline font-medium"
             onClick={() => setIsForgotModalOpen(true)}
           >
             Esqueceu a senha?

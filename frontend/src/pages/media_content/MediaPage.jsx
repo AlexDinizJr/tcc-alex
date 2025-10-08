@@ -10,7 +10,7 @@ import { useMediaPageState } from "../../hooks/useMediaPageState";
  * @param {string} overlayImage URL da imagem de fundo opcional
  */
 function MediaPage({ type, title, overlayImage }) {
-  const mediaPage = useMediaPageState(type, 30);
+  const mediaPage = useMediaPageState(type, 20);
 
 return (
     <div

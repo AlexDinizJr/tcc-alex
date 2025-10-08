@@ -17,7 +17,7 @@ export default function MyLists() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 6;
+  const itemsPerPage = 9
 
   const isOwner = loggedInUser?.username === username;
 

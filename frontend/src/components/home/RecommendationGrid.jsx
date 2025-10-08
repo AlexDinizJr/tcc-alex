@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import MediaCarousel from "../MediaCarousel";
+import MediaCarouselHome from "../MediaCarouselHome";
 import { SlLike } from "react-icons/sl";
 import { fetchUserRecommendations } from "../../services/recommendationService";
 import { useAuth } from "../../hooks/useAuth"
@@ -28,7 +28,7 @@ export default function RecommendationGrid() {
   }, [loadRecommendations]);
 
   return (
-    <div className="w-full max-w-6xl mx-auto mt-10 flex flex-col gap-6">
+    <div className="w-full max-w-7xl mx-auto mt-10 flex flex-col gap-6 overflow-visible">
       {/* Cabeçalho da seção */}
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-semibold flex items-center gap-2 text-gray-900 dark:text-white">
@@ -50,7 +50,7 @@ export default function RecommendationGrid() {
       {/* Carousel centralizado */}
       {!isLoading && (
         <div className="w-full overflow-x-auto">
-          <MediaCarousel items={recommendations} />
+          <MediaCarouselHome items={recommendations} />
         </div>
       )}
     </div>

@@ -7,7 +7,7 @@ const recommendationService = {
   // Recomendações baseadas no usuário
   // ------------------------------
   async getUserRecommendations(userId) {
-    return recommendationEngine.getUserRecommendations(userId, limit = 5, {});
+    return recommendationEngine.getUserRecommendations(userId, limit = 15, {});
   },
 
   // ------------------------------
@@ -42,7 +42,7 @@ const recommendationService = {
   // Conteúdo em alta
   // ------------------------------
   async getTrendingMedia(options = {}) {
-    const { limit = 5 } = options;
+    const { limit = 15 } = options;
     return recommendationEngine.getTrendingMedia(limit);
   },
 
