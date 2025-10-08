@@ -98,7 +98,7 @@ export default function ProfileHeader({ user, isOwner }) {
             {hasBio ? (
               <div className="mb-4 p-4 bg-gray-700/50 rounded-lg border border-gray-600/50">
                 <h3 className="text-sm font-medium text-gray-300 mb-2 flex items-center gap-1">
-                  <b>Biografia</b>
+                  <b>Biografia:</b>
                 </h3>
                 <p className="text-gray-300 text-sm leading-relaxed">{user.bio}</p>
               </div>

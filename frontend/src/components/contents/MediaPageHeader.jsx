@@ -63,13 +63,13 @@ export default function MediaPageHeader({
   return (
     <div className="bg-gray-900/90 rounded-2xl shadow-xl border border-gray-700 p-6 mb-8 transition-all duration-300">
       {/* Busca + Ordenação + Filtros */}
-      <div className="flex flex-col md:flex-row items-center gap-4">
+      <div className="flex flex-col w-full md:w-auto md:flex-row items-center gap-4">
         <input
           type="text"
           placeholder="Pesquisar..."
           value={searchQuery}
           onChange={handleSearchChange}
-          className="flex-1 px-4 py-2 bg-gray-800 text-white placeholder-gray-400 border border-gray-700 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+          className="flex-1 min-w-0 px-4 py-2 bg-gray-800 text-white placeholder-gray-400 border border-gray-700 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
         />
 
         <div className="relative">
@@ -82,7 +82,7 @@ export default function MediaPageHeader({
           </button>
 
           {isDropdownOpen && (
-            <div className="absolute right-0 mt-2 w-52 bg-gray-800/95 text-white border border-gray-700 rounded-2xl shadow-lg z-10 animate-fadeIn">
+            <div className="absolute right-0 sm:right-0 left-0 mx-4 mt-2 w-auto max-w-xs sm:w-52 bg-gray-800/95 text-white border border-gray-700 rounded-2xl shadow-lg z-10 animate-fadeIn">
               {sortOptions.map((option) => (
                 <div
                   key={option.value}
@@ -148,7 +148,7 @@ export default function MediaPageHeader({
           </div>
 
           {/* Botão aplicar */}
-          <div className="flex justify-end mt-4">
+          <div className="flex justify-center sm:justify-end mt-4">
             <button
               onClick={() => {
                 setShowFilters(false);

@@ -30,7 +30,7 @@ export default function MediaCard({ media }) {
 
         <div className="flex items-center justify-between">
           
-          {media.year && (
+          {media.type && (
             <div className="text-xs px-2.5 py-1 bg-blue-600/20 text-blue-400 rounded-full border border-blue-500/30">
               <span className="text-xs text-gray-400">{media.type}</span>
             </div>

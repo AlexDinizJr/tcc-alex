@@ -53,7 +53,7 @@ export default function AuthSection({ user, isAuthenticated, onLogout, mobile = 
             </Link>
             <Link
               to="/signup"
-              className="block px-4 py-2 rounded-lg hover:bg-blue-700 bg-blue-600 transition-colors"
+              className="block px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
             >
               Cadastre-se
             </Link>

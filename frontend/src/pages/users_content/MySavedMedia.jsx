@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
-import MediaGrid from "../../components/contents/MediaGrid";
+import MediaCarousel from "../../components/MediaCarousel";
 import Pagination from "../../components/Pagination";
 import { BackToProfile } from "../../components/profile/BackToProfile";
 import { fetchUserByUsername } from "../../services/userService";
@@ -136,7 +136,7 @@ export default function MySavedItems() {
           <p className="text-gray-400">{savedMedia.length} itens salvos</p>
         </div>
 
-        <MediaGrid
+        <MediaCarousel
           items={savedMediaToShow}
           emptyMessage={
             isOwner

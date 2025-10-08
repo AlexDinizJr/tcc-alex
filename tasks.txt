@@ -1,7 +1,3 @@
-***REVISÃO DA APLICAÇÃO***
-
-# BÔNUS: ADIÇÃO DE IMAGENS DE JOGOS
-
 # DEPLOY E HOSPEDAGEM:
 
 - Instalar o Docker Desktop;
@@ -25,8 +21,9 @@
 - Ajustar o ícone de MarkedHelpful para ficar verde caso o usuário já tenha avaliado como útil;
 
 - Adicionar os Modais de Confirmação de Logout e Delete Review;
-- Validação de Localidade no update;
-- Icones Contextuais de Password e Calendar;
+- Aumentar opções de filtragem;
+- Adicionar Seção do Perfil de Pódio de cada categoria;
+- Remover os Icones Contextuais de Password e Calendar;
 - Ajustar o Toast de feedback para o usuário informando que ele já adicionou o item aos excluídos;
 - Ajustar o Toast de feedback para o usuário informando que ele está tentando marcar a própria review como útil;
 - Ajustar o Toast de feedback para o usuário informando se o item já está na lista;
