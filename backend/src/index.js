@@ -21,7 +21,7 @@ const adminStreamingRoutes = require('./routes/admin/streamingAdminRoutes');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// ✅ **SOLUÇÃO CORS - PERMISSIVA (funciona sempre)**
+// ===== MIDDLEWARES =====
 app.use(cors({
   origin: true,
   credentials: true,
@@ -29,52 +29,29 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 
-// ✅ **Middleware CORS manual (backup extra)**
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
   res.header('Access-Control-Allow-Credentials', 'true');
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
-  
-  // Responde imediatamente para OPTIONS
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
+  if (req.method === 'OPTIONS') return res.status(200).end();
   next();
 });
 
-app.use(helmet({
-  crossOriginResourcePolicy: { policy: "cross-origin" }
-}));
-
+app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
 app.use(morgan('combined'));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// Servir arquivos estáticos
-app.use(
-  '/uploads',
-  express.static(path.join(__dirname, 'uploads'), {
-    setHeaders: (res, path) => {
-      res.setHeader('Access-Control-Allow-Origin', '*');
-      res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
-    }
-  })
-);
+// ===== UPLOADS =====
+app.use('/uploads', express.static(path.join(__dirname, 'uploads'), {
+  setHeaders: (res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+  }
+}));
 
-// Swagger
-const setupSwagger = require('./config/swagger');
-setupSwagger(app);
-
-// Rotas
-app.get('/api', (req, res) => {
-  res.json({ 
-    message: "MediaHub API rodando!",
-    timestamp: new Date().toISOString(),
-    cors: "✅ CORS configurado"
-  });
-});
-
+// ===== ROTAS DE API =====
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/media', mediaRoutes);
@@ -85,34 +62,32 @@ app.use('/api/recommendations', recommendationRoutes);
 app.use('/api/admin/media', adminMediaRoutes);
 app.use('/api/admin/streaming', adminStreamingRoutes);
 
-// Rota de saúde
+// ===== ROTA DE SAÚDE =====
 app.get('/health', (req, res) => {
-  res.json({ 
-    status: 'OK', 
-    message: 'MediaHub API is running',
-    timestamp: new Date().toISOString(),
-    cors: 'enabled'
-  });
+  res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
-app.use(express.static(path.join(__dirname, "..", "frontend", "dist")));
+// ===== FRONTEND VITE/REACT =====
+const frontendDistPath = path.join(__dirname, '..', 'frontend', 'dist');
+app.use(express.static(frontendDistPath));
 
+// SPA fallback: qualquer rota que **não seja /api** retorna index.html
 app.get(/^\/(?!api).*/, (req, res) => {
-  res.sendFile(path.join(__dirname, "..", "frontend", "dist", "index.html"));
+  res.sendFile(path.join(frontendDistPath, 'index.html'));
 });
 
-
-// Manipulador de erros
+// ===== MANIPULADOR DE ERROS =====
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ error: 'Algo deu errado!' });
 });
 
-// Rota 404
+// ===== ROTA 404 =====
 app.use((req, res) => {
   res.status(404).json({ error: 'Rota não encontrada' });
 });
 
+// ===== INICIALIZAÇÃO DO SERVIDOR =====
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`✅ CORS configured for ALL origins`);
