@@ -1,7 +1,10 @@
 import axios from "axios";
 
+const baseLocal = "http://localhost:3001/api";
+const baseProd = "https://mediahubapi.up.railway.app/api";
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:3001/api",
+  baseURL: import.meta.env.VITE_API_URL || (window.location.hostname === "localhost" ? baseLocal : baseProd),
   withCredentials: true,
 });
 
