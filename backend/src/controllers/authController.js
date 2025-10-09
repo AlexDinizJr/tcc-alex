@@ -50,7 +50,7 @@ const authController = {
       });
 
       const token = generateToken(user.id);
-      await sendWelcomeEmail(user.email, user.name);
+      //await sendWelcomeEmail(user.email, user.name);
 
       res.status(201).json({ message: 'Usuário criado com sucesso', user, token });
     } catch (error) {

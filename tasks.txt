@@ -1,20 +1,7 @@
 # DEPLOY E HOSPEDAGEM:
 
-- Instalar o Docker Desktop;
-- Preparação local - Verificar que frontend e backend funcionam localmente;
-- Dockerizar aplicação - Criar backend/Dockerfile, frontend/Dockerfile e Docker Compose;
-- Configurar banco remoto:
-    - Criar instância PostgreSQL gratuita no Render ou Railway;
-    - Obter DATABASE_URL e colocar no .env do backend;
-    - Fazer dump do banco local;
-    - Importar no servidor remoto;
-    - Rodar migrations do Prisma no servidor;
-- Configurar GitHub Actions;
-- Registrar domínio:
-    - Registrar gratuitamente no Freenom ou comprar um domínio barato;
-    - Configurar DNS;
-    - HTTPS: Render gera certificado automaticamente;
-- Testes finais;
+- Consertar Roteamento fora das rota principal;
+- Serviço de Email não funciona;
 
 # POST LAUNCH - TRATAMENTO DE ERROS E FEEDBACKS:
 
