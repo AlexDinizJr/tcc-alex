@@ -62,6 +62,10 @@ app.use(
 const setupSwagger = require('./config/swagger');
 setupSwagger(app);
 
+app.get('/api', (req, res) => {
+  res.json({ message: "MediaHub API rodando!" });
+});
+
 // Rotas públicas e de usuários
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
