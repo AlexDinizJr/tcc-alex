@@ -21,39 +21,43 @@ const adminStreamingRoutes = require('./routes/admin/streamingAdminRoutes');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-const allowedOrigins = [
-  'http://localhost:5173',
-  process.env.APP_URL
-];
-
+// ✅ **SOLUÇÃO CORS - PERMISSIVA (funciona sempre)**
 app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true
+  origin: true, // Permite QUALQUER origem
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 
-// Configurar Helmet com política menos restritiva para imagens
+// ✅ **Middleware CORS manual (backup extra)**
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+  
+  // Responde imediatamente para OPTIONS
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+  next();
+});
+
 app.use(helmet({
-  crossOriginResourcePolicy: { policy: "cross-origin" } 
+  crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
 
 app.use(morgan('combined'));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// Servir arquivos estáticos (imagens)
+// Servir arquivos estáticos
 app.use(
   '/uploads',
   express.static(path.join(__dirname, 'uploads'), {
     setHeaders: (res, path) => {
-      res.setHeader('Access-Control-Allow-Origin', process.env.APP_URL || 'http://localhost:5173');
+      res.setHeader('Access-Control-Allow-Origin', '*');
       res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
-      res.setHeader('Cache-Control', 'public, max-age=86400'); // Cache de 1 dia
     }
   })
 );
@@ -62,11 +66,15 @@ app.use(
 const setupSwagger = require('./config/swagger');
 setupSwagger(app);
 
+// Rotas
 app.get('/api', (req, res) => {
-  res.json({ message: "MediaHub API rodando!" });
+  res.json({ 
+    message: "MediaHub API rodando!",
+    timestamp: new Date().toISOString(),
+    cors: "✅ CORS configurado"
+  });
 });
 
-// Rotas públicas e de usuários
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/media', mediaRoutes);
@@ -74,8 +82,6 @@ app.use('/api/reviews', reviewRoutes);
 app.use('/api/lists', listRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/recommendations', recommendationRoutes);
-
-// Rotas de administração
 app.use('/api/admin/media', adminMediaRoutes);
 app.use('/api/admin/streaming', adminStreamingRoutes);
 
@@ -84,7 +90,8 @@ app.get('/health', (req, res) => {
   res.json({ 
     status: 'OK', 
     message: 'MediaHub API is running',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    cors: 'enabled'
   });
 });
 
@@ -99,11 +106,8 @@ app.use((req, res) => {
   res.status(404).json({ error: 'Rota não encontrada' });
 });
 
-// Inicializar servidor
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`📊 Environment: ${process.env.NODE_ENV}`);
-  console.log(`🔗 Health check: http://localhost:${PORT}/health`);
-  console.log(`🔗 Swagger: http://localhost:${PORT}/api-docs`);
-  console.log(`🖼️  Images serving from: http://localhost:${PORT}/uploads/`);
+  console.log(`✅ CORS configured for ALL origins`);
+  console.log(`🔗 Health: http://localhost:${PORT}/health`);
 });
