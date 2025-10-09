@@ -155,8 +155,8 @@ export const SERVICES = {
   },
   SPOTIFY: {
     name: "Spotify",
-    icon: <FaSpotify className="w-5 h-5" />,
-    color: "bg-[#1DB954] hover:bg-[#1AA34A] text-white", // Verde Spotify
+    icon: <FaSpotify className="w-5 h-5 text-black" />, // garante que o ícone também fique preto
+    color: "bg-[#1DB954] hover:bg-[#1AA34A] !text-black", // fundo verde, texto preto
     baseUrl: "https://open.spotify.com/album/"
   },
   APPLE_MUSIC: {

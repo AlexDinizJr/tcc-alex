@@ -13,12 +13,10 @@ export default function MediaHeader({ mediaItem, description }) {
           <img
             src={mediaItem.image}
             alt={mediaItem.title}
-            className={`w-full object-cover rounded-2xl shadow-lg border border-white/10 ${
-              mediaItem.type === "MUSIC"
-                ? "h-90" 
-                : "h-120"
-            }`}
-            
+            className={`w-full rounded-2xl shadow-lg border border-white/10 object-cover
+              h-auto                    /* altura natural no mobile */
+              ${mediaItem.type === "MUSIC" ? "lg:h-90" : "lg:h-120"}  /* altura fixa no desktop */
+            `}
           />
         </div>
 

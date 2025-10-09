@@ -42,7 +42,7 @@ export default function Navbar() {
 
   return (
     <nav className="bg-gray-950 text-white">
-      <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+      <div className="container mx-auto px-4 py-3 flex flex-wrap items-center justify-between">
         {/* Esquerda: Logo + SearchBar + Links */}
         <div className="flex items-center gap-4">
           <Link
