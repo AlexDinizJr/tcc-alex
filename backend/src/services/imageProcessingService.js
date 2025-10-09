@@ -132,6 +132,23 @@ class ImageProcessingService {
     const baseUrl = 'https://mediahubapi.up.railway.app';
     return `${baseUrl}/uploads/default-${type}-${size}.jpg`;
   }
+
+  async deleteOldImages(filenames, type = 'avatar') {
+    try {
+      const dir = path.join(__dirname, '../uploads', `${type}s`);
+      
+      for (const filename of filenames) {
+        if (filename && !filename.startsWith('http')) {
+          const filePath = path.join(dir, filename);
+          if (fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error deleting old images:', error);
+    }
+  }
 }
 
 module.exports = new ImageProcessingService();
