@@ -1,6 +1,5 @@
 import api from "./api";
 
-
 /**
  * Busca todas as listas com filtros simples
  */

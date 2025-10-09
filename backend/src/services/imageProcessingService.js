@@ -105,7 +105,7 @@ class ImageProcessingService {
     const processedFilename = this.processFilenameForSize(filename, size);
     
     // ✅ URL ABSOLUTA do BACKEND
-    const baseUrl = 'https://mediahubapi.up.railway.app';
+    const baseUrl = process.env.APP_URL;
     return `${baseUrl}/uploads/${type}s/${processedFilename}`;
   }
 
@@ -129,7 +129,7 @@ class ImageProcessingService {
   }
 
   getDefaultImageUrl(type = 'avatar', size = 'medium') {
-    const baseUrl = 'https://mediahubapi.up.railway.app';
+    const baseUrl = process.env.APP_URL;
     return `${baseUrl}/uploads/default-${type}-${size}.jpg`;
   }
 }

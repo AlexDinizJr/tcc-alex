@@ -3,6 +3,7 @@ import axios from "axios";
 const api = axios.create({
   baseURL: "https://mediahubapi.up.railway.app/api",
   withCredentials: true,
+  timeout: 15000,
 });
 
 // Interceptor para debug
