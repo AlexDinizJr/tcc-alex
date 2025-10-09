@@ -85,10 +85,10 @@ app.use('/api/recommendations', recommendationRoutes);
 app.use('/api/admin/media', adminMediaRoutes);
 app.use('/api/admin/streaming', adminStreamingRoutes);
 
-app.use(express.static(path.join(__dirname, "..", "frontend")));
+app.use(express.static(path.join(__dirname, "..", "frontend", "build")));
 
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "..", "frontend", "index.html"));
+app.get(/^\/(?!api).*/, (req, res) => {
+  res.sendFile(path.join(__dirname, "..", "frontend", "build", "index.html"));
 });
 
 // Rota de saúde
