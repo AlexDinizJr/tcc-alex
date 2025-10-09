@@ -1,0 +1,63 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      APP_URL: ${{ secrets.APP_URL }}
+      FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
+
+    steps:
+      # 1. Puxar o código do repositório
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 2. Configurar Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+          cache: "npm"
+
+      # 3. Instalar dependências do backend
+      - name: Install backend dependencies
+        working-directory: ./backend
+        run: npm install
+
+      # 4. Rodar testes do backend
+      - name: Test backend
+        working-directory: ./backend
+        run: npm test
+
+      # 5. Rodar migrações do Prisma
+      - name: Run Prisma migrations
+        working-directory: ./backend
+        run: npx prisma migrate deploy
+
+      # 6. Instalar dependências do frontend
+      - name: Install frontend dependencies
+        working-directory: ./frontend
+        run: npm install
+
+      # 7. Build frontend
+      - name: Build frontend
+        working-directory: ./frontend
+        run: npm run build
+
+      # 8. Login no Railway CLI
+      - name: Railway login
+        uses: railwayapp/railway-action@v2
+        with:
+          apiKey: ${{ secrets.RAILWAY_API_KEY }}
+
+      # 9. Deploy no Railway
+      - name: Deploy backend and frontend
+        run: railway up --detach
