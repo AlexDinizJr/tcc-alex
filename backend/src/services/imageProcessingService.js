@@ -129,7 +129,7 @@ class ImageProcessingService {
   }
 
   getDefaultImageUrl(type = 'avatar', size = 'medium') {
-    const baseUrl = process.env.APP_URL;
+    const baseUrl = 'https://mediahubapi.up.railway.app';
     return `${baseUrl}/uploads/default-${type}-${size}.jpg`;
   }
 }
