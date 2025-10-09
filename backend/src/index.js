@@ -68,12 +68,10 @@ app.get('/health', (req, res) => {
 });
 
 // ===== FRONTEND VITE/REACT =====
-const frontendDistPath = path.join(__dirname, '..', 'frontend', 'dist');
-app.use(express.static(frontendDistPath));
+app.use(express.static(path.join(__dirname, '..', 'frontend', 'dist')));
 
-// SPA fallback: qualquer rota que **não seja /api** retorna index.html
 app.get(/^\/(?!api).*/, (req, res) => {
-  res.sendFile(path.join(frontendDistPath, 'index.html'));
+  res.sendFile(path.join(__dirname, '..', 'frontend', 'dist', 'index.html'));
 });
 
 // ===== MANIPULADOR DE ERROS =====
