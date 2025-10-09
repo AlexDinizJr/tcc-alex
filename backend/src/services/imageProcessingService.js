@@ -92,7 +92,7 @@ class ImageProcessingService {
 
   // Gerar URL para a imagem
   generateImageUrl(filename, type = 'avatar', size = 'medium') {
-    const baseUrl = process.env.APP_URL || 'http://localhost:3001';
+    const baseUrl = process.env.APP_URL || 'https://mediahubapi.up.railway.app';
     return `${baseUrl}/uploads/${type}s/${filename}`;
   }
 
