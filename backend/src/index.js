@@ -67,18 +67,6 @@ app.get('/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
-// ===== FRONTEND VITE/REACT =====
-const frontendPath = path.join(__dirname, "..", "frontend", "dist");
-app.use(express.static(frontendPath, {
-  index: false, 
-  setHeaders: (res, path) => {
-    // Cache para arquivos estáticos
-    if (path.endsWith('.js') || path.endsWith('.css')) {
-      res.setHeader('Cache-Control', 'public, max-age=31536000');
-    }
-  }
-}));
-
 // ===== MANIPULADOR DE ERROS =====
 app.use((err, req, res, next) => {
   console.error(err.stack);
