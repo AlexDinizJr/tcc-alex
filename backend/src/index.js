@@ -21,9 +21,15 @@ const adminStreamingRoutes = require('./routes/admin/streamingAdminRoutes');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+const allowedOrigins = [
+  'https://mediahub.up.railway.app',
+  'https://mediahubapi.up.railway.app', 
+  'http://localhost:5173'
+];
+
 // ✅ **SOLUÇÃO CORS - PERMISSIVA (funciona sempre)**
 app.use(cors({
-  origin: true, // Permite QUALQUER origem
+  origin: allowedOrigins,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
