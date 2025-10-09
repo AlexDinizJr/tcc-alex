@@ -92,26 +92,45 @@ class ImageProcessingService {
 
   // Gerar URL para a imagem
   generateImageUrl(filename, type = 'avatar', size = 'medium') {
-    const baseUrl = process.env.APP_URL || 'https://mediahubapi.up.railway.app';
-    return `${baseUrl}/uploads/${type}s/${filename}`;
+    if (!filename) {
+      return this.getDefaultImageUrl(type, size);
+    }
+
+    // Se já é uma URL completa, retorna como está
+    if (filename.startsWith('http')) {
+      return filename;
+    }
+
+    // Processa o filename para garantir o tamanho correto
+    const processedFilename = this.processFilenameForSize(filename, size);
+    
+    // ✅ URL ABSOLUTA do BACKEND
+    const baseUrl = 'https://mediahubapi.up.railway.app';
+    return `${baseUrl}/uploads/${type}s/${processedFilename}`;
   }
 
-  // Deletar imagens antigas
-  async deleteOldImages(filenames, type = 'avatar') {
-    try {
-      const dir = path.join(__dirname, '../uploads', `${type}s`);
-      
-      for (const filename of filenames) {
-        if (filename && !filename.startsWith('http')) {
-          const filePath = path.join(dir, filename);
-          if (fs.existsSync(filePath)) {
-            fs.unlinkSync(filePath);
-          }
-        }
+  processFilenameForSize(filename, targetSize) {
+    const ext = path.extname(filename);
+    const baseName = path.basename(filename, ext);
+    
+    // Remove sufixos de tamanho existentes
+    const sizeSuffixes = ['thumb', 'small', 'medium', 'large'];
+    let cleanBaseName = baseName;
+    
+    for (const suffix of sizeSuffixes) {
+      if (baseName.endsWith(`-${suffix}`)) {
+        cleanBaseName = baseName.slice(0, -(`-${suffix}`).length);
+        break;
       }
-    } catch (error) {
-      console.error('Error deleting old images:', error);
     }
+    
+    // Adiciona o tamanho desejado
+    return `${cleanBaseName}-${targetSize}${ext}`;
+  }
+
+  getDefaultImageUrl(type = 'avatar', size = 'medium') {
+    const baseUrl = 'https://mediahubapi.up.railway.app';
+    return `${baseUrl}/uploads/default-${type}-${size}.jpg`;
   }
 }
 
