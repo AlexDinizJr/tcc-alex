@@ -21,9 +21,19 @@ const adminStreamingRoutes = require('./routes/admin/streamingAdminRoutes');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Configurar CORS
+const allowedOrigins = [
+  'http://localhost:5173',
+  process.env.APP_URL
+];
+
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
 
@@ -41,8 +51,7 @@ app.use(
   '/uploads',
   express.static(path.join(__dirname, 'uploads'), {
     setHeaders: (res, path) => {
-      // 🔥 Headers específicos para imagens
-      res.setHeader('Access-Control-Allow-Origin', 'http://localhost:5173');
+      res.setHeader('Access-Control-Allow-Origin', process.env.APP_URL || 'http://localhost:5173');
       res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
       res.setHeader('Cache-Control', 'public, max-age=86400'); // Cache de 1 dia
     }
