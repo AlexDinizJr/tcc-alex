@@ -68,11 +68,16 @@ app.get('/health', (req, res) => {
 });
 
 // ===== FRONTEND VITE/REACT =====
-app.use(express.static(path.join(__dirname, '..', 'frontend', 'dist')));
-
-app.get(/^\/(?!api).*/, (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'frontend', 'dist', 'index.html'));
-});
+const frontendPath = path.join(__dirname, "..", "frontend", "dist");
+app.use(express.static(frontendPath, {
+  index: false, 
+  setHeaders: (res, path) => {
+    // Cache para arquivos estáticos
+    if (path.endsWith('.js') || path.endsWith('.css')) {
+      res.setHeader('Cache-Control', 'public, max-age=31536000');
+    }
+  }
+}));
 
 // ===== MANIPULADOR DE ERROS =====
 app.use((err, req, res, next) => {
