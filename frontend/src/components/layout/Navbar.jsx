@@ -42,9 +42,9 @@ export default function Navbar() {
 
   return (
     <nav className="bg-gray-950 text-white">
-      <div className="container mx-auto px-4 py-3 flex flex-wrap items-center justify-between">
+      <div className="container mx-auto px-1 py-2 flex flex-wrap items-center justify-between">
         {/* Esquerda: Logo + SearchBar + Links */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
           <Link
             to="/"
             className="text-xl font-bold hover:text-blue-400 transition-colors flex items-center gap-1"
