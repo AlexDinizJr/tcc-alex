@@ -74,6 +74,7 @@ export default function NavLinks({ mobile = false }) {
               <Link
                 key={item.to}
                 to={item.to}
+                onClick={() => setIsDropdownOpen(false)}
                 className="flex items-center gap-2 px-4 py-2 hover:bg-gray-700 transition-colors"
               >
                 {item.icon}

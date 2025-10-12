@@ -33,7 +33,6 @@ export default function Signup() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [showCountryList, setShowCountryList] = useState(false);
 
   const { register, login } = useAuth();
   const navigate = useNavigate();
@@ -147,11 +146,11 @@ export default function Signup() {
         {/* Nome */}
         <div>
           <label className="block text-gray-300 text-sm font-medium mb-2">
-            Nome Completo *
+            Nome *
           </label>
           <input
             type="text"
-            placeholder="Seu nome completo"
+            placeholder="Seu nome"
             className="w-full p-4 rounded-lg bg-gray-700/60 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 border border-gray-600 transition-all duration-200"
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -238,38 +237,26 @@ export default function Signup() {
           </select>
         </div>
 
-        {/* Localização */}
+      {/* Localização */}
         <div>
           <label className="block text-gray-300 text-sm font-medium mb-2">
             Localização
           </label>
-          <div className="relative scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-700">
-            <input
-              type="text"
-              placeholder="Selecione seu país"
-              className="w-full p-4 rounded-lg bg-gray-700/60 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 border border-gray-600 transition-all duration-200"
+          <div className="relative">
+            <select
+              className="w-full p-4 rounded-lg bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500
+              border border-gray-600 transition-all duration-200"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
-              onFocus={() => setShowCountryList(true)}
-              onBlur={() => setTimeout(() => setShowCountryList(false), 200)}
               disabled={loading}
-            />
-              {showCountryList && (
-                <div className="absolute z-10 w-full mt-1 max-h-48 overflow-y-auto bg-gray-700 border border-gray-600 rounded-lg shadow-lg">
-                  {countryList.map(country => ( // ← MUDEI countries PARA countryList
-                    <div
-                      key={country}
-                      className="px-4 py-2 hover:bg-gray-600 cursor-pointer text-white"
-                      onClick={() => {
-                        setLocation(country);
-                        setShowCountryList(false);
-                      }}
-                    >
-                      {country}
-                    </div>
-                  ))}
-                </div>
-              )}
+            >
+              <option value="">Selecione seu país</option>
+              {countryList.map((country) => (
+                <option key={country} value={country}>
+                  {country}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 

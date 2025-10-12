@@ -1,6 +1,11 @@
-const sharp = require('sharp');
-const path = require('path');
-const fs = require('fs');
+const cloudinary = require('cloudinary').v2;
+
+// Configurar Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
 class ImageProcessingService {
   constructor() {
@@ -20,30 +25,31 @@ class ImageProcessingService {
 
   async processAvatar(filePath, userId) {
     try {
-      const filename = path.basename(filePath);
-      const ext = path.extname(filename);
-      const baseName = path.basename(filename, ext);
-      const dir = path.dirname(filePath);
+      // Upload para Cloudinary com transformações
+      const uploadResult = await cloudinary.uploader.upload(filePath, {
+        folder: `avatars/${userId}`,
+        transformation: [
+          { width: 400, height: 400, crop: 'fill' },
+          { quality: 'auto', fetch_format: 'auto' }
+        ]
+      });
 
+      // Gerar URLs para diferentes tamanhos
       const processedImages = {};
-
-      // Processar cada tamanho
+      
       for (const [size, dimensions] of Object.entries(this.avatarSizes)) {
-        const outputFilename = `${baseName}-${size}${ext}`;
-        const outputPath = path.join(dir, outputFilename);
-
-        await sharp(filePath)
-          .resize(dimensions.width, dimensions.height, {
-            fit: 'cover',
-            position: 'center'
-          })
-          .jpeg({ quality: 80, progressive: true })
-          .toFile(outputPath);
-
-        processedImages[size] = outputFilename;
+        const url = cloudinary.url(uploadResult.public_id, {
+          width: dimensions.width,
+          height: dimensions.height,
+          crop: 'fill',
+          quality: 'auto',
+          fetch_format: 'auto'
+        });
+        processedImages[size] = url;
       }
 
-      // Deletar arquivo original
+      // Deletar arquivo local
+      const fs = require('fs');
       fs.unlinkSync(filePath);
 
       return processedImages;
@@ -56,30 +62,31 @@ class ImageProcessingService {
 
   async processCover(filePath, userId) {
     try {
-      const filename = path.basename(filePath);
-      const ext = path.extname(filename);
-      const baseName = path.basename(filename, ext);
-      const dir = path.dirname(filePath);
+      // Upload para Cloudinary com transformações
+      const uploadResult = await cloudinary.uploader.upload(filePath, {
+        folder: `covers/${userId}`,
+        transformation: [
+          { width: 1200, height: 600, crop: 'fill' },
+          { quality: 'auto', fetch_format: 'auto' }
+        ]
+      });
 
+      // Gerar URLs para diferentes tamanhos
       const processedImages = {};
-
-      // Processar cada tamanho
+      
       for (const [size, dimensions] of Object.entries(this.coverSizes)) {
-        const outputFilename = `${baseName}-${size}${ext}`;
-        const outputPath = path.join(dir, outputFilename);
-
-        await sharp(filePath)
-          .resize(dimensions.width, dimensions.height, {
-            fit: 'cover',
-            position: 'center'
-          })
-          .jpeg({ quality: 85, progressive: true })
-          .toFile(outputPath);
-
-        processedImages[size] = outputFilename;
+        const url = cloudinary.url(uploadResult.public_id, {
+          width: dimensions.width,
+          height: dimensions.height,
+          crop: 'fill',
+          quality: 'auto',
+          fetch_format: 'auto'
+        });
+        processedImages[size] = url;
       }
 
-      // Deletar arquivo original
+      // Deletar arquivo local
+      const fs = require('fs');
       fs.unlinkSync(filePath);
 
       return processedImages;
@@ -90,64 +97,85 @@ class ImageProcessingService {
     }
   }
 
-  // Gerar URL para a imagem
+  // Gerar URL para a imagem - agora usando Cloudinary
   generateImageUrl(filename, type = 'avatar', size = 'medium') {
     if (!filename) {
       return this.getDefaultImageUrl(type, size);
     }
 
-    // Se já é uma URL completa, retorna como está
+    // Se já é uma URL completa (incluindo Cloudinary), retorna como está
     if (filename.startsWith('http')) {
       return filename;
     }
 
-    // Processa o filename para garantir o tamanho correto
-    const processedFilename = this.processFilenameForSize(filename, size);
-    
-    // ✅ URL ABSOLUTA do BACKEND
-    const baseUrl = 'https://mediahubapi.up.railway.app';
-    return `${baseUrl}/uploads/${type}s/${processedFilename}`;
-  }
+    // Para Cloudinary, o filename é o public_id
+    // Mapear tamanhos para dimensões do Cloudinary
+    const dimensions = type === 'avatar' 
+      ? this.avatarSizes[size] 
+      : this.coverSizes[size];
 
-  processFilenameForSize(filename, targetSize) {
-    const ext = path.extname(filename);
-    const baseName = path.basename(filename, ext);
-    
-    // Remove sufixos de tamanho existentes
-    const sizeSuffixes = ['thumb', 'small', 'medium', 'large'];
-    let cleanBaseName = baseName;
-    
-    for (const suffix of sizeSuffixes) {
-      if (baseName.endsWith(`-${suffix}`)) {
-        cleanBaseName = baseName.slice(0, -(`-${suffix}`).length);
-        break;
-      }
+    if (!dimensions) {
+      return filename; // Retorna original se tamanho não encontrado
     }
-    
-    // Adiciona o tamanho desejado
-    return `${cleanBaseName}-${targetSize}${ext}`;
+
+    return cloudinary.url(filename, {
+      width: dimensions.width,
+      height: dimensions.height,
+      crop: 'fill',
+      quality: 'auto',
+      fetch_format: 'auto'
+    });
   }
 
   getDefaultImageUrl(type = 'avatar', size = 'medium') {
+    // Usar uma imagem padrão do Cloudinary ou URL local
     const baseUrl = 'https://mediahubapi.up.railway.app';
     return `${baseUrl}/uploads/default-${type}-${size}.jpg`;
   }
 
   async deleteOldImages(filenames, type = 'avatar') {
     try {
-      const dir = path.join(__dirname, '../uploads', `${type}s`);
-      
+      if (!filenames || !Array.isArray(filenames)) return;
+
       for (const filename of filenames) {
         if (filename && !filename.startsWith('http')) {
-          const filePath = path.join(dir, filename);
-          if (fs.existsSync(filePath)) {
-            fs.unlinkSync(filePath);
+          // Para Cloudinary, o filename é o public_id
+          try {
+            await cloudinary.uploader.destroy(filename);
+          } catch (error) {
+            console.error(`Error deleting image ${filename}:`, error);
           }
         }
       }
     } catch (error) {
       console.error('Error deleting old images:', error);
     }
+  }
+
+  // Método auxiliar para extrair public_id da URL do Cloudinary
+  extractPublicId(url) {
+    if (!url.includes('cloudinary.com')) return null;
+    
+    try {
+      const urlParts = url.split('/');
+      const uploadIndex = urlParts.indexOf('upload');
+      if (uploadIndex !== -1) {
+        // O public_id está após a versão (se existir)
+        const versionIndex = uploadIndex + 1;
+        let publicIdParts = [];
+        
+        for (let i = versionIndex + 1; i < urlParts.length; i++) {
+          publicIdParts.push(urlParts[i]);
+        }
+        
+        const publicId = publicIdParts.join('/').split('.')[0];
+        return publicId;
+      }
+    } catch (error) {
+      console.error('Error extracting public_id:', error);
+    }
+    
+    return null;
   }
 }
 
