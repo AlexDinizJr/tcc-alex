@@ -92,6 +92,33 @@ const reviewController = {
     }
   },
 
+  async getUserMarkedHelpful(req, res) {
+    try {
+      const { reviewId } = req.params;
+      const userId = req.user?.id;
+
+      if (!userId) {
+        return res.json({ userMarkedHelpful: false });
+      }
+
+      const helpful = await prisma.helpful.findUnique({
+        where: { 
+          userId_reviewId: { 
+            userId: userId, 
+            reviewId: parseInt(reviewId) 
+          } 
+        }
+      });
+
+      res.json({ 
+        userMarkedHelpful: !!helpful 
+      });
+    } catch (error) {
+      console.error('Erro ao verificar marked helpful:', error);
+      res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+  },
+
   // Obter avaliações de um usuário
   async getUserReviews(req, res) {
     try {

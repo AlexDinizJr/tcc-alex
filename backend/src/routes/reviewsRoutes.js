@@ -5,6 +5,7 @@ const {
   createReview,
   updateReview,
   deleteReview,
+  getUserMarkedHelpful,
   markHelpful
 } = require('../controllers/reviewController');
 const { validateReview, validateReviewUpdate } = require('../middleware/validation');
@@ -56,6 +57,42 @@ router.get('/media/:mediaId', getMediaReviews);
  *         description: Lista de reviews do usuário
  */
 router.get('/user/:userId', getUserReviews);
+
+/**
+ * @swagger
+ * /api/reviews/{reviewId}/user-marked-helpful:
+ *   get:
+ *     summary: Verifica se o usuário atual marcou uma review como útil
+ *     security:
+ *       - bearerAuth: []
+ *     tags: [Reviews]
+ *     parameters:
+ *       - in: path
+ *         name: reviewId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID da review
+ *     responses:
+ *       200:
+ *         description: Status se o usuário marcou a review como útil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 userMarkedHelpful:
+ *                   type: boolean
+ *                   description: Indica se o usuário atual marcou a review como útil
+ *                   example: true
+ *       401:
+ *         description: Usuário não autenticado (quando não há token)
+ *       404:
+ *         description: Review não encontrada
+ *       500:
+ *         description: Erro interno do servidor
+ */
+router.get('/:reviewId/user-marked-helpful', authenticateToken, getUserMarkedHelpful);
 
 /**
  * @swagger

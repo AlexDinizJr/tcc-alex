@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import {
   fetchReviewsByMediaId,
   createReview,
+  getUserMarkedHelpful,
   editReview,
   deleteReview,
   toggleHelpful
@@ -43,8 +44,22 @@ export default function ReviewSection({ mediaId, currentUser }) {
           userName: r.userName ?? (r.user?.name || "Usuário"),
           avatar: r.avatar ?? (r.user?.avatar || null),
         }));
+        
+        if (currentUser) {
+          const reviewsWithCorrectHelpful = await Promise.all(
+            normalized.map(async (review) => {
+              const helpfulData = await getUserMarkedHelpful(review.id);
+              return {
+                ...review,
+                userMarkedHelpful: helpfulData.userMarkedHelpful
+              };
+            })
+          );
+          setReviews(reviewsWithCorrectHelpful);
+        } else {
+          setReviews(normalized);
+        }
 
-        setReviews(normalized);
       } catch (err) {
         console.error("Erro ao carregar reviews:", err);
       }

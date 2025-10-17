@@ -97,3 +97,16 @@ export async function toggleHelpful(reviewId) {
     return null;
   }
 }
+
+/**
+ * Pega o estado se o usuário marcou as reviews como úteis
+*/
+export const getUserMarkedHelpful = async (reviewId) => {
+  try {
+    const response = await api.get(`/reviews/${reviewId}/user-marked-helpful`);
+    return response.data;
+  } catch (error) {
+    console.error(`Erro ao buscar userMarkedHelpful para review ${reviewId}:`, error);
+    return { userMarkedHelpful: false };
+  }
+};
