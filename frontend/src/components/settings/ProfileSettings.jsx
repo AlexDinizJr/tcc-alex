@@ -1,14 +1,21 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import { useToast } from "../../hooks/useToast";
+import useLockBodyScroll from "../../hooks/useLockBodyScroll";
+import Cropper from "react-easy-crop";
 
-// Opções de gênero (mesmas do cadastro)
 const genderOptions = [
   { value: "MALE", label: "Masculino" },
   { value: "FEMALE", label: "Feminino" },
   { value: "OTHER", label: "Outro" },
   { value: "NONE", label: "Prefiro não informar" }
 ];
+
+// Aspect ratios
+const ASPECT_RATIOS = {
+  avatar: 1,
+  coverImage: 4
+};
 
 export default function ProfileSettings({ user }) {
   const { updateProfile, uploadAvatarFile, uploadCoverFile, removeAvatar, removeCover } = useAuth();
@@ -41,23 +48,120 @@ export default function ProfileSettings({ user }) {
   
   const [isLoading, setIsLoading] = useState(false);
 
+  // Estados do crop
+  const [cropState, setCropState] = useState({
+    open: false,
+    image: null,
+    type: null,
+    aspect: 1
+  });
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+  useLockBodyScroll(cropState.open);
+
+  const onCropComplete = useCallback((croppedArea, croppedAreaPixels) => {
+    setCroppedAreaPixels(croppedAreaPixels);
+  }, []);
+
+  // Função robusta para criar imagem recortada
+  const getCroppedImg = async (imageSrc, pixelCrop, zoom = 1) => {
+    const image = new Image();
+    image.src = imageSrc;
+
+    await new Promise((resolve, reject) => {
+      image.onload = resolve;
+      image.onerror = reject;
+    });
+
+    const canvas = document.createElement("canvas");
+    canvas.width = pixelCrop.width;
+    canvas.height = pixelCrop.height;
+    const ctx = canvas.getContext("2d");
+
+    ctx.imageSmoothingQuality = "high";
+
+    // Considera o zoom do Cropper
+    const scaleX = (image.naturalWidth / image.width) * zoom;
+    const scaleY = (image.naturalHeight / image.height) * zoom;
+
+    ctx.drawImage(
+      image,
+      pixelCrop.x * scaleX,
+      pixelCrop.y * scaleY,
+      pixelCrop.width * scaleX,
+      pixelCrop.height * scaleY,
+      0,
+      0,
+      pixelCrop.width,
+      pixelCrop.height
+    );
+
+    return new Promise((resolve) => {
+      canvas.toBlob((blob) => resolve(blob), "image/jpeg", 0.95);
+    });
+  };
+
+  const handleFileUpload = (type, file) => {
+    if (!file) return;
+
+    // Reset estados do crop
+    setCrop({ x: 0, y: 0 });
+    setZoom(1);
+    setCroppedAreaPixels(null);
+
+    const reader = new FileReader();
+    reader.onload = () => {
+        setCropState({
+          open: true,
+          image: reader.result,
+          type,
+          aspect: ASPECT_RATIOS[type]
+        });
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleCropComplete = async () => {
+    if (!croppedAreaPixels) {
+      showToast("Ajuste o recorte da imagem", "error");
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const croppedBlob = await getCroppedImg(cropState.image, croppedAreaPixels, zoom);
+      const croppedFile = new File([croppedBlob], `${cropState.type}.jpg`, { 
+        type: "image/jpeg" 
+      });
+
+      // Atualiza preview e formData
+      const previewUrl = URL.createObjectURL(croppedBlob);
+      setPreview(prev => ({ ...prev, [cropState.type]: previewUrl }));
+      setFormData(prev => ({ ...prev, [cropState.type]: croppedFile }));
+
+      showToast("Imagem recortada com sucesso!", "success");
+    } catch (error) {
+      console.error("Erro no recorte:", error);
+      showToast("Erro ao processar imagem", "error");
+    } finally {
+      setIsLoading(false);
+      closeCropModal();
+    }
+  };
+
+  const closeCropModal = () => {
+    setCropState({ open: false, image: null, type: null, aspect: 1 });
+    setCrop({ x: 0, y: 0 });
+    setZoom(1);
+    setCroppedAreaPixels(null);
+  };
+
   const handleChange = (e) => {
     setFormData(prev => ({
       ...prev,
       [e.target.name]: e.target.value
     }));
-  };
-
-  const handleFileUpload = (key, file) => {
-    if (!file) return;
-    setFormData(prev => ({ ...prev, [key]: file }));
-
-    // Preview
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setPreview(prev => ({ ...prev, [key]: reader.result }));
-    };
-    reader.readAsDataURL(file);
   };
 
   const handleRemove = async (key) => {
@@ -85,7 +189,6 @@ export default function ProfileSettings({ user }) {
     e.preventDefault();
     setIsLoading(true);
     try {
-      // Atualiza todos os dados do perfil
       await updateProfile({ 
         name: formData.name, 
         bio: formData.bio,
@@ -93,15 +196,8 @@ export default function ProfileSettings({ user }) {
         location: formData.location
       });
 
-      // Upload avatar
-      if (formData.avatar) {
-        await uploadAvatarFile(formData.avatar);
-      }
-
-      // Upload cover
-      if (formData.coverImage) {
-        await uploadCoverFile(formData.coverImage);
-      }
+      if (formData.avatar) await uploadAvatarFile(formData.avatar);
+      if (formData.coverImage) await uploadCoverFile(formData.coverImage);
 
       showToast("Perfil atualizado com sucesso!", "success");
     } catch (error) {
@@ -250,6 +346,67 @@ export default function ProfileSettings({ user }) {
           {isLoading ? "Salvando..." : "Salvar Alterações"}
         </button>
       </form>
+
+      {/* Modal de Crop */}
+      {cropState.open && (
+        <div className="fixed inset-0 bg-black flex flex-col items-center justify-center z-50 p-4">
+          <div className="bg-gray-800 border border-gray-700/50 rounded-lg p-4 max-w-2xl w-full">
+            <h3 className="text-white text-lg font-semibold mb-4">
+              Recortar {cropState.type === 'avatar' ? 'Avatar' : 'Capa'}
+            </h3>
+            
+          <div 
+            className="relative bg-gray-900 rounded-lg overflow-hidden mx-auto"
+            style={{ 
+              width: '100%',
+              height: cropState.type === 'avatar' ? '400px' : '200px'
+            }}
+          >
+            <Cropper
+              image={cropState.image}
+              crop={crop}
+              zoom={zoom}
+              aspect={cropState.aspect}
+              onCropChange={setCrop}
+              onZoomChange={setZoom}
+              onCropComplete={onCropComplete}
+            />
+          </div>
+
+            <div className="flex items-center gap-4 mt-4">
+              <label className="text-white text-sm flex-1">
+                Zoom:
+                <input
+                  type="range"
+                  min="1"
+                  max="3"
+                  step="0.1"
+                  value={zoom}
+                  onChange={(e) => setZoom(Number(e.target.value))}
+                  className="w-full mt-1"
+                />
+              </label>
+              
+              <div className="flex gap-2">
+                <button
+                  onClick={closeCropModal}
+                  className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-500 transition-colors"
+                  disabled={isLoading}
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleCropComplete}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition-colors"
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Processando..." : "Confirmar"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

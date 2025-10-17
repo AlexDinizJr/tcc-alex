@@ -92,7 +92,7 @@ export default function Preferences() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-900 px-4 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-700">
+    <div className="min-h-screen flex items-center justify-center bg-gray-900 px-4 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-700 mt-8 mb-8">
       <div className="max-w-3xl w-full bg-gray-800/90 backdrop-blur-md p-6 rounded-2xl shadow-2xl border border-gray-700/50">
         <h1 className="text-2xl font-bold mb-6 text-center text-white">
           Escolha até 10 mídias favoritas
