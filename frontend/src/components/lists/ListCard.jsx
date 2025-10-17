@@ -20,13 +20,10 @@ export default function ListCard({  list, username, isOwner }) {
           <h3 className="font-semibold text-white text-lg line-clamp-2 group-hover:text-blue-500 transition-colors">
             {list.name}
           </h3>
-          <span className={`px-2 py-1 rounded-full text-xs font-medium ${list.isPublic ? "bg-green-800/20 text-green-400" : "bg-blue-800/20 text-blue-400"}`}>
+          <span className={`ml-1 px-2 py-1 rounded-full text-xs font-medium ${list.isPublic ? "bg-green-800/20 text-green-400" : "bg-blue-800/20 text-blue-400"}`}>
             {list.isPublic ? "Pública" : "Privada"}
           </span>
         </div>
-        {list.description && (
-          <p className="text-gray-400 text-sm mt-2 line-clamp-2">{list.description}</p>
-        )}
       </div>
 
       <div className="px-6 py-4">

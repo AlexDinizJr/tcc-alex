@@ -36,7 +36,7 @@ export default function ProfileHeader({ user, isOwner }) {
   return (
     <div className="bg-gray-800/80 rounded-2xl shadow-md overflow-hidden mb-8 border border-gray-700/50">
       {/* Header */}
-      <div className="h-40 relative">
+      <div className="h-55 relative">
         {user.coverImage ? (
           <img src={user.coverImage} alt="Capa" className="w-full h-full object-cover" />
         ) : (

@@ -61,19 +61,29 @@ class ImageProcessingService {
         folder: `covers/${userId}`,
       });
 
-      const processedImages = {};
-      
-      for (const [size, dimensions] of Object.entries(this.coverSizes)) {
+      const processedImages = {
+        public_id: uploadResult.public_id,
+        original: uploadResult.secure_url,
+      };
+
+      // URLs derivadas sem distorção
+      const coverSizes = {
+        thumb: { width: 300, height: 150 },
+        small: { width: 600, height: 300 },
+        medium: { width: 1200, height: 600 },
+        large: { width: 1920, height: 960 }
+      };
+
+      for (const [size, dimensions] of Object.entries(coverSizes)) {
         const url = cloudinary.url(uploadResult.public_id, {
           width: dimensions.width,
           height: dimensions.height,
+          crop: 'limit', // limita sem cortar
           quality: 'auto',
           fetch_format: 'auto'
         });
         processedImages[size] = url;
       }
-
-      processedImages.public_id = uploadResult.public_id;
 
       const fs = require('fs');
       fs.unlinkSync(filePath);

@@ -67,6 +67,7 @@ export default function ProfileSettings({ user }) {
   // Função robusta para criar imagem recortada
   const getCroppedImg = async (imageSrc, pixelCrop, zoom = 1) => {
     const image = new Image();
+    image.crossOrigin = "anonymous";
     image.src = imageSrc;
 
     await new Promise((resolve, reject) => {
@@ -81,7 +82,6 @@ export default function ProfileSettings({ user }) {
 
     ctx.imageSmoothingQuality = "high";
 
-    // Considera o zoom do Cropper
     const scaleX = (image.naturalWidth / image.width) * zoom;
     const scaleY = (image.naturalHeight / image.height) * zoom;
 

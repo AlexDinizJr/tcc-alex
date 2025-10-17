@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { 
   FiFilm, 
@@ -6,10 +6,11 @@ import {
   FiMusic, 
   FiBookOpen, 
   FiUser,
-  FiClipboard 
+  FiClipboard,
+  FiChevronDown, 
+  FiChevronUp 
 } from "react-icons/fi";
 import { FaGamepad } from "react-icons/fa";
-import { FiChevronDown, FiChevronUp } from "react-icons/fi";
 
 const navItems = [
   { to: "/movies", label: "Filmes", icon: <FiFilm size={18} /> },
@@ -26,6 +27,20 @@ const dropdownItems = [
 
 export default function NavLinks({ mobile = false }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   if (mobile) {
     const allItems = [...navItems, ...dropdownItems];
@@ -60,7 +75,7 @@ export default function NavLinks({ mobile = false }) {
       ))}
 
       {/* Dropdown desktop */}
-      <div className="relative">
+      <div ref={dropdownRef} className="relative">
         <button
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
           className="flex cursor-pointer items-center gap-1 px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors text-sm font-medium"

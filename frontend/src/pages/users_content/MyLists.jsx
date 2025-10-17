@@ -145,7 +145,7 @@ export default function MyLists() {
         </div>
 
         {listsToShow.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {listsToShow.map((list) => {
             console.log("📤 Passando lista para ListCard:", list);
             return (

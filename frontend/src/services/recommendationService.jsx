@@ -24,7 +24,7 @@ export async function fetchUserRecommendations(params = {}) {
 export async function fetchCustomRecommendations(params = {}) {
   try {
     const response = await api.get("/recommendations/custom", { params });
-    return response.data?.data.slice(0, 4) || [];
+    return response.data?.data.slice(0, 5) || [];
   } catch (error) {
     console.error("❌ [FRONT] Erro na API de recomendações:", error);
     return [];
