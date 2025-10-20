@@ -34,7 +34,11 @@ export default function ReviewForm({
     <section className="mt-8 p-6 bg-gray-800/80 rounded-2xl shadow-md border border-gray-700/50">
       <div className="flex items-center gap-3 mb-4">
         <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold">
-          {user?.name?.charAt(0)?.toUpperCase() || 'U'}
+          {user?.avatar ? (
+          <img src={user.avatar} alt={user.name} className="w-10 h-10 rounded-full object-cover border-2 border-gray-700" />
+          ) : (
+          <span className="text-sm font-bold">{user?.name?.charAt(0).toUpperCase() || 'U'}</span>
+          )}
         </div>
         <div>
           <h3 className="text-xl font-semibold text-gray-100">Deixe sua avaliação</h3>

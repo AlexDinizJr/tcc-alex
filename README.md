@@ -6,8 +6,8 @@ MediaHub é uma plataforma web para gerenciamento e recomendação de mídias, i
 
 ## Tecnologias
 
-- **Backend:** Node.js, Express, Nodemailer e  Cloudinary.
-- **Frontend:** React e Tailwind CSS.
+- **Backend:** Node.js, Express, Cors, Dotenv, Nodemailer, JWT, Bcrypt e Cloudinary.
+- **Frontend:** React, Tailwind CSS e Axios.
 - **Database:** PostgreSQL e Prisma. 
 - **Infraestrutura e Versionamento:** Docker e GitHub.
 

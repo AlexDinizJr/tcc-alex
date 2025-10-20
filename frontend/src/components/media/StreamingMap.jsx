@@ -36,7 +36,7 @@ export const SERVICES = {
   NETFLIX: {
     name: "Netflix",
     icon: <SiNetflix className="w-5 h-5" />,
-    color: "bg-[#E50914] hover:bg-[#B80710] text-white", // Vermelho oficial Netflix
+    color: "bg-[#000000] hover:bg-[#1A1A1A] !text-[#E50914]", // Vermelho oficial Netflix
     baseUrl: "https://www.netflix.com/title/"
   },
   PRIMEVIDEO: {

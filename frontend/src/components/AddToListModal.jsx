@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { FiX } from "react-icons/fi";
+import { FaPlus } from "react-icons/fa";
 import useLockBodyScroll from "../hooks/useLockBodyScroll";
 
 export default function AddToListModal({ mediaItem, userLists, onAddToList, onClose }) {
@@ -38,7 +39,12 @@ export default function AddToListModal({ mediaItem, userLists, onAddToList, onCl
       <div className="bg-gray-900 border border-gray-700 rounded-2xl shadow-2xl w-full max-w-md p-6 relative">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-white">Adicionar à lista</h2>
+           <div className="flex items-center gap-3">
+            <div className="p-2 bg-blue-600/20 rounded-lg">
+              <FaPlus className="text-blue-400 text-xl" />
+            </div>
+            <h2 className="text-xl font-bold text-white">Adicionar à lista</h2>
+          </div>
           <button
             onClick={onClose}
             className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
