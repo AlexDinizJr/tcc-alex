@@ -4,7 +4,7 @@ import countries from 'world-countries';
 import { useAuth } from "../../hooks/useAuth";
 import AuthContainer from "../../components/auth/AuthContainer";
 import SimpleModal from "../../components/SimpleModal";
-import { Eye, EyeOff, Calendar } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 
 // Lista de países
 const countryList = countries
@@ -204,13 +204,12 @@ export default function Signup() {
           <div className="relative">
             <input
               type="date"
-              className="w-full p-4 rounded-lg bg-gray-700/60 text-white placeholder-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 border border-gray-600 transition-all duration-200 pr-12"
+              className="w-full p-4 rounded-lg bg-gray-700/60 text-white placeholder-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 border border-gray-600 transition-all duration-200"
               value={birthDate}
               onChange={handleBirthDateChange}
               max={new Date().toISOString().split('T')[0]} // Não permite data futura
               disabled={loading}
             />
-            <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
           </div>
           <p className="text-xs text-gray-500 mt-1">
             {birthDate && calculateAge(birthDate) && `Idade: ${calculateAge(birthDate)} anos`}
