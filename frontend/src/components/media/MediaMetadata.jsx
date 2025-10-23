@@ -9,9 +9,7 @@ export default function MediaMetadata({ mediaItem }) {
           <FiCalendar /> {mediaItem.year}
         </span>
       )}
-
-      {mediaItem.classification && <ClassificationBadge classification={mediaItem.classification} />}
-      
+         
       {mediaItem.duration && (
         <span className="text-gray-200 font-medium flex items-center gap-1">
           <FiClock /> {mediaItem.duration} min
@@ -37,6 +35,8 @@ export default function MediaMetadata({ mediaItem }) {
           <FiMusic /> {mediaItem.tracks} faixas
         </span>
       )}
+
+      {mediaItem.classification && <ClassificationBadge classification={mediaItem.classification} />}
     </div>
   );
 }

@@ -103,7 +103,7 @@ export default function MediaActions({ mediaItem }) {
 
   return (
     <>
-      <div className="flex flex-wrap gap-3 mt-6 mb-6">
+      <div className="flex flex-wrap gap-3 mt-4 mb-4">
         <button
           onClick={handleSave}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-colors cursor-pointer ${

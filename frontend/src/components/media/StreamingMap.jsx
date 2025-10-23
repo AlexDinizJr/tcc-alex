@@ -54,7 +54,7 @@ export const SERVICES = {
   MAX: {
     name: "Max",
     icon: <SiHbo className="w-5 h-5" />,
-    color: "bg-[#0D1117] hover:bg-[#000000] text-white", // Preto/azul muito escuro da Max
+    color: "bg-[#000000] hover:bg-[#0D1117] text-white", // Preto/azul muito escuro da Max
     baseUrl: "https://play.max.com/title/"
   },
   PARAMOUNT: {

@@ -16,12 +16,21 @@ export default function MediaDetails({ mediaItem }) {
 
   return (
     <div>
+      <div className="mb-2">
       {/* Gêneros */}
       {mediaItem.genres && mediaItem.genres.length > 0 && (
         <p className="text-gray-200">
-          <span className="font-semibold">Gêneros:</span> {mediaItem.genres.join(", ")}
+          {mediaItem.genres.map((genre, index) => (
+            <span key={genre} className="inline-flex items-center">
+              <span>{genre}</span>
+              {index < mediaItem.genres.length - 1 && (
+                <span className="mx-2 text-gray-400">•</span> // ponto com espaçamento
+              )}
+            </span>
+          ))}
         </p>
       )}
+      </div>
 
       {renderMediaField(mediaItem.directors, "Diretor(es)")}
       {renderMediaField(mediaItem.authors, "Autor(es)")}
