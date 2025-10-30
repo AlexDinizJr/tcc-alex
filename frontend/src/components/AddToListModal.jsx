@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { FiX } from "react-icons/fi";
 import { FaPlus } from "react-icons/fa";
 import useLockBodyScroll from "../hooks/useLockBodyScroll";
@@ -9,7 +10,7 @@ export default function AddToListModal({ mediaItem, userLists, onAddToList, onCl
   const [newListName, setNewListName] = useState("");
   const [newListIsPublic, setNewListIsPublic] = useState(false);
   const [lists, setLists] = useState(userLists || []);
-  useLockBodyScroll(onAddToList);
+  useLockBodyScroll(true);
 
   useEffect(() => {
     setLists(userLists || []);
@@ -31,7 +32,7 @@ export default function AddToListModal({ mediaItem, userLists, onAddToList, onCl
     if (e.target === e.currentTarget) onClose();
   };
 
-  return (
+  return createPortal(
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
       onClick={handleOverlayClick}
@@ -131,7 +132,7 @@ export default function AddToListModal({ mediaItem, userLists, onAddToList, onCl
         <div className="flex gap-2 mt-4">
           <button
             onClick={onClose}
-            className="flex-1 py-2 px-3 border border-gray-700 rounded text-sm hover:bg-gray-800"
+            className="flex-1 py-2 px-3 border border-gray-700 rounded  text-white text-sm hover:bg-gray-800"
           >
             Cancelar
           </button>
@@ -144,6 +145,7 @@ export default function AddToListModal({ mediaItem, userLists, onAddToList, onCl
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

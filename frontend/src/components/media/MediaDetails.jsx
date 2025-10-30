@@ -36,9 +36,9 @@ export default function MediaDetails({ mediaItem }) {
       {renderMediaField(mediaItem.authors, "Autor(es)")}
       {renderMediaField(mediaItem.artists, "Artista(s)")}
       {renderMediaField(mediaItem.developer, "Desenvolvedor(es)")}
+       {renderMediaField(mediaItem.publisher, "Publisher")}
       {renderMediaField(mediaItem.producers, "Produtor(es)")}
       {renderMediaField(mediaItem.writers, "Roteirista(s)")}
-      {renderMediaField(mediaItem.musicians, "Músico(s)")}
 
       {renderMediaField(mediaItem.cast, "Elenco", (cast) => (
         <p className="text-gray-200">
@@ -62,10 +62,6 @@ export default function MediaDetails({ mediaItem }) {
           </div>
         </div>
       )}
-
-      {renderMediaField(mediaItem.publisher, "Publisher")}
-      {renderMediaField(mediaItem.language, "Idioma")}
-      {renderMediaField(mediaItem.country, "País")}
 
       {mediaItem.awards && mediaItem.awards.length > 0 && (
         <div className="mt-2">

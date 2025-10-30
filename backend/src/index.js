@@ -4,6 +4,7 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const path = require('path');
 require('dotenv').config();
+const setupSwagger = require('./config/swagger');
 
 // Importar rotas
 const authRoutes = require('./routes/authRoutes');
@@ -67,6 +68,8 @@ app.get('/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
+setupSwagger(app);
+
 // ===== MANIPULADOR DE ERROS =====
 app.use((err, req, res, next) => {
   console.error(err.stack);
@@ -83,4 +86,5 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`✅ CORS configured for ALL origins`);
   console.log(`🔗 Health: http://localhost:${PORT}/health`);
+  console.log(`🔗 Swagger: http://localhost:${PORT}/api-docs`);
 });

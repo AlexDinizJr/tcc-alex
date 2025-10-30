@@ -9,7 +9,6 @@ export default function MediaMetadata({ mediaItem }) {
           <FiCalendar /> {mediaItem.year}
         </span>
       )}
-         
       {mediaItem.duration && (
         <span className="text-gray-200 font-medium flex items-center gap-1">
           <FiClock /> {mediaItem.duration} min
@@ -25,17 +24,11 @@ export default function MediaMetadata({ mediaItem }) {
           <FiTv /> {mediaItem.seasons} temporada(s)
         </span>
       )}
-      {mediaItem.episodes && (
-        <span className="text-gray-200 font-medium flex items-center gap-1">
-          <FiFilm /> {mediaItem.episodes} episódios
-        </span>
-      )}
       {mediaItem.tracks && (
         <span className="text-gray-200 font-medium flex items-center gap-1">
           <FiMusic /> {mediaItem.tracks} faixas
         </span>
       )}
-
       {mediaItem.classification && <ClassificationBadge classification={mediaItem.classification} />}
     </div>
   );

@@ -1,4 +1,3 @@
-// src/config/swagger.js
 const swaggerJSDoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 const path = require('path');
@@ -13,7 +12,7 @@ const options = {
     },
     servers: [
       {
-        url: 'http://localhost:3001', // Ajuste conforme sua porta
+        url: 'http://localhost:3001',
       },
     ],
     components: {
@@ -26,7 +25,6 @@ const options = {
       },
     },
   },
-  // Aqui você aponta para todos os arquivos de rotas que contêm anotações do Swagger
   apis: [
     path.join(__dirname, '../routes/**/*.js'),
   ],

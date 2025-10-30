@@ -81,10 +81,7 @@ export default function ShareListModal({ isOpen, onClose, list }) {
 
           {/* Título da lista */}
           <div className="mb-6 p-4 bg-gray-800/50 rounded-xl border border-gray-700 text-center">
-            <h3 className="text-white font-semibold truncate">{list.title}</h3>
-            {list.description && (
-              <p className="text-gray-400 text-sm mt-1">{list.description}</p>
-            )}
+            <h3 className="text-white font-semibold truncate">{list.name}</h3>
           </div>
 
           {/* Campo do link */}
