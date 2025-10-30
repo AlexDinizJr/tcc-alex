@@ -257,18 +257,36 @@ const getCustomRecommendations = async (userId, filters = {}, referenceMediaIds 
     const scoredMedia = candidateMedia.map(candidate => {
       let score = 0;
 
-      // Similaridade com preferências do usuário (peso pelas preferências)
       preferredMedia.forEach(pref => {
         const similarity = calculateSimilarity(candidate, pref);
         const preferenceWeight = preferences[pref.id] || 0;
-        score += similarity * preferenceWeight;
+        const reducedWeight = Math.min(preferenceWeight, 1) * 0.1;
+        score += similarity * reducedWeight;
       });
 
-      // Similaridade com mídias de referência (peso menor)
       referenceMedia.forEach(refMedia => {
         const similarity = calculateSimilarity(candidate, refMedia);
-        score += similarity * 0.3;
+        score += similarity * 0.7;
       });
+
+      let filterScore = 0;
+      if (filters.type && candidate.type === filters.type) {
+        filterScore += 0.5;
+      }
+      if (filters.genre && Array.isArray(candidate.genres) && candidate.genres.includes(filters.genre)) {
+        filterScore += 0.5;
+      }
+      if (filters.yearRange?.start && filters.yearRange?.end && typeof candidate.year === 'number') {
+        if (candidate.year >= filters.yearRange.start && candidate.year <= filters.yearRange.end) {
+          filterScore += 0.3;
+        }
+      }
+      if (typeof filters.minRating === 'number' && typeof candidate.rating === 'number') {
+        if (candidate.rating >= filters.minRating) {
+          filterScore += 0.2;
+        }
+      }
+      score += filterScore;
 
       return { media: candidate, score };
     });
