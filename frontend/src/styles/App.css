@@ -84,6 +84,38 @@ body {
   animation: fadeIn 0.2s ease-out forwards;
 }
 
+/* Page transition: smoother fade + slight slide */
+@keyframes pageSlide {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-pageSlide {
+  animation: pageSlide 0.35s ease-out;
+}
+
+/* Modal panel: subtle pop (only the panel grows, not the overlay) */
+@keyframes modalPop {
+  0% {
+    opacity: 0;
+    transform: translateY(4px) scale(0.97);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-modalPop {
+  animation: modalPop 0.25s ease-out;
+}
+
 .scroll-hide::-webkit-scrollbar {
   display: none; /* Chrome, Safari e Opera */
 }

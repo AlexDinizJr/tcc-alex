@@ -34,7 +34,7 @@ export default function ForgotPasswordModal({ isOpen, onClose }) {
 
   return createPortal(
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[100] p-4 backdrop-blur-sm">
-      <div className="bg-gray-800 p-6 rounded-lg w-full max-w-md">
+      <div className="bg-gray-800 p-6 rounded-lg w-full max-w-md animate-modalPop">
         <h2 className="text-white text-lg font-semibold mb-4">Recuperar senha</h2>
         <p className="text-gray-300 text-sm mb-4">
           Insira seu e-mail para receber o link de recuperação

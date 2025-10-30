@@ -19,7 +19,7 @@ export default function SimpleModal({ title, content, triggerText }) {
 
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-md">
-          <div className="bg-gray-900 text-white rounded-2xl p-6 w-full max-w-md relative shadow-2xl">
+          <div className="bg-gray-900 text-white rounded-2xl p-6 w-full max-w-md relative shadow-2xl animate-modalPop">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold">{title}</h2>
               <button

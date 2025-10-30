@@ -37,7 +37,7 @@ export default function AddToListModal({ mediaItem, userLists, onAddToList, onCl
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
       onClick={handleOverlayClick}
     >
-      <div className="bg-gray-900 border border-gray-700 rounded-2xl shadow-2xl w-full max-w-md p-6 relative">
+      <div className="bg-gray-900 border border-gray-700 rounded-2xl shadow-2xl w-full max-w-md p-6 relative animate-modalPop">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
            <div className="flex items-center gap-3">

@@ -33,7 +33,7 @@ export default function DeleteAccountModal({ onClose }) {
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-      <div className="bg-gray-900/95 border border-gray-700/50 rounded-2xl p-6 w-full max-w-md shadow-md">
+      <div className="bg-gray-900/95 border border-gray-700/50 rounded-2xl p-6 w-full max-w-md shadow-md animate-modalPop">
         <h2 className="text-xl font-bold text-red-400 mb-4">Excluir Conta</h2>
         
         <div className="space-y-4">

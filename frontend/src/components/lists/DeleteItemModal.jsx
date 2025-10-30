@@ -33,7 +33,7 @@ export default function DeleteItemModal({
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
-      <div className="bg-gray-800 rounded-2xl p-6 max-w-md w-full border border-gray-700">
+      <div className="bg-gray-800 rounded-2xl p-6 max-w-md w-full border border-gray-700 animate-modalPop">
         {/* Ícone de alerta */}
         <div className="flex justify-center mb-4">
           <div className="w-12 h-12 bg-red-500/20 rounded-full flex items-center justify-center">

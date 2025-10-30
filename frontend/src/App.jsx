@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import ScrollToTop from "./components/layout/ScrollToTop";
 import Navbar from "./components/layout/Navbar";
 import Footer from "./components/layout/Footer";
@@ -10,6 +10,21 @@ import { authRoutes } from "./routes/authRoutes";
 import { protectedRoutes } from "./routes/protectedRoutes";
 import { fallbackRoutes } from "./routes/fallbackRoutes";
 
+function AnimatedRoutes() {
+  const location = useLocation();
+  return (
+    <div key={location.pathname} className="animate-pageSlide">
+      <Routes location={location}>
+        {[...publicRoutes, ...userRoutes, ...authRoutes, ...protectedRoutes, ...fallbackRoutes].map(
+          ({ path, element }) => (
+            <Route key={path} path={path} element={element} />
+          )
+        )}
+      </Routes>
+    </div>
+  );
+}
+
 function App() {
   return (
     <Router>
@@ -18,13 +33,7 @@ function App() {
         <Navbar />
         <FeedbackLink />
         <main className="flex-1 mx-auto w-full">
-          <Routes>
-            {[...publicRoutes, ...userRoutes, ...authRoutes, ...protectedRoutes, ...fallbackRoutes].map(
-              ({ path, element }) => (
-                <Route key={path} path={path} element={element} />
-              )
-            )}
-          </Routes>
+          <AnimatedRoutes />
         </main>
         <Footer />
       </div>

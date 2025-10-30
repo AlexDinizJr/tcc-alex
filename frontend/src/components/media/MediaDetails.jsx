@@ -51,7 +51,7 @@ export default function MediaDetails({ mediaItem }) {
             <>
               <button
                 type="button"
-                className="text-sm text-blue-400 hover:text-blue-300 underline underline-offset-2 ml-2"
+                className="text-sm text-blue-400 hover:text-blue-300 hover:underline underline-offset-2 ml-2 cursor-pointer"
                 onClick={() => setShowFullCast(true)}
               >
                 {`ver mais (${cast.length - 3})`}
@@ -63,7 +63,7 @@ export default function MediaDetails({ mediaItem }) {
               {" "}
               <button
                 type="button"
-                className="text-sm text-blue-400 hover:text-blue-300 underline underline-offset-2"
+                className="text-sm text-blue-400 hover:text-blue-300 hover:underline underline-offset-2 cursor-pointer"
                 onClick={() => setShowFullCast(false)}
               >
                 ver menos

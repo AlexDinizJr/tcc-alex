@@ -56,7 +56,7 @@ export default function RequestButtonModal() {
 
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
-          <div className="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-md p-6 relative shadow-2xl">
+          <div className="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-md p-6 relative shadow-2xl animate-modalPop">
             <h2 className="text-xl font-bold text-white mb-4">Enviar pedido</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
