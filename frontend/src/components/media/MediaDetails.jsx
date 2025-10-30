@@ -36,7 +36,7 @@ export default function MediaDetails({ mediaItem }) {
       {renderMediaField(mediaItem.authors, "Autor(es)")}
       {renderMediaField(mediaItem.artists, "Artista(s)")}
       {renderMediaField(mediaItem.developer, "Desenvolvedor(es)")}
-       {renderMediaField(mediaItem.publisher, "Publisher")}
+      {renderMediaField(mediaItem.publisher, "Publisher")}
       {renderMediaField(mediaItem.producers, "Produtor(es)")}
       {renderMediaField(mediaItem.writers, "Roteirista(s)")}
 

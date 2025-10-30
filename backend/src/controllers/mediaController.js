@@ -78,9 +78,11 @@ const mediaController = {
         prisma.media.count({ where })
       ]);
 
-      // Flags para o usuário
+      // Flags para o usuário + normalização de campos
       const mediaWithFlags = media.map(item => ({
         ...item,
+        cast: Array.isArray(item.cast) ? item.cast : [],
+        awards: Array.isArray(item.awards) ? item.awards : [],
         isSavedByUser: currentUserId ? item.savedBy?.length > 0 : false,
         isFavoritedByUser: currentUserId ? item.favoritedBy?.length > 0 : false
       }));
@@ -252,6 +254,8 @@ const mediaController = {
 
       const mediaWithFlags = {
         ...media,
+        cast: Array.isArray(media.cast) ? media.cast : [],
+        awards: Array.isArray(media.awards) ? media.awards : [],
         isSavedByUser: currentUserId ? media.savedBy?.length > 0 : false,
         isFavoritedByUser: currentUserId ? media.favoritedBy?.length > 0 : false
       };

@@ -23,9 +23,8 @@ export async function fetchMedia({
     
     console.log("📦 Response da API:", response.data); // Debug
     
-    // ✅ CORREÇÃO: O backend retorna "media" não "items"
     return {
-      items: response.data.media || [], // ← Aqui está o problema!
+      items: response.data.media || [],
       total: response.data.pagination?.total || 0,
     };
   } catch (error) {

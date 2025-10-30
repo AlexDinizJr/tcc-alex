@@ -79,6 +79,8 @@ model Media {
   pages     Int?
   publisher String?
   developer String?
+  cast      String[] @default([])
+  awards    String[] @default([])
 
   @@unique([title, type])
 }
