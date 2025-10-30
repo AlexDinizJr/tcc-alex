@@ -207,27 +207,49 @@ const getCustomRecommendations = async (userId, filters = {}, referenceMediaIds 
   try {
     const [preferences, userInteractions] = await Promise.all([
       getUserPreferences(userId),
-      prisma.savedMedia.findMany({
-        where: { userId },
-        select: { mediaId: true }
+      prisma.user.findUnique({
+        where: { id: userId },
+        select: {
+          savedMedia: { select: { id: true } },
+          favorites: { select: { id: true } },
+          excludedMedia: { select: { mediaId: true } },
+        }
       })
     ]);
 
-    const interactedMediaIds = userInteractions.map(i => i.mediaId);
+    const interactedMediaIds = [
+      ...(userInteractions?.savedMedia.map(m => m.id) || []),
+      ...(userInteractions?.favorites.map(m => m.id) || []),
+      ...(userInteractions?.excludedMedia.map(e => e.mediaId) || [])
+    ];
+
     const preferredMediaIds = Object.keys(preferences).map(Number);
 
     // Buscar mídias de referência se fornecidas
     const referenceMedia = referenceMediaIds.length > 0
-      ? await prisma.media.findMany({
-          where: { id: { in: referenceMediaIds } }
-        })
+      ? await prisma.media.findMany({ where: { id: { in: referenceMediaIds } } })
+      : [];
+
+    // Se não houver preferências nem referências, usar cold start
+    if (preferredMediaIds.length === 0 && referenceMedia.length === 0) {
+      return await applyColdStartRecommendations(userId, limit);
+    }
+
+    // Buscar mídias preferidas do usuário
+    const preferredMedia = preferredMediaIds.length > 0
+      ? await prisma.media.findMany({ where: { id: { in: preferredMediaIds } } })
       : [];
 
     // Buscar candidatos com filtros
+    const seedIds = [...new Set([...
+      preferredMediaIds,
+      ...referenceMediaIds
+    ])];
+
     const candidateMedia = await prisma.media.findMany({
       where: {
         ...buildFilters(filters),
-        id: { notIn: [...interactedMediaIds, ...preferredMediaIds] }
+        id: { notIn: [...interactedMediaIds, ...seedIds] }
       },
       take: 100
     });
@@ -235,14 +257,11 @@ const getCustomRecommendations = async (userId, filters = {}, referenceMediaIds 
     const scoredMedia = candidateMedia.map(candidate => {
       let score = 0;
 
-      // Similaridade com preferências do usuário
-      preferredMediaIds.forEach(mediaId => {
-        const preferred = candidateMedia.find(m => m.id === mediaId) || referenceMedia.find(m => m.id === mediaId);
-        if (preferred) {
-          const similarity = calculateSimilarity(candidate, preferred);
-          const weight = preferences[mediaId] || 0.5;
-          score += similarity * weight;
-        }
+      // Similaridade com preferências do usuário (peso pelas preferências)
+      preferredMedia.forEach(pref => {
+        const similarity = calculateSimilarity(candidate, pref);
+        const preferenceWeight = preferences[pref.id] || 0;
+        score += similarity * preferenceWeight;
       });
 
       // Similaridade com mídias de referência (peso menor)

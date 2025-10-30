@@ -239,7 +239,7 @@ export default function MediaCarouselCard({ media }) {
         </Link>
 
         {/* Conteúdo */}
-        <Link to={`/media/${media.id}`} className="block p-4 flex flex-col justify-between h-[105px]">
+        <Link to={`/media/${media.id}`} className="flex flex-col justify-between h-[105px] p-4">
           <h3 className="text-sm font-semibold text-white line-clamp-2 mb-2 leading-tight">{media.title}</h3>
           <div className="flex items-center justify-between">
             {media.type && (
