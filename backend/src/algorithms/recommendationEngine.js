@@ -205,17 +205,14 @@ const getCustomRecommendations = async (userId, filters = {}, referenceMediaIds 
   if (!userId) return [];
 
   try {
-    const [preferences, userInteractions] = await Promise.all([
-      getUserPreferences(userId),
-      prisma.user.findUnique({
-        where: { id: userId },
-        select: {
-          savedMedia: { select: { id: true } },
-          favorites: { select: { id: true } },
-          excludedMedia: { select: { mediaId: true } },
-        }
-      })
-    ]);
+    const userInteractions = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        savedMedia: { select: { id: true } },
+        favorites: { select: { id: true } },
+        excludedMedia: { select: { mediaId: true } },
+      }
+    });
 
     const interactedMediaIds = [
       ...(userInteractions?.savedMedia.map(m => m.id) || []),
@@ -223,28 +220,13 @@ const getCustomRecommendations = async (userId, filters = {}, referenceMediaIds 
       ...(userInteractions?.excludedMedia.map(e => e.mediaId) || [])
     ];
 
-    const preferredMediaIds = Object.keys(preferences).map(Number);
-
     // Buscar mídias de referência se fornecidas
     const referenceMedia = referenceMediaIds.length > 0
       ? await prisma.media.findMany({ where: { id: { in: referenceMediaIds } } })
       : [];
 
-    // Se não houver preferências nem referências, usar cold start
-    if (preferredMediaIds.length === 0 && referenceMedia.length === 0) {
-      return await applyColdStartRecommendations(userId, limit);
-    }
-
-    // Buscar mídias preferidas do usuário
-    const preferredMedia = preferredMediaIds.length > 0
-      ? await prisma.media.findMany({ where: { id: { in: preferredMediaIds } } })
-      : [];
-
-    // Buscar candidatos com filtros
-    const seedIds = [...new Set([...
-      preferredMediaIds,
-      ...referenceMediaIds
-    ])];
+    // Buscar candidatos com filtros, excluindo interações e referências
+    const seedIds = [...new Set(referenceMediaIds)];
 
     const candidateMedia = await prisma.media.findMany({
       where: {
@@ -257,33 +239,28 @@ const getCustomRecommendations = async (userId, filters = {}, referenceMediaIds 
     const scoredMedia = candidateMedia.map(candidate => {
       let score = 0;
 
-      preferredMedia.forEach(pref => {
-        const similarity = calculateSimilarity(candidate, pref);
-        const preferenceWeight = preferences[pref.id] || 0;
-        const reducedWeight = Math.min(preferenceWeight, 1) * 0.1;
-        score += similarity * reducedWeight;
-      });
-
+      // Similaridade com mídias de referência (peso alto)
       referenceMedia.forEach(refMedia => {
         const similarity = calculateSimilarity(candidate, refMedia);
-        score += similarity * 0.7;
+        score += similarity * 0.8;
       });
 
+      // Afinidade com filtros
       let filterScore = 0;
       if (filters.type && candidate.type === filters.type) {
-        filterScore += 0.5;
+        filterScore += 0.6;
       }
       if (filters.genre && Array.isArray(candidate.genres) && candidate.genres.includes(filters.genre)) {
-        filterScore += 0.5;
+        filterScore += 0.6;
       }
       if (filters.yearRange?.start && filters.yearRange?.end && typeof candidate.year === 'number') {
         if (candidate.year >= filters.yearRange.start && candidate.year <= filters.yearRange.end) {
-          filterScore += 0.3;
+          filterScore += 0.4;
         }
       }
       if (typeof filters.minRating === 'number' && typeof candidate.rating === 'number') {
         if (candidate.rating >= filters.minRating) {
-          filterScore += 0.2;
+          filterScore += 0.3;
         }
       }
       score += filterScore;
