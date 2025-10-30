@@ -6,22 +6,23 @@ import ReportButtonModal from "./ReportButtonModal";
 
 export default function MediaHeader({ mediaItem, description }) {
   return (
-    <div className="bg-gray-800/80 rounded-2xl shadow-md p-6 border border-gray-700/50 p-8 mb-8">
+    <div className="bg-gray-800/80 rounded-2xl shadow-md border border-gray-700/50 p-6 md:p-8 mb-8">
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Imagem da mídia */}
         <div className="lg:w-1/3">
           <img
             src={mediaItem.image}
             alt={mediaItem.title}
+            loading="lazy"
             className={`w-full rounded-2xl shadow-lg border border-white/10 object-cover
-              h-auto                    /* altura natural no mobile */
-              ${mediaItem.type === "MUSIC" ? "lg:h-90" : "lg:h-120"}  /* altura fixa no desktop */
+              h-auto /* altura natural no mobile */
+              ${mediaItem.type === "MUSIC" ? "lg:h-[420px]" : "lg:h-[480px]"} /* altura fixa no desktop */
             `}
           />
         </div>
 
         {/* Conteúdo principal */}
-        <div className="lg:w-2/3 flex flex-col gap-4">
+        <div className="lg:w-2/3 flex flex-col gap-3">
           {/* Cabeçalho com tipo e rating */}
           <div className="flex items-start justify-between">
             <div>
@@ -29,7 +30,7 @@ export default function MediaHeader({ mediaItem, description }) {
                 {mediaItem.type.toUpperCase()}
               </span>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3 self-start mt-1">
               <div className="text-2xl font-bold text-yellow-400 flex items-center gap-1">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.955a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.37 2.448a1 1 0 00-.364 1.118l1.287 3.955c.3.921-.755 1.688-1.538 1.118l-3.37-2.448a1 1 0 00-1.176 0l-3.37 2.448c-.783.57-1.838-.197-1.538-1.118l1.287-3.955a1 1 0 00-.364-1.118L2.065 9.382c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69l1.286-3.955z"/>
@@ -40,19 +41,27 @@ export default function MediaHeader({ mediaItem, description }) {
           </div>
 
           {/* Título */}
-          <h1 className="text-4xl font-bold text-white mb-2 line-clamp-2 leading-[1.15] pb-1">{mediaItem.title}</h1>
+          <h1 className="text-4xl font-bold text-white mb-1 line-clamp-2 leading-[1.15]">{mediaItem.title}</h1>
 
           {/* Metadados */}
-          <MediaMetadata mediaItem={mediaItem} darkMode />
+          <div className="mt-1">
+            <MediaMetadata mediaItem={mediaItem} darkMode />
+          </div>
 
           {/* Detalhes específicos */}
-          <MediaDetails mediaItem={mediaItem} darkMode />
+          <div className="mt-1">
+            <MediaDetails mediaItem={mediaItem} darkMode />
+          </div>
 
           {/* Botões de ação */}
-          <MediaActions mediaItem={mediaItem} darkMode />
+          <div className="mt-1">
+            <MediaActions mediaItem={mediaItem} darkMode />
+          </div>
 
           {/* Serviços de streaming */}
-          <StreamingServices mediaItem={mediaItem} darkMode />
+          <div className="mt-1">
+            <StreamingServices mediaItem={mediaItem} darkMode />
+          </div>
 
           {/* Sinopse */}
           <div className="mb-6">

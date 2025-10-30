@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import { Eye, EyeOff } from "lucide-react";
 
-import AuthContainer from "../../components/auth/AuthContainer";
+import AuthHero from "../../components/sections/AuthHero";
 import ForgotPasswordModal from "../../components/auth/ForgotPasswordModal";
 
 
@@ -41,7 +41,7 @@ export default function Login() {
   };
 
   return (
-    <AuthContainer title="Entrar" subtitle="Bem-vindo de volta!">
+    <AuthHero title="Entrar" subtitle="Bem-vindo de volta!">
       {error && (
         <div className="bg-red-500/20 text-red-300 p-3 rounded-lg mb-6 text-center text-sm font-medium border border-red-500/30">
           {error}
@@ -125,6 +125,6 @@ export default function Login() {
         isOpen={isForgotModalOpen}
         onClose={() => setIsForgotModalOpen(false)}
       />
-    </AuthContainer>
+    </AuthHero>
   );
 }

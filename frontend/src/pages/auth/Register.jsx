@@ -2,7 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import countries from 'world-countries';
 import { useAuth } from "../../hooks/useAuth";
-import AuthContainer from "../../components/auth/AuthContainer";
+import AuthHero from "../../components/sections/AuthHero";
 import SimpleModal from "../../components/SimpleModal";
 import { Eye, EyeOff } from "lucide-react";
 
@@ -133,7 +133,7 @@ export default function Signup() {
   };
 
   return (
-    <AuthContainer title="Criar Conta" subtitle="Junte-se à nossa comunidade">
+    <AuthHero title="Criar Conta" subtitle="Junte-se à nossa comunidade">
       {error && (
         <div className="bg-red-500/20 text-red-300 p-3 rounded-lg mb-6 text-center text-sm font-medium border border-red-500/30">
           {error}
@@ -345,6 +345,6 @@ export default function Signup() {
           </Link>
         </p>
       </div>
-    </AuthContainer>
+    </AuthHero>
   );
 }

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { recoverPassword } from "../../services/authService";
 import useLockBodyScroll from "../../hooks/useLockBodyScroll";
 
@@ -31,8 +32,8 @@ export default function ForgotPasswordModal({ isOpen, onClose }) {
     setLoading(false);
   };
 
-  return (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+  return createPortal(
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[100] p-4 backdrop-blur-sm">
       <div className="bg-gray-800 p-6 rounded-lg w-full max-w-md">
         <h2 className="text-white text-lg font-semibold mb-4">Recuperar senha</h2>
         <p className="text-gray-300 text-sm mb-4">
@@ -81,6 +82,7 @@ export default function ForgotPasswordModal({ isOpen, onClose }) {
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

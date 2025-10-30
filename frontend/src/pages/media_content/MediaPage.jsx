@@ -2,6 +2,7 @@ import MediaCarousel from "../../components/MediaCarousel";
 import MediaPageHeader from "../../components/contents/MediaPageHeader";
 import Pagination from "../../components/Pagination";
 import { useMediaPageState } from "../../hooks/useMediaPageState";
+import HeroHeader from "../../components/sections/HeroHeader";
 
 /**
  * Componente genérico para página de mídia
@@ -12,25 +13,19 @@ import { useMediaPageState } from "../../hooks/useMediaPageState";
 function MediaPage({ type, title, overlayImage }) {
   const mediaPage = useMediaPageState(type, 20);
 
-return (
-    <div
-      className="relative min-h-screen px-4 py-8"
-      style={{
-        backgroundImage: `url(${overlayImage})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundAttachment: "fixed",
-      }}
-    >
-      {/* Overlay com blur */}
-      <div className="absolute inset-0 backdrop-blur-sm"></div>
+  const dynamicBg = overlayImage || (mediaPage.items[0]?.image || "");
 
-      {/* Conteúdo sobreposto */}
+  return (
+    <div className="relative min-h-screen px-4 py-8">
       <div className="relative z-10 max-w-6xl mx-auto text-white">
-        {/* Título */}
-        <h2 className="md:text-4xl font-extrabold mb-8 tracking-wide drop-shadow-lg">
-          {title}
-        </h2>
+        <HeroHeader
+          title={title}
+          items={mediaPage.items}
+          totalItems={mediaPage.totalItems}
+          sortBy={mediaPage.sortBy}
+          onChangeSort={(val) => mediaPage.setSearchOrSort(mediaPage.searchQuery, val, 1)}
+          backgroundImage={dynamicBg}
+        />
 
         <MediaPageHeader
           searchQuery={mediaPage.searchQuery}

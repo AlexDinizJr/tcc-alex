@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { fetchMediaFiltered } from "../services/mediaService";
 
@@ -17,6 +17,7 @@ export function useMediaPageState(type, itemsPerPage = 30) {
 
   const [items, setItems] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
   const [currentPage, setCurrentPage] = useState(initialPage);
   const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [sortBy, setSortBy] = useState(initialSort);
@@ -37,7 +38,7 @@ export function useMediaPageState(type, itemsPerPage = 30) {
   };
 
   // Carrega dados da API
-  const loadItems = async () => {
+  const loadItems = useCallback(async () => {
     const data = await fetchMediaFiltered({
       type,
       search: searchQuery,
@@ -52,22 +53,23 @@ export function useMediaPageState(type, itemsPerPage = 30) {
 
     setItems(data.media || []);
     setTotalPages(data.pagination?.pages || 1);
-  };
-
-  // Sempre que algum estado mudar, recarrega os itens
-  useEffect(() => {
-    loadItems();
+    setTotalItems(data.pagination?.total || 0);
   }, [
     type,
-    currentPage,
     searchQuery,
     sortBy,
+    currentPage,
     itemsPerPage,
     selectedYear,
     selectedClassification,
     selectedGenres,
     selectedPlatforms,
   ]);
+
+  // Sempre que algum estado mudar, recarrega os itens
+  useEffect(() => {
+    loadItems();
+  }, [loadItems]);
 
   // Funções para atualizar estado e URL
   const setPage = (page) => {
@@ -95,6 +97,7 @@ export function useMediaPageState(type, itemsPerPage = 30) {
     items,
     currentPage,
     totalPages,
+    totalItems,
     searchQuery,
     sortBy,
     setPage,

@@ -61,28 +61,28 @@ export default function MediaPageHeader({
   }, [showFilters, selectedYear, selectedClassification, selectedGenres, selectedPlatforms]);
 
   return (
-    <div className="bg-gray-900/90 rounded-2xl shadow-xl border border-gray-700 p-6 mb-8 transition-all duration-300">
+    <div className="bg-gray-900/90 rounded-xl md:rounded-2xl shadow-xl border border-gray-700 p-4 md:p-6 mb-6 md:mb-8 transition-all duration-300">
       {/* Busca + Ordenação + Filtros */}
-      <div className="flex flex-col w-full md:w-auto md:flex-row items-center gap-4">
+      <div className="flex flex-wrap w-full items-stretch gap-3 md:gap-4">
         <input
           type="text"
           placeholder="Pesquisar..."
           value={searchQuery}
           onChange={handleSearchChange}
-          className="flex-1 min-w-0 px-4 py-2 bg-gray-800 text-white placeholder-gray-400 border border-gray-700 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+          className="flex-1 min-w-0 w-full md:w-auto px-4 py-2 bg-gray-800 text-white placeholder-gray-400 border border-gray-700 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
         />
 
         <div className="relative">
           <button
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-800 text-white rounded-2xl border border-gray-700 hover:bg-blue-600 hover:text-white transition-colors"
+            className="flex items-center justify-between gap-2 w-full md:w-auto px-3 py-2 bg-gray-800 text-white rounded-2xl border border-gray-700 hover:bg-blue-600 hover:text-white transition-colors"
           >
             <GrAscend /> {sortOptions.find(opt => opt.value === sortBy)?.label || "Selecione"}
             {isDropdownOpen ? <FiChevronUp /> : <FiChevronDown />}
           </button>
 
           {isDropdownOpen && (
-            <div className="absolute right-0 sm:right-0 left-0 mx-4 mt-2 w-auto max-w-xs sm:w-52 bg-gray-800/95 text-white border border-gray-700 rounded-2xl shadow-lg z-10 animate-fadeIn">
+            <div className="absolute left-0 right-0 mt-2 w-full md:w-56 md:left-auto md:right-0 bg-gray-800/95 text-white border border-gray-700 rounded-2xl shadow-lg z-10 animate-fadeIn">
               {sortOptions.map((option) => (
                 <div
                   key={option.value}
@@ -101,7 +101,7 @@ export default function MediaPageHeader({
 
         <button
           onClick={() => setShowFilters(!showFilters)}
-          className="flex items-center gap-2 px-4 py-3 bg-gray-800 text-white rounded-2xl border border-gray-700 hover:bg-blue-600 hover:text-white transition-colors"
+          className="flex items-center justify-center gap-2 w-full md:w-auto px-3 py-2 bg-gray-800 text-white rounded-2xl border border-gray-700 hover:bg-blue-600 hover:text-white transition-colors"
         >
           {showFilters ? <IoMdCloseCircleOutline /> : <FiFilter />}
         </button>
@@ -109,7 +109,7 @@ export default function MediaPageHeader({
 
       {/* Painel de filtros */}
       {showFilters && !loading && (
-        <div className="mt-6 space-y-6 bg-gray-800 p-4 rounded-2xl border border-gray-700 shadow-inner animate-fadeIn">
+        <div className="mt-4 md:mt-6 space-y-6 bg-gray-800 p-3 md:p-4 rounded-2xl border border-gray-700 shadow-inner animate-fadeIn">
           {/* Ano */}
           <div>
             <h3 className="text-white font-medium mb-2">Ano de lançamento</h3>
